@@ -42,7 +42,11 @@ namespace ChickenBot.Core.Services
 						continue;
 					}
 
-					if (type.GetCustomAttribute<SingletonAttribute>() != null || typeof(IHostedService).IsAssignableFrom(type))
+					if (typeof(IHostedService).IsAssignableFrom(type))
+					{
+						m_Subcontext.ChildServices.AddSingleton(typeof(IHostedService), implementationType: type);
+					}
+					else if (type.GetCustomAttribute<SingletonAttribute>() != null)
 					{
 						m_Logger.LogInformation("Registering singleton servive {service}", type.Name);
 						m_Subcontext.ChildServices.AddSingleton(type);
