@@ -1,6 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBotV4", "ChickenBotV4\ChickenBotV4.csproj", "{87A3465E-A1FB-400B-968D-5EDB732F1B59}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBotV4", "ChickenBotV4\ChickenBotV4.csproj", "{87A3465E-A1FB-400B-968D-5EDB732F1B59}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot", "ChickenBot\ChickenBot.csproj", "{ADD37017-6942-4533-B252-10763AED8702}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.API", "ChickenBot.API\ChickenBot.API.csproj", "{00BDB73A-9991-4734-AFBD-C7A9794CF77B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Core", "ChickenBot.Core\ChickenBot.Core.csproj", "{403D4513-5A21-433E-A36C-FC81085E4D82}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Test", "ChickenBot.Test\ChickenBot.Test.csproj", "{59F333BF-58C2-4201-97DD-9F81804D9B62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +23,24 @@ Global
 		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADD37017-6942-4533-B252-10763AED8702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADD37017-6942-4533-B252-10763AED8702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADD37017-6942-4533-B252-10763AED8702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD37017-6942-4533-B252-10763AED8702}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00BDB73A-9991-4734-AFBD-C7A9794CF77B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00BDB73A-9991-4734-AFBD-C7A9794CF77B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00BDB73A-9991-4734-AFBD-C7A9794CF77B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00BDB73A-9991-4734-AFBD-C7A9794CF77B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{403D4513-5A21-433E-A36C-FC81085E4D82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{403D4513-5A21-433E-A36C-FC81085E4D82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{403D4513-5A21-433E-A36C-FC81085E4D82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{403D4513-5A21-433E-A36C-FC81085E4D82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

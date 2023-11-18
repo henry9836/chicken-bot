@@ -1,0 +1,25 @@
+{
+  "prefixes": [
+    "!"
+  ],
+  "token": "MTE3NTMyOTUzODMyNzE4MzM2MA.GeT7Kp.XFLEcZL3eTCB0h14m1hkYGnaDEYff5KgBMo2fI",
+  "mariadb": {
+    "user": "",
+    "pass": ""
+  },
+  "verifyThreshold": {
+    "min": 10,
+    "max": 50
+  },
+  "channels": {
+    "general": "1175328872049426462"
+  },
+  "roles": {
+    "adminRole": "",
+    "modRole": "",
+    "verifiedRole": "",
+    "publicRoles": []
+  },
+  "welcomeMessage": "Welcome to the server! <user>",
+  "welcomeToVerified": "Congrats <user>! You are now verified!"
+}
