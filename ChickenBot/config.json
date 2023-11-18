@@ -2,10 +2,9 @@
   "prefixes": [
     "!"
   ],
-  "token": "MTE3NTMyOTUzODMyNzE4MzM2MA.GeT7Kp.XFLEcZL3eTCB0h14m1hkYGnaDEYff5KgBMo2fI",
-  "mariadb": {
-    "user": "",
-    "pass": ""
+  "token": "TokenHere",
+  "connectionStrings" : {
+    "default" :  "server=127.0.0.1;username=xxx;password=xxx;port=3306;database=dbname"
   },
   "verifyThreshold": {
     "min": 10,
