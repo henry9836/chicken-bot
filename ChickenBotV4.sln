@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Core", "ChickenB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Test", "ChickenBot.Test\ChickenBot.Test.csproj", "{59F333BF-58C2-4201-97DD-9F81804D9B62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.VerificationSystem", "ChickenBot.VerificationSystem\ChickenBot.VerificationSystem.csproj", "{B700B951-CF46-4B2B-96E7-AC503899A61A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59F333BF-58C2-4201-97DD-9F81804D9B62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B700B951-CF46-4B2B-96E7-AC503899A61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B700B951-CF46-4B2B-96E7-AC503899A61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B700B951-CF46-4B2B-96E7-AC503899A61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B700B951-CF46-4B2B-96E7-AC503899A61A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

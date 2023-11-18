@@ -25,7 +25,7 @@ namespace ChickenBot.Test
 
 
 		// Commands can only be declared in a class that inherits `BaseCommandModule`, otherwise they will not be detected
-		[Command("hello")] // <- commands are annotated with the `Command` attribute. This sets the command name, and also specifies this methid *is* a command
+		[Command("hello")] // <- commands are annotated with the `Command` attribute. This sets the command name, and also specifies this method *is* a command
 		public async Task HelloCommand(CommandContext ctx) // all commands must take a first parameter of `CommandContext`
 		{
 			/*  if a user runs '!hello', this command will be run */

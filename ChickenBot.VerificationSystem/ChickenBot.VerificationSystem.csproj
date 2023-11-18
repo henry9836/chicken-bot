@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="DSharpPlus">
+        <HintPath>..\..\..\.nuget\packages\dsharpplus\4.4.3\lib\netstandard2.0\DSharpPlus.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
+        <HintPath>..\..\..\.nuget\packages\microsoft.extensions.hosting.abstractions\8.0.0\lib\net7.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+        <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging.abstractions\8.0.0\lib\net7.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MySqlConnector" Version="2.3.1" />
+    </ItemGroup>
+
+</Project>

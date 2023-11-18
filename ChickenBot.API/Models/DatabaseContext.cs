@@ -6,7 +6,7 @@ namespace ChickenBot.Core.Models
 	/// <summary>
 	/// Used to create a connection to the MySQL server, using the default connection string specified in the config file
 	/// </summary>
-	public struct DatabaseContext
+	public class DatabaseContext
 	{
 		private readonly IConfiguration m_Configuration;
 
