@@ -10,7 +10,7 @@ namespace ChickenBot
 		public static IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			// Configure logging with Serilog
-			Log.Logger = CreateLogger();
+			Log.Logger = ChickenMarks.CreateLogger();
 
 			services.AddLogging(loggingBuilder =>
 				loggingBuilder.AddSerilog());
@@ -24,18 +24,6 @@ namespace ChickenBot
 			var serviceProvider = new AutofacServiceProvider(container);
 
 			return serviceProvider;
-		}
-
-		public static ILogger CreateLogger()
-		{
-			return new Serilog.LoggerConfiguration()
-				.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{source}] {Message:lj}{NewLine}{Exception}")
-				.Enrich.FromLogContext()
-				.MinimumLevel.Debug()
-				.Enrich.With<LogSourceEnricher>()
-				.WriteTo.File(path: Path.Combine("Logs", "_.log"), rollingInterval: RollingInterval.Day)
-				.WriteTo.File(path: Path.Combine("Logs", "Errors", "error.log"), rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning)
-				.CreateLogger();
 		}
 	}
 }

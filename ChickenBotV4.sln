@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBotV4", "ChickenBotV4\ChickenBotV4.csproj", "{87A3465E-A1FB-400B-968D-5EDB732F1B59}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot", "ChickenBot\ChickenBot.csproj", "{ADD37017-6942-4533-B252-10763AED8702}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.API", "ChickenBot.API\ChickenBot.API.csproj", "{00BDB73A-9991-4734-AFBD-C7A9794CF77B}"
@@ -19,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87A3465E-A1FB-400B-968D-5EDB732F1B59}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ADD37017-6942-4533-B252-10763AED8702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ADD37017-6942-4533-B252-10763AED8702}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADD37017-6942-4533-B252-10763AED8702}.Release|Any CPU.ActiveCfg = Release|Any CPU

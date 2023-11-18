@@ -3,8 +3,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace ChickenBotV4;
-
+namespace ChickenBot;
 public static class ChickenMarks
 {
     public static Serilog.ILogger CreateLogger()
