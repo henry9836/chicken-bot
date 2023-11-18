@@ -1,0 +1,23 @@
+{
+  "prefix": "!",
+  "token": "your token here",
+  "mariadb": {
+    "user": "",
+    "pass": ""
+  },
+  "verifyThreshold" : {
+    "min" : 10,
+    "max" : 50
+  },
+  "channels":{
+    "general": ""
+  },
+  "roles" : {
+    "adminRole" : "",
+    "modRole" : "",
+    "verifiedRole" : "",
+    "publicRoles" : []
+  },
+  "welcomeMessage" : "Welcome to the server! <user>",
+  "welcomeToVerified" : "Congrats <user>! You are now verified!"
+}
