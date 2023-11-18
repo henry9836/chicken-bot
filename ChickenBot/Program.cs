@@ -1,6 +1,4 @@
-﻿using Autofac;
-using ChickenBot.Core.Models;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace ChickenBot
 {
@@ -20,10 +18,7 @@ namespace ChickenBot
 
 			var services = Startup.ConfigureServices(collection);
 
-
 			m_Lifetime = new Core.Models.ServiceLifetime(services, true);
-
-
 
 			await m_Lifetime.RunLifetime();
 		}
