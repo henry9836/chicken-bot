@@ -3,7 +3,10 @@ using MySqlConnector;
 
 namespace ChickenBot.Core.Models
 {
-	public class DatabaseContext
+	/// <summary>
+	/// Used to create a connection to the MySQL server, using the default connection string specified in the config file
+	/// </summary>
+	public struct DatabaseContext
 	{
 		private readonly IConfiguration m_Configuration;
 
