@@ -15,6 +15,8 @@ namespace ChickenBot.Core
 			services.AddSingleton<PluginRegistry>();
 			services.AddSingleton<SubcontextBuilder>();
 
+			services.AddTransient<DatabaseContext>();
+
 			// Plugin loading pipeline
 			services.AddHostedService<AssemblyLoaderService>();     // Load libraries and plugins into the GAC
 			services.AddHostedService<PluginRegistrationService>(); // Register types from plugins into the child container
