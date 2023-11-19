@@ -12,16 +12,40 @@ namespace ChickenBot.VerificationSystem
 {
     public struct UserInformation
     {
+        public UserInformation()
+        {
+            m_UserID = 0;
+            m_MessageCount = 0;
+            m_Threshold = 9999;
+            CycleLevel = -1;
+        }
+        
         public UserInformation(ulong userId, uint messageCount, uint threshold)
         {
             m_UserID = userId;
             m_MessageCount = messageCount;
             m_Threshold = threshold;
+            CycleLevel = MaxCycle;
         }
         
+        public UserInformation(ulong userId, uint messageCount, uint threshold, int inCycle)
+        {
+            m_UserID = userId;
+            m_MessageCount = messageCount;
+            m_Threshold = threshold;
+            CycleLevel = inCycle;
+        }
+        
+        public bool IsOutOfCycles()
+        {
+            return CycleLevel <= 0;
+        }
+        
+        private int MaxCycle = 3;
         public ulong m_UserID;
         public uint m_MessageCount;
         public uint m_Threshold;
+        public int CycleLevel;
     }
     
     public class VerificationMonitor : IHostedService
@@ -47,7 +71,7 @@ namespace ChickenBot.VerificationSystem
             m_Logger.LogInformation("Verification Plugin Ready.");
             
             // Create Database Sync Timer
-            SyncDatabaseTimer = new System.Timers.Timer(30000);
+            SyncDatabaseTimer = new System.Timers.Timer(5000);
             SyncDatabaseTimer.Enabled = true;
             SyncDatabaseTimer.AutoReset = true;
             SyncDatabaseTimer.Elapsed += SyncDatabaseTimerOnElapsed;
@@ -62,8 +86,24 @@ namespace ChickenBot.VerificationSystem
             {
                 foreach (var cachedUser in m_UserCache)
                 {
-                    await UpdateUserValues(cachedUser.Value.m_UserID, cachedUser.Value.m_MessageCount, cachedUser.Value.m_Threshold, dbConnection);
+                    UserInformation cachedUserInfo = cachedUser.Value;
+                    
+                    // Update DB
+                    await UpdateUserValues(cachedUserInfo.m_UserID, cachedUserInfo.m_MessageCount, cachedUserInfo.m_Threshold, dbConnection);
+                    
+                    // Iterate our user tick
+                    cachedUserInfo.CycleLevel -= 1;
+                    m_UserCache[cachedUser.Key] = cachedUserInfo;
+
+                    m_Logger.LogInformation("cachedUser {Cycle}.", cachedUser.Value.CycleLevel);
+                    if (cachedUser.Value.IsOutOfCycles())
+                    {
+                        var tempOut = new UserInformation();
+                        m_UserCache.Remove(cachedUserInfo.m_UserID, out tempOut);
+                        m_Logger.LogInformation("cachedUser out of cycles.");
+                    }
                 }
+                m_Logger.LogInformation("Database Upload Done.");
             }
         }
 
@@ -154,7 +194,7 @@ namespace ChickenBot.VerificationSystem
                 // Add this user to the cache
                 if (existingUser.HasValue)
                 {
-                    m_UserCache.AddOrUpdate(authorId, new UserInformation(existingUser.Value.m_UserID, existingUser.Value.m_MessageCount, existingUser.Value.m_Threshold), (key, existingValue) => new UserInformation(existingValue.m_UserID, existingValue.m_MessageCount + 1, existingValue.m_Threshold));
+                    m_UserCache.AddOrUpdate(authorId, new UserInformation(existingUser.Value.m_UserID, existingUser.Value.m_MessageCount + 1, existingUser.Value.m_Threshold), (key, existingValue) => new UserInformation(existingValue.m_UserID, existingValue.m_MessageCount + 1, existingValue.m_Threshold));
                     m_Logger.LogInformation("Adding {authorId} from db to dict...", authorId);
                 }
                 // This user does not exist, create a new entry and add it to cache
