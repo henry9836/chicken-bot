@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Timers;
 using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
@@ -29,6 +30,7 @@ namespace ChickenBot.VerificationSystem
         private readonly DiscordClient m_DiscordClient;
         private readonly ILogger<VerificationMonitor> m_Logger;
         private readonly ConcurrentDictionary<ulong, UserInformation> m_UserCache;
+        private System.Timers.Timer SyncDatabaseTimer;
         
         public VerificationMonitor(DatabaseContext database, DiscordClient client, ILogger<VerificationMonitor> logger)
         {
@@ -43,9 +45,28 @@ namespace ChickenBot.VerificationSystem
             m_DiscordClient.MessageCreated += OnMessageCreated;
             
             m_Logger.LogInformation("Verification Plugin Ready.");
+            
+            // Create Database Sync Timer
+            SyncDatabaseTimer = new System.Timers.Timer(30000);
+            SyncDatabaseTimer.Enabled = true;
+            SyncDatabaseTimer.AutoReset = true;
+            SyncDatabaseTimer.Elapsed += SyncDatabaseTimerOnElapsed;
+            
             return Task.CompletedTask;
         }
-        
+
+        private async void SyncDatabaseTimerOnElapsed(object? sender, ElapsedEventArgs e)
+        {
+            m_Logger.LogInformation("Attempting Database Upload...");
+            using var dbConnection = await m_Database.GetConnectionAsync();
+            {
+                foreach (var cachedUser in m_UserCache)
+                {
+                    await UpdateUserValues(cachedUser.Value.m_UserID, cachedUser.Value.m_MessageCount, cachedUser.Value.m_Threshold, dbConnection);
+                }
+            }
+        }
+
         public Task StopAsync(CancellationToken cancellationToken)
         {
             m_Logger.LogInformation("Verification Plugin Stopped.");
