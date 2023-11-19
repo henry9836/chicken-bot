@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3779
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Test", "ChickenBot.Test\ChickenBot.Test.csproj", "{791110B6-F618-49F1-8242-3398A12D86CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.VerificationSystem", "ChickenBot.VerificationSystem\ChickenBot.VerificationSystem.csproj", "{F57DB8E7-EFA4-4D5A-8495-5B974F12A3CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{791110B6-F618-49F1-8242-3398A12D86CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{791110B6-F618-49F1-8242-3398A12D86CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{791110B6-F618-49F1-8242-3398A12D86CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F57DB8E7-EFA4-4D5A-8495-5B974F12A3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F57DB8E7-EFA4-4D5A-8495-5B974F12A3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F57DB8E7-EFA4-4D5A-8495-5B974F12A3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F57DB8E7-EFA4-4D5A-8495-5B974F12A3CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
