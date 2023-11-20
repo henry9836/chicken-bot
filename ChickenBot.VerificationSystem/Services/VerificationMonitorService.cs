@@ -32,8 +32,11 @@ namespace ChickenBot.VerificationSystem.Services
 			m_Timer.AutoReset = true;
 		}
 
-		public Task StartAsync(CancellationToken cancellationToken)
+		public async Task StartAsync(CancellationToken cancellationToken)
 		{
+			// Ensure database table exists
+			await m_Cache.Init();
+
 			// Start Timer to flush cache
 			m_Timer.Start();
 			m_Timer.Elapsed += RunDatabaseSync;
@@ -42,8 +45,6 @@ namespace ChickenBot.VerificationSystem.Services
 			m_Discord.MessageCreated += OnMessageCreated;
 
 			m_Logger.LogInformation("Verification Module Ready.");
-
-			return Task.CompletedTask;
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
