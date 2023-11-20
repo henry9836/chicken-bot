@@ -42,19 +42,34 @@ namespace ChickenBot.Core.Services
 						continue;
 					}
 
+					var singleton = type.GetCustomAttribute<SingletonAttribute>();
+					var transient = type.GetCustomAttribute<TransientAttribute>();
+
 					if (typeof(IHostedService).IsAssignableFrom(type))
 					{
 						m_Subcontext.ChildServices.AddSingleton(typeof(IHostedService), implementationType: type);
 					}
-					else if (type.GetCustomAttribute<SingletonAttribute>() != null)
+					if (singleton != null)
 					{
+						if (singleton.ServiceType != null && !singleton.ServiceType.IsAssignableFrom(type))
+						{
+							m_Logger.LogError("Couldn't register Singleton service {service}: Service does not implement specified service type {type}", type.Name, singleton.ServiceType.Name);
+							continue;
+						}
+
 						m_Logger.LogInformation("Registering singleton servive {service}", type.Name);
-						m_Subcontext.ChildServices.AddSingleton(type);
+						m_Subcontext.ChildServices.AddSingleton(serviceType: singleton.ServiceType ?? type, implementationType: type);
 					}
-					else if (type.GetCustomAttribute<TransientAttribute>() != null)
+					else if (transient != null)
 					{
+						if (transient.ServiceType != null && !transient.ServiceType.IsAssignableFrom(type))
+						{
+							m_Logger.LogError("Couldn't register Transient service {service}: Service does not implement specified service type {type}", type.Name, transient.ServiceType.Name);
+							continue;
+						}
+
 						m_Logger.LogInformation("Registering transient servive {service}", type.Name);
-						m_Subcontext.ChildServices.AddTransient(type);
+						m_Subcontext.ChildServices.AddTransient(serviceType: transient.ServiceType ?? type, implementationType: type);
 					}
 				}
 			}
