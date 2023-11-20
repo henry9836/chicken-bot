@@ -2,6 +2,8 @@
 {
 	public struct ChatSettings
 	{
+		public string Prompt { get; set; }
+
 		public bool UseNumericNames { get; set; }
 
 		public int MaxUsernameLength { get; set; }

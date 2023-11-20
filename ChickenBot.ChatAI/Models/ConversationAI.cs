@@ -16,11 +16,13 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly Dictionary<ulong, int> m_UserChatIDs = new Dictionary<ulong, int>();
 
+		private readonly Random m_Random = new Random();
+
 		private int m_ChatIDIndex = 0;
 
-		public ConversationAI(ChatSettings requestTemplate, IChatEndpoint endpoint, IMessageDiscriminator discriminator)
+		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator)
 		{
-			m_Settings = requestTemplate;
+			m_Settings = settings;
 			m_Endpoint = endpoint;
 			m_Discriminator = discriminator;
 		}
@@ -73,11 +75,23 @@ namespace ChickenBot.ChatAI.Models
 				MultipleStopSequences = m_Settings.StopSequences,
 				NumChoicesPerMessage = 1,
 				PresencePenalty = m_Settings.PresencePenalty,
-				Temperature = m_Settings.Temerature,
+				Temperature = m_Settings.Temerature ?? DetermineTemperature(),
 				TopP = m_Settings.TopP,
 				Messages = m_Messages
 			};
 		}
+
+
+		/// <summary>
+		/// Determines the next message's temperature
+		/// </summary>
+		/// <remarks>
+		/// No clue what the purpose of this equation is, I just copied it from Nitro's code for Chicken Bot the 3rd's AI module.
+		/// Just keeping it in for the sakes of consistency between the 2 bots
+		/// </remarks>
+		private double DetermineTemperature() =>
+			(Math.Floor(m_Random.NextDouble() * (9 - 7 + 1)) + 7) * 0.1;
+
 
 		public async Task<string?> GetResponseAsync()
 		{
