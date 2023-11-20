@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.4.3" />
       <PackageReference Include="MySqlConnector" Version="2.3.1" />
     </ItemGroup>
 
