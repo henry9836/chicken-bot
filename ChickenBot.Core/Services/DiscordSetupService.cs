@@ -76,7 +76,7 @@ namespace ChickenBot.Core.Services
 				Services = provider,
 				CaseSensitive = false,
 				EnableMentionPrefix = true,
-				StringPrefixes = configuration.GetSection("prefixes").Get<string[]>()
+				StringPrefixes = configuration.GetSection("prefixes")?.Get<string[]>() ?? new[] { "!" }
 			};
 
 			return discord.UseCommandsNext(commandsNextConfig);

@@ -19,13 +19,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Quotes", "Chicke
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Petitions", "ChickenBot.Petitions\ChickenBot.Petitions.csproj", "{A9F0160F-2469-4253-A7FC-B9D808DA1971}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Fun", "ChickenBot.Fun\ChickenBot.Fun.csproj", "{BB37B2BF-A068-4792-8837-904718E9152C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Fun", "ChickenBot.Fun\ChickenBot.Fun.csproj", "{BB37B2BF-A068-4792-8837-904718E9152C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.AssignableRoles", "ChickenBot.AssignableRoles\ChickenBot.AssignableRoles.csproj", "{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.AssignableRoles", "ChickenBot.AssignableRoles\ChickenBot.AssignableRoles.csproj", "{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Info", "ChickenBot.Info\ChickenBot.Info.csproj", "{24176408-2287-469F-B039-CB53A2053A48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Info", "ChickenBot.Info\ChickenBot.Info.csproj", "{24176408-2287-469F-B039-CB53A2053A48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.AdminCommands", "ChickenBot.AdminCommands\ChickenBot.AdminCommands.csproj", "{936D456A-C4DE-4339-965E-754BAF2C6C0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.AdminCommands", "ChickenBot.AdminCommands\ChickenBot.AdminCommands.csproj", "{936D456A-C4DE-4339-965E-754BAF2C6C0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.ChatAI", "ChickenBot.ChatAI\ChickenBot.ChatAI.csproj", "{3F6A0528-0CA9-459F-9546-817683FFBAF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +79,10 @@ Global
 		{936D456A-C4DE-4339-965E-754BAF2C6C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{936D456A-C4DE-4339-965E-754BAF2C6C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{936D456A-C4DE-4339-965E-754BAF2C6C0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F6A0528-0CA9-459F-9546-817683FFBAF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F6A0528-0CA9-459F-9546-817683FFBAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F6A0528-0CA9-459F-9546-817683FFBAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F6A0528-0CA9-459F-9546-817683FFBAF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{C43A91B8-17E7-4DE6-94A6-0E49C36F8651} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{24176408-2287-469F-B039-CB53A2053A48} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{936D456A-C4DE-4339-965E-754BAF2C6C0D} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
+		{3F6A0528-0CA9-459F-9546-817683FFBAF8} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C2CB5B5-36FD-4598-A136-C127AA4B9EBE}
