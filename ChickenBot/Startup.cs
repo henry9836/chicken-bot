@@ -1,5 +1,4 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using ChickenBot.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 

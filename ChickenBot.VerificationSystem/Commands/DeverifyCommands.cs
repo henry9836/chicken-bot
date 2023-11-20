@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChickenBot.VerificationSystem.Interfaces;
+﻿using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -86,7 +81,6 @@ namespace ChickenBot.VerificationSystem.Commands
 
 			var newThreshold = info.Threshold - info.MessageCount;
 
-
 			var eligibleTimestamp = ((DateTimeOffset)info.Eligible).ToUnixTimeSeconds();
 
 			embed = new DiscordEmbedBuilder()
@@ -98,6 +92,5 @@ namespace ChickenBot.VerificationSystem.Commands
 
 			await ctx.RespondAsync(embed);
 		}
-
 	}
 }

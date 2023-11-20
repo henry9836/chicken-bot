@@ -83,7 +83,6 @@ namespace ChickenBot.VerificationSystem.Services
 				return;
 			}
 
-
 			// User is meant to be verified, but isn't
 
 			await m_Verifier.VerifyUserAsync(member);

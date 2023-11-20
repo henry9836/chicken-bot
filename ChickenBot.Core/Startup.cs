@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Autofac.Configuration;
+﻿using Autofac.Configuration;
 using ChickenBot.API.Models;
 using ChickenBot.Core.Models;
 using ChickenBot.Core.Services;

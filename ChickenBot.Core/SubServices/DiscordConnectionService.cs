@@ -25,7 +25,6 @@ namespace ChickenBot.Core.SubServices
 			// Calling something right after can cause Unauthorized errors, if it runs before the socket is finalized
 			await Task.Delay(5000);
 
-
 			m_Logger.LogInformation("Initializing Discord Client...");
 			await m_Discord.InitializeAsync();
 

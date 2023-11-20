@@ -10,11 +10,10 @@ namespace ChickenBot.Test
 {
 	// Commands are declared inside of a class that inherits `BaseCommandModule`
 	// When the plugin is loaded, all classes that inherit `BaseCommandModule` will have their commands automatically loaded from
-	public class TestCommand : BaseCommandModule 
+	public class TestCommand : BaseCommandModule
 	{
 		private readonly DatabaseContext m_Database;
 		private readonly MyService m_MyService; // Our own custom service, see MyService.cs
-
 
 		// Dependency injection is also available for command modules
 		public TestCommand(DatabaseContext database, MyService myService)
@@ -22,7 +21,6 @@ namespace ChickenBot.Test
 			m_Database = database;
 			m_MyService = myService;
 		}
-
 
 		// Commands can only be declared in a class that inherits `BaseCommandModule`, otherwise they will not be detected
 		[Command("hello")] // <- commands are annotated with the `Command` attribute. This sets the command name, and also specifies this method *is* a command
@@ -40,9 +38,6 @@ namespace ChickenBot.Test
 			/*   if a user runs '!hello MoreTextHere', this command will be run */
 			await ctx.RespondAsync($"Hello, {usersName}!"); // This is how we respond to a command
 		}
-
-
-
 
 		[Command("PingDatabase")]
 		public async Task PingDatabase(CommandContext ctx)
@@ -65,7 +60,6 @@ namespace ChickenBot.Test
 
 			// If you're having issues, remember to reference ChickenBot.Test, and also reference `MySQLConnector` from Nuget
 			// You oc also need to reference DSharpPlus, DSharpPlus.CommandsNext, and Microsoft.Extensions.Hosting.Abstractions from nuget
-
 
 			// When this method returns, since connection was declared with `using`, it will be disposed/closed
 			// Remember using is like using a try ... finally block, with the finally block calling .Dispose()

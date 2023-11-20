@@ -19,7 +19,6 @@ namespace ChickenBot.Test
 			m_Logger = logger;
 		}
 
-
 		public void DoSomething()
 		{
 			m_TimesCalled++;
