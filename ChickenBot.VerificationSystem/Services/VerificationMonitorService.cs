@@ -47,13 +47,15 @@ namespace ChickenBot.VerificationSystem.Services
 			m_Logger.LogInformation("Verification Module Ready.");
 		}
 
-		public Task StopAsync(CancellationToken cancellationToken)
+		public async Task StopAsync(CancellationToken cancellationToken)
 		{
 			// We need to stop the timer, or else it will continue to raise events
 			m_Timer.Stop();
 
+			m_Logger.LogInformation("Flushing cache to database...");
+			await m_Cache.FlushCacheAsync();
+
 			m_Logger.LogInformation("Verification Module Stopped.");
-			return Task.CompletedTask;
 		}
 
 		private void RunDatabaseSync(object? sender, System.Timers.ElapsedEventArgs e)
