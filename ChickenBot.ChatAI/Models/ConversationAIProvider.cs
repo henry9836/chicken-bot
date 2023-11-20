@@ -1,8 +1,11 @@
 ﻿using ChickenBot.API.Atrributes;
 using ChickenBot.ChatAI.Interfaces;
+using ChickenBot.ChatAI.Models.Discriminators;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OpenAI_API;
 using OpenAI_API.Chat;
+using OpenAI_API.Moderation;
 
 namespace ChickenBot.ChatAI.Models
 {
@@ -24,10 +27,29 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly IChatEndpoint m_Endpoint;
 
-		public ConversationAIProvider(IConfiguration configuration)
+		private readonly IModerationEndpoint m_Moderation;
+
+		private readonly IServiceProvider m_Provider;
+
+		public ConversationAIProvider(IConfiguration configuration, IServiceProvider provider)
 		{
 			m_Configuration = configuration;
-			m_Endpoint = new OpenAIAPI(Token).Chat;
+			m_Provider = provider;
+
+			var apiBase = new OpenAIAPI(Token);
+			m_Endpoint = apiBase.Chat;
+			m_Moderation = apiBase.Moderation;
+		}
+
+		private IMessageDiscriminator GetDiscriminator()
+		{
+			var discriminators = new IMessageDiscriminator[]
+			{
+				new HiddenUserDiscriminator(new List<ulong>()),
+				ActivatorUtilities.CreateInstance<OpenAIDiscriminator>(m_Provider, m_Moderation)
+			};
+
+			return new CompoundDiscriminator(discriminators);
 		}
 
 		public Task<IConversationAI> CreateConversation()
@@ -43,7 +65,7 @@ namespace ChickenBot.ChatAI.Models
 				UseNumericNames = false
 			};
 
-			return new ConversationAI(settings, m_Endpoint);
+			return new ConversationAI(settings, m_Endpoint, GetDiscriminator());
 
 
 

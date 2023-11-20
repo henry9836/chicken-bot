@@ -9,12 +9,12 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 	{
 		private readonly IModerationEndpoint m_ModerationEndpoint;
 
-		private ILogger<OpenAIDiscriminator> m_Logger;
+		private readonly ILogger<OpenAIDiscriminator> m_Logger;
 
 		/// <summary>
 		/// Contains a list of what tpes of content are prohibited
 		/// </summary>
-		private readonly IReadOnlyDictionary<string, bool> m_BlockList = new Dictionary<string, bool>
+		private static readonly IReadOnlyDictionary<string, bool> m_BlockList = new Dictionary<string, bool>
 		{
 			// Content that expresses hate based on race, gender, ethnicity, etc. Does not include unprotected groups e.g., the chicken
 			{ "hate", true },
@@ -46,6 +46,12 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 			// Gory/graphic content
 			{ "violence/graphic", true },
 		};
+
+		public OpenAIDiscriminator(IModerationEndpoint moderationEndpoint, ILogger<OpenAIDiscriminator> logger)
+		{
+			m_ModerationEndpoint = moderationEndpoint;
+			m_Logger = logger;
+		}
 
 		public async Task<bool> Discriminate(DiscordUser user, string message)
 		{

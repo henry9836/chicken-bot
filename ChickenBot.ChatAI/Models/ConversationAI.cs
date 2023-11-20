@@ -1,10 +1,11 @@
-﻿using ChickenBot.ChatAI.Interfaces;
+﻿using System.Collections.Concurrent;
+using ChickenBot.ChatAI.Interfaces;
 using DSharpPlus.Entities;
 using OpenAI_API.Chat;
 
 namespace ChickenBot.ChatAI.Models
 {
-	public class ConversationAI
+	public class ConversationAI : IConversationAI
 	{
 		private readonly List<ChatMessage> m_Messages = new List<ChatMessage>();
 
@@ -20,21 +21,72 @@ namespace ChickenBot.ChatAI.Models
 
 		private int m_ChatIDIndex = 0;
 
+		private readonly ConcurrentQueue<(DiscordUser user, string message)> m_PushQueue = new();
+
+		private bool m_WorkerActive = false;
+
 		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator)
 		{
 			m_Settings = settings;
 			m_Endpoint = endpoint;
 			m_Discriminator = discriminator;
+
+			SetPrompt(settings.Prompt);
 		}
 
+		/// <summary>
+		/// Lazy method to push a chat message to the conversaiton
+		/// </summary>
+		/// <remarks>
+		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
+		/// </remarks>
 		public void PushChatMessage(DiscordUser user, string message)
 		{
-			if (user.IsBot || !m_Discriminator.Discriminate(user, message))
+			if (user.IsBot)
 			{
-				// Ignore message
 				return;
 			}
 
+			m_PushQueue.Enqueue((user, message));
+
+			if (!m_WorkerActive)
+			{
+				m_WorkerActive = true;
+				Task.Run(ProcessMessagePush);
+			}
+		}
+
+		/// <summary>
+		/// Processes and discriminates user messages in strict order, to push to the sliding window
+		/// </summary>
+		private async Task ProcessMessagePush()
+		{
+			try
+			{
+				while (m_PushQueue.TryDequeue(out var message))
+				{
+					if (!await m_Discriminator.Discriminate(message.user, message.message))
+					{
+						// Message was flagged, discard
+						continue;
+					}
+
+					PushChatMessageInternal(message.user, message.message);
+				}
+			}
+			finally
+			{
+				m_WorkerActive = false;
+			}
+		}
+
+		/// <summary>
+		/// Pushes a confirmed message onto the sliding window
+		/// </summary>
+		/// <param name="user"></param>
+		/// <param name="message"></param>
+		private void PushChatMessageInternal(DiscordUser user, string message)
+		{
 			string userChatID;
 
 			if (m_Settings.UseNumericNames)
@@ -45,7 +97,8 @@ namespace ChickenBot.ChatAI.Models
 					m_UserChatIDs[user.Id] = chatID;
 				}
 				userChatID = chatID.ToString();
-			} else
+			}
+			else
 			{
 				userChatID = user.Username;
 
@@ -53,7 +106,6 @@ namespace ChickenBot.ChatAI.Models
 				{
 					userChatID = userChatID.Substring(0, m_Settings.MaxUsernameLength);
 				}
-
 			}
 
 			var msg = new ChatMessage(ChatMessageRole.User, message)
@@ -64,6 +116,10 @@ namespace ChickenBot.ChatAI.Models
 			AppendMessage(msg);
 		}
 
+		/// <summary>
+		/// Creates a request for the current conversation state
+		/// </summary>
+		/// <returns></returns>
 		private ChatRequest CreateRequest()
 		{
 			return new ChatRequest()
@@ -81,7 +137,6 @@ namespace ChickenBot.ChatAI.Models
 			};
 		}
 
-
 		/// <summary>
 		/// Determines the next message's temperature
 		/// </summary>
@@ -89,10 +144,15 @@ namespace ChickenBot.ChatAI.Models
 		/// No clue what the purpose of this equation is, I just copied it from Nitro's code for Chicken Bot the 3rd's AI module.
 		/// Just keeping it in for the sakes of consistency between the 2 bots
 		/// </remarks>
-		private double DetermineTemperature() =>
-			(Math.Floor(m_Random.NextDouble() * (9 - 7 + 1)) + 7) * 0.1;
+		private double DetermineTemperature()
+		{
+			return (Math.Floor(m_Random.NextDouble() * (9 - 7 + 1)) + 7) * 0.1;
+		}
 
-
+		/// <summary>
+		/// Gets a response as the chicken to the current chat feed
+		/// </summary>
+		/// <returns>Message, or null if the AI decided to stay silent</returns>
 		public async Task<string?> GetResponseAsync()
 		{
 			var request = CreateRequest();
@@ -111,6 +171,10 @@ namespace ChickenBot.ChatAI.Models
 			return responseMessage.Content;
 		}
 
+		/// <summary>
+		/// Appends a message to the end of the sliding window
+		/// </summary>
+		/// <param name="message">Message to append</param>
 		private void AppendMessage(ChatMessage message)
 		{
 			if (m_Messages.Count >= m_Settings.WindowSize + 1)
@@ -120,6 +184,22 @@ namespace ChickenBot.ChatAI.Models
 			}
 
 			m_Messages.Append(message);
+		}
+
+		/// <summary>
+		/// Sets or replaces the prompt for this conversation
+		/// </summary>
+		public void SetPrompt(string prompt)
+		{
+			var message = new ChatMessage(ChatMessageRole.System, prompt);
+
+			if (m_Messages.Count == 0)
+			{
+				m_Messages.Add(message);
+			} else
+			{
+				m_Messages[0] = message;
+			}
 		}
 	}
 }
