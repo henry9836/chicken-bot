@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Fun", "ChickenBo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.AssignableRoles", "ChickenBot.AssignableRoles\ChickenBot.AssignableRoles.csproj", "{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Info", "ChickenBot.Info\ChickenBot.Info.csproj", "{24176408-2287-469F-B039-CB53A2053A48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C43A91B8-17E7-4DE6-94A6-0E49C36F8651}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24176408-2287-469F-B039-CB53A2053A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24176408-2287-469F-B039-CB53A2053A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24176408-2287-469F-B039-CB53A2053A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24176408-2287-469F-B039-CB53A2053A48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{A9F0160F-2469-4253-A7FC-B9D808DA1971} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{BB37B2BF-A068-4792-8837-904718E9152C} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{C43A91B8-17E7-4DE6-94A6-0E49C36F8651} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
+		{24176408-2287-469F-B039-CB53A2053A48} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C2CB5B5-36FD-4598-A136-C127AA4B9EBE}
