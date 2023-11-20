@@ -8,7 +8,7 @@ namespace ChickenBot.API.Atrributes
 	/// <summary>
 	/// Requires that a user has the verified role to run a command
 	/// </summary>
-	public class RequiresVerifiedAttribute : CheckBaseAttribute
+	public class RequireVerifiedAttribute : CheckBaseAttribute
 	{
 		public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
 		{
