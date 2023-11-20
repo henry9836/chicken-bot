@@ -39,7 +39,7 @@ namespace ChickenBot.Core.Models
 		public async Task StopAsync()
 		{
 			IsShuttingDown = true;
-			var hostedServices = m_Provider.GetServices<IHostedService>();
+			var hostedServices = m_Provider.GetServices<IHostedService>().Reverse();
 
 			foreach (var service in hostedServices)
 			{
