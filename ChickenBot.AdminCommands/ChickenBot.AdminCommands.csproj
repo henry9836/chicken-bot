@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
+    <ProjectReference Include="..\ChickenBot.Core\ChickenBot.Core.csproj" />
   </ItemGroup>
 
 </Project>

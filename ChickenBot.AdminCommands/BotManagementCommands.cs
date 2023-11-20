@@ -22,7 +22,10 @@ namespace ChickenBot.AdminCommands
 			"petitions"
 		};
 
-		private readonly IConfiguration m_Configuration;
+		private static readonly List<string> m_AssignableRoles = new List<string>
+		{
+			"....",
+		};
 
 
 		[Command("set-channel"), RequireBotManagerOrAdmin]
@@ -35,11 +38,35 @@ namespace ChickenBot.AdminCommands
 				await ctx.RespondAsync("Unknown channel setting");
 				return;
 			}
+
+			UpdateConfigValue($"Channels:{channelName}", channel.Id);
+
+			await ctx.RespondAsync($"Updated channel for {channelName}.");
 		}
 
 
+		[Command("set-role"), RequireBotManagerOrAdmin]
+		public async Task SetChannelCommand(CommandContext ctx, string roleName, DiscordRole role)
+		{
+			roleName = roleName.ToLowerInvariant();
+
+			if (!m_AssignableRoles.Contains(roleName))
+			{
+				await ctx.RespondAsync("Unknown role setting");
+				return;
+			}
+
+			UpdateConfigValue($"Roles:{roleName}", role.Id);
+
+			await ctx.RespondAsync($"Updated role for {roleName}.");
+		}
 
 
+		private void UpdateConfigValue(string path, object value)
+		{
+			// todo
+
+		}
 
 	}
 }
