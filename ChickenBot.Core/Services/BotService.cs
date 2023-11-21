@@ -43,7 +43,7 @@ namespace ChickenBot.Core.Services
 				throw new InvalidOperationException("Failed to build subservice provider");
 			}
 
-			m_Lifetime = new ServiceLifetime(subService, false);
+			m_Lifetime = new ChildServiceLifetime(subService);
 
 			m_Logger.LogInformation("Starting bot subservice...");
 			await m_Lifetime.StartAsync();

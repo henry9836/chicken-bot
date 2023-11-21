@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ChickenBot.Core.Models;
+using Microsoft.Extensions.DependencyInjection;
+using ServiceLifetime = ChickenBot.Core.Models.ServiceLifetime;
 
 namespace ChickenBot
 {
@@ -16,9 +18,13 @@ namespace ChickenBot
 			Core.Startup.ConfigureLogging(collection);
 			Core.Startup.ConfigureServices(collection);
 
+
+			collection.AddSingleton<ServiceLifetime, ParentServiceLifetime>();
+
 			var services = Startup.ConfigureServices(collection);
 
-			m_Lifetime = new Core.Models.ServiceLifetime(services, true);
+
+			m_Lifetime = services.GetRequiredService<ServiceLifetime>();
 
 			await m_Lifetime.RunLifetime();
 		}
