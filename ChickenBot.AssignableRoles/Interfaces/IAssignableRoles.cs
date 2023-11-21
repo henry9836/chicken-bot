@@ -10,5 +10,9 @@ namespace ChickenBot.AssignableRoles.Interfaces
 		Task<bool> AddUserRole(DiscordMember member, AssignableRole role);
 
 		Task<bool> RemoveUserRole(DiscordMember member, AssignableRole role);
+		
+		Task<bool> CreateNewAssignableRole(AssignableRole newRole);
+
+		Task<bool> RemoveAssignableRole(AssignableRole roleToRemove);
 	}
 }

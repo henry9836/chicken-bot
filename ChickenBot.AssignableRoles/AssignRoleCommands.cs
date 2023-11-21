@@ -33,6 +33,64 @@ namespace ChickenBot.AssignableRoles
 				.WithRequestedBy(user)
 				.Build();
 		}
+		
+		[Command("add-new-assignable-role")]
+		[RequireBotPermissions(Permissions.Administrator)]
+		public async Task AddNewAssignableRole(CommandContext ctx, ulong roleId)
+		{
+			if (ctx.User is not DiscordMember member)
+			{
+				await ctx.RespondAsync("This command cannot be used in DMs");
+				return;
+			}
+			
+			// Create the new role
+			var guildRole = member.Guild.GetRole(roleId);
+			
+			AssignableRole newRole = new AssignableRole
+			{
+				RoleName = guildRole.Name,
+				RoleID = guildRole.Id
+			};
+
+			var roles = m_Roles.GetAssignableRoles();
+
+			// If the role is already in our assignable roles do not add a repeat
+			if (roles.Contains(newRole))
+			{
+				await ctx.RespondAsync("Role already assigned to assignable roles");
+				return;
+			}
+			
+			// Add the new role
+			await m_Roles.CreateNewAssignableRole(newRole);
+		}
+		
+		[Command("remove-assignable-role")]
+		[RequireBotPermissions(Permissions.Administrator)]
+		public async Task RemoveAssignableRole(CommandContext ctx, string roleId)
+		{
+			if (ctx.User is not DiscordMember member)
+			{
+				await ctx.RespondAsync("This command cannot be used in DMs");
+				return;
+			}
+			
+			// Create the new role
+			var roles = m_Roles.GetAssignableRoles();
+
+			var roleToRemove = roles.FirstOrDefault(x => x.RoleName.Equals(roleId, StringComparison.InvariantCultureIgnoreCase));
+
+			// If the role is already in our assignable roles do not add a repeat
+			if (roleToRemove == null)
+			{
+				await ctx.RespondAsync("Role isn't part of assignable roles");
+				return;
+			}
+			
+			// Add the new role
+			await m_Roles.RemoveAssignableRole(roleToRemove);
+		}
 
 		[Command("add-role")]
 		public async Task AddRoleCommand(CommandContext ctx)

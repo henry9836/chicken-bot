@@ -24,6 +24,18 @@ namespace ChickenBot.AssignableRoles.Models
 				?? Array.Empty<AssignableRole>();
 		}
 
+		public async Task<bool> CreateNewAssignableRole(AssignableRole newRole)
+		{
+			//TODO: When we have writtable config :P
+			return true;
+		}
+
+		public async Task<bool> RemoveAssignableRole(AssignableRole roleToRemove)
+		{
+			//TODO: When we have writtable config :P
+			return true;
+		}
+        
 		public async Task<bool> AddUserRole(DiscordMember member, AssignableRole role)
 		{
 			var guildRole = member.Guild.GetRole(role.RoleID);
