@@ -1,24 +1,39 @@
 {
-  "prefixes": [
+  "Prefixes": [
     "!"
   ],
-  "token": "TokenHere",
-  "connectionStrings" : {
-    "default" :  "server=127.0.0.1;username=xxx;password=xxx;port=3306;database=dbname"
+  "Token": "TokenHere",
+  "connectionStrings": {
+    "default": "server=127.0.0.1;username=xxx;password=xxx;port=3306;database=dbname"
   },
-  "verifyThreshold": {
-    "min": 10,
-    "max": 50
+  "VerifyThreshold": {
+    "Min": 100,
+    "Max": 150,
+    "Seconds": 86400
   },
-  "channels": {
-    "general": "1175328872049426462"
+  "Roles": {
+    "Verified": 0
   },
-  "roles": {
-    "adminRole": "",
-    "modRole": "",
-    "verifiedRole": "",
-    "publicRoles": []
+  "Channels": {
+    "Verified": 0,
+    "Quotes": 0,
+    "NsfwQuotes": 0,
+    "Petitions": 0
   },
-  "welcomeMessage": "Welcome to the server! <user>",
-  "welcomeToVerified": "Congrats <user>! You are now verified!"
+  "ChatAI": {
+    "Prompt": null, // Leave to built-in default prompt
+    "Model": "gpt-3.5-turbo",
+    "MaxTokens": 2048,
+    "Token": "SuperSecretOpenAITokenHere"
+  },
+  "AssignableRoles": [
+    {
+      "RoleName": "Dragon",
+      "RoleID": 0
+    },
+    {
+      "RoleName": "Oceana",
+      "RoleID" :  0
+    }
+  ]
 }

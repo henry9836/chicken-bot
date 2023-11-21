@@ -46,7 +46,7 @@ namespace ChickenBot.Core.Services
 				throw new InvalidOperationException("Failed to fetch IConfiguration from container");
 			}
 
-			var token = configuration["token"];
+			var token = configuration["Token"];
 
 			var disordConfig = new DiscordConfiguration()
 			{
@@ -76,7 +76,7 @@ namespace ChickenBot.Core.Services
 				Services = provider,
 				CaseSensitive = false,
 				EnableMentionPrefix = true,
-				StringPrefixes = configuration.GetSection("prefixes")?.Get<string[]>() ?? new[] { "!" }
+				StringPrefixes = configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
 			};
 
 			return discord.UseCommandsNext(commandsNextConfig);
