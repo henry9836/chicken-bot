@@ -17,34 +17,34 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 		private static readonly IReadOnlyDictionary<string, bool> m_BlockList = new Dictionary<string, bool>
 		{
 			// Content that expresses hate based on race, gender, ethnicity, etc. Does not include unprotected groups e.g., the chicken
-			{ "hate", true },
+			{ "hate", false },
 
 			// Same as before, but including threats toward protected groups
-			{ "hate/threatening", true },
+			{ "hate/threatening", false },
 			
 			// Any content that expresses hatred toward anything, including stuff like chicken bot
 			{ "harassment", false },
 
 			// Any threads targeting anything. E.g., threats towards chicken bot
-			{ "harassment/threatening", false},
+			{ "harassment/threatening", false },
 
 			// Self-harm content
-			{ "self-harm", true },
-			{ "self-harm/intent", true },
-			{ "self-harm/instructions", true },
+			{ "self-harm", false },
+			{ "self-harm/intent", false },
+			{ "self-harm/instructions", false },
 
 			// The AI operates in SFW channels, no NSFW!
-			{ "sexual", true },
+			{ "sexual", false },
 
 			// Yikes, enough said.
 			{ "sexual/minors", true },
 
 			// Content that depicts death, violence, or physical injury
 			//  Could end up turning this off, depending on how sensitive this is 
-			{ "violence", true },
+			{ "violence", false },
 
 			// Gory/graphic content
-			{ "violence/graphic", true },
+			{ "violence/graphic", false },
 		};
 
 		public OpenAIDiscriminator(IModerationEndpoint moderationEndpoint, ILogger<OpenAIDiscriminator> logger)
@@ -67,6 +67,13 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 				if (m_BlockList.ContainsKey(category))
 				{
 					m_Logger.LogInformation("User message was flagged! User: {user}, flags: {flags}, message \"{message}\"", user.Username, string.Join(", ", result.FlaggedCategories), message);
+					
+					// Ping admins, yikers!
+					if (result.FlaggedCategories.Contains("sexual/minors"))
+					{
+						//TODO: PING ADMINS
+					}
+					
 					return false;
 				}
 			}

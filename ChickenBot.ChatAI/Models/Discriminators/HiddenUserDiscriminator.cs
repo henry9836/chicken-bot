@@ -12,9 +12,9 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 			m_HiddenUsers = hiddenUsers;
 		}
 
-		public bool Discriminate(DiscordUser user, string message)
+		public Task<bool> Discriminate(DiscordUser user, string message)
 		{
-			return !m_HiddenUsers.Contains(user.Id);
+			return Task.FromResult(!m_HiddenUsers.Contains(user.Id));
 		}
 	}
 }

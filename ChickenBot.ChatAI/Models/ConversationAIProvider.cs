@@ -12,11 +12,11 @@ namespace ChickenBot.ChatAI.Models
 	[Transient(typeof(IConversationAIProvider))]
 	public class ConversationAIProvider : IConversationAIProvider
 	{
-		public const string DefaultPrompt = "This is a conversion between users, you are the bot (B:), the bot is a funny chicken that can make chicken sounds. Do not repeat yourself. You can only talk in English. You should prioritize responding to questions rather than short statements.";
+		public const string DefaultPrompt = "You are a funny chicken called Chicken that is in the How To Train Your Dragon series, that can make chicken sounds. Do not repeat yourself. You can only talk in English. You should prioritize responding to questions rather than short statements. Do not say you are part of the How To Train Your Dragon series you should be pretending to be living inside the world and as such do not have the capability to refer to yourself or your world in the third person.";
 
 		public string Prompt => m_Configuration.GetSection("ChatAI")?.GetValue("Prompt", DefaultPrompt) ?? DefaultPrompt;
 
-		public string Model => m_Configuration.GetSection("ChatAI")?.GetValue("Model", "text-davinci-003") ?? "text-davinci-003";
+		public string Model => m_Configuration.GetSection("ChatAI")?.GetValue("Model", "gpt-3.5-turbo") ?? "gpt-3.5-turbo";
 
 		public int MaxTokens => m_Configuration.GetSection("ChatAI")?.GetValue("MaxTokens", 2048) ?? 2048;
 
@@ -52,7 +52,7 @@ namespace ChickenBot.ChatAI.Models
 			return new CompoundDiscriminator(discriminators);
 		}
 
-		public Task<IConversationAI> CreateConversation()
+		public async Task<IConversationAI> CreateConversation()
 		{
 			var settings = new ChatSettings()
 			{
@@ -66,11 +66,6 @@ namespace ChickenBot.ChatAI.Models
 			};
 
 			return new ConversationAI(settings, m_Endpoint, GetDiscriminator());
-
-
-
-
-
 		}
 	}
 }

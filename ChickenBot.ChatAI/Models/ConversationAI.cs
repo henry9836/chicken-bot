@@ -141,12 +141,11 @@ namespace ChickenBot.ChatAI.Models
 		/// Determines the next message's temperature
 		/// </summary>
 		/// <remarks>
-		/// No clue what the purpose of this equation is, I just copied it from Nitro's code for Chicken Bot the 3rd's AI module.
-		/// Just keeping it in for the sakes of consistency between the 2 bots
+		/// Generates a number between 0.7 - 1.35
 		/// </remarks>
 		private double DetermineTemperature()
 		{
-			return (Math.Floor(m_Random.NextDouble() * (9 - 7 + 1)) + 7) * 0.1;
+			return 0.7 + (m_Random.NextDouble() * 0.65);
 		}
 
 		/// <summary>
