@@ -123,8 +123,17 @@ namespace ChickenBot.VerificationSystem.Models
 		{
 			if (TryGetUser(userID, out var info))
 			{
+				m_Logger.LogInformation("Got user from cache, increment messages from {m}", info.MessageCount);
 				info.MessageCount++;
-				return (info.MessageCount >= info.Threshold) && info.Eligible >= DateTime.UtcNow;
+				m_Logger.LogInformation("new message count: {c}", info.MessageCount);
+
+				var mc = (info.MessageCount >= info.Threshold);
+
+				var ec = info.Eligible <= DateTime.UtcNow;
+
+
+				m_Logger.LogInformation("Message Count Elligibile: {c}, date eligible: {v}", mc, ec);
+				return mc && ec;
 			}
 
 			// User is not in the cache, fetch them from the db, or create a new profile
@@ -139,9 +148,11 @@ namespace ChickenBot.VerificationSystem.Models
 
 		private async Task PopulateUserCache(ulong userID)
 		{
+			m_Logger.LogInformation("Populating cache for user {usr}", userID);
 			var info = await GetUserFromDatabase(userID)
 				?? new UserInformation(userID, 1, DetermineThreshold(), DetermineEligible());
 
+			m_Logger.LogInformation("Populated info: message: {mc}", info.MessageCount);
 			AddUser(userID, info);
 		}
 
@@ -157,6 +168,7 @@ namespace ChickenBot.VerificationSystem.Models
 
 		private async Task<UserInformation?> GetUserFromDatabase(ulong authorId)
 		{
+
 			using var dbConnection = await m_Context.GetConnectionAsync();
 
 			try
