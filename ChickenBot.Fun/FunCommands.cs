@@ -55,7 +55,7 @@ namespace ChickenBot.Fun
 			{
 				"<:chicken_smile:236628343758389249>",
 				"*cuddles up into you*",
-				"*swawks, coughing up a half digested piece of corn. Looking up at you expectingly*"
+				"*squawks, coughing up a half digested piece of corn. Looking up at you expectingly*"
 			};
 
 			await ctx.RespondRandom(replies);
@@ -87,11 +87,19 @@ namespace ChickenBot.Fun
 
 			// ~Tek: Not adding in that part that exempts Nitro from being attacked
 			//   that's cringe of you Nitro ;/
+			
+			// ~Nitro: But Volt said it would be funny :3
+
+			if (member.Id == 102606498860896256)
+			{
+				await ctx.RespondAsync($"*pecks and chases* {ctx.Message.Author.Username}`");
+				return;
+			}
 
 			await ctx.RespondAsync($"*pecks and chases* {member.Username}`");
 		}
 
-		[Command("oldspice"), Description("Tells a joke")]
+		[Command("oldspice"), Description("Tells a joke and nothing else :3")]
 		public async Task OldspiceCommand(CommandContext ctx)
 		{
 			var emojis = new[] {"chicken_smile", "grimmel_yaaas", "hiccup_cage", "lightfury_look",
@@ -138,6 +146,8 @@ namespace ChickenBot.Fun
 			{
 				await ctx.RespondAsync($"{emoji} {joke}");
 			}
+			
+			// Told you :3
 		}
 	}
 }

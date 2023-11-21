@@ -31,7 +31,7 @@ namespace ChickenBot.VerificationSystem.Commands
 
 			var embed = new DiscordEmbedBuilder()
 				.WithTitle("Verify User")
-				.WithDescription("Usage: `Verify [User Name/ID] {Announce Verificaiton: True/False}`")
+				.WithDescription("Usage: `Verify [User Name/ID] {Announce Verification: True/False}`")
 				.WithFooter($"Requested by {ctx.Message.Author.Username}");
 
 			await ctx.RespondAsync(embed);

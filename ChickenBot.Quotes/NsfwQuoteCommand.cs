@@ -13,7 +13,7 @@ namespace ChickenBot.Quotes
 
 		private readonly ILogger<NsfwQuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
-		private readonly string[] m_AllowedTypes = new[] { "png", "jpg", "jpeg" };
+		private readonly string[] m_AllowedTypes = new[] { "png", "jpg", "jpeg", "webp" };
 
 		public NsfwQuoteCommand(ILogger<NsfwQuoteCommand> logger, IConfiguration configuration)
 		{

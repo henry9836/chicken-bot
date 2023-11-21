@@ -44,6 +44,7 @@ namespace ChickenBot.Petitions
 			if (channel == null)
 			{
 				await ctx.RespondAsync("Begawk! I can't seem to find the petitions channel...");
+				m_Logger.LogWarning("Cannot get petitions channel");
 				return;
 			}
 

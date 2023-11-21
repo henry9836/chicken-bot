@@ -13,7 +13,7 @@ namespace ChickenBot.Quotes
 
 		private readonly ILogger<QuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
-		private readonly string[] m_AllowedTypes = new[] { "png", "jpg", "jpeg" };
+		private readonly string[] m_AllowedTypes = new[] { "png", "jpg", "jpeg", "webp" };
 
 		public QuoteCommand(ILogger<QuoteCommand> logger, IConfiguration configuration)
 		{
@@ -24,6 +24,12 @@ namespace ChickenBot.Quotes
 		[Command("Quote"), Description("Quote a funny screenshot of chat"), RequireVerified]
 		public async Task AddQuoteCommand(CommandContext ctx, [RemainingText] string? text)
 		{
+			if (ctx.Channel.IsNSFW)
+			{
+				await ctx.RespondAsync("Bonk!");
+				return;
+			}
+			
 			string? attachmentUrl = null;
 
 			if (ctx.Message.Attachments.Count > 0)
@@ -38,7 +44,7 @@ namespace ChickenBot.Quotes
 
 				// Ensure it is a http or https URL
 				if (Uri.TryCreate(providedUrl, UriKind.Absolute, out var parsedUri) &&
-					(parsedUri.Scheme == "https" || parsedUri.Scheme == "http"))
+					(parsedUri.Scheme == "https" || parsedUri.Scheme == "http")) 
 				{
 					attachmentUrl = parsedUri.AbsoluteUri;
 				}

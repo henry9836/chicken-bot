@@ -105,8 +105,6 @@ namespace ChickenBot.VerificationSystem.Models
 				// Iterate our user tick
 				cachedUserInfo.CycleLevel -= 1;
 
-				m_Logger.LogInformation("cachedUser {Cycle}.", cachedUserInfo.CycleLevel);
-
 				if (cachedUserInfo.IsOutOfCycles())
 				{
 					TryRemoveUser(userID, out _);
@@ -180,13 +178,13 @@ namespace ChickenBot.VerificationSystem.Models
 				var id = reader.GetUInt64("UserID");
 				var messageCount = reader.GetUInt32("MessageCount");
 				var verificationThreshold = reader.GetInt32("VerificationThreshold");
-				var elligible = reader.GetDateTime("Eligible");
+				var eligible = reader.GetDateTime("Eligible");
 
-				return new UserInformation(id, messageCount, verificationThreshold, elligible);
+				return new UserInformation(id, messageCount, verificationThreshold, eligible);
 			}
 			catch (Exception ex)
 			{
-				m_Logger.LogError(ex, "Error while attemping to read user from cache");
+				m_Logger.LogError(ex, "Error while attempting to read user from cache");
 				return null;
 			}
 		}
@@ -212,25 +210,24 @@ namespace ChickenBot.VerificationSystem.Models
 			}
 			catch (Exception ex)
 			{
-				m_Logger.LogError(ex, "Error while attemping to update user verification info: ");
+				m_Logger.LogError(ex, "Error while attempting to update user verification info: ");
 				return false;
 			}
 		}
 
 		/// <summary>
-		/// Modifies a user's verification threshold to immediatley verify them
+		/// Modifies a user's verification threshold to immediately verify them
 		/// </summary>
-		/// <param name="userID">Discord account ID</param>
-		public async Task ForceVerifyUser(ulong userID)
+		/// <param name="userId">Discord account ID</param>
+		public async Task ForceVerifyUser(ulong userId)
 		{
-			UserInformation information;
-			if (!m_Cache.TryGetValue(userID, out information))
+			if (!m_Cache.TryGetValue(userId, out var information))
 			{
-				var info = await GetUserFromDatabase(userID);
+				var info = await GetUserFromDatabase(userId);
 
-				information = info.HasValue ? info.Value : new UserInformation(userID, 0, 0, DateTime.UtcNow);
+				information = info.HasValue ? info.Value : new UserInformation(userId, 0, 0, DateTime.UtcNow);
 
-				AddUser(userID, information);
+				AddUser(userId, information);
 			}
 
 			information.Threshold = (int)Math.Min(information.MessageCount, int.MaxValue);
@@ -238,7 +235,7 @@ namespace ChickenBot.VerificationSystem.Models
 		}
 
 		/// <summary>
-		/// Modifies a user's verification threshold to immediatley de-verify them
+		/// Modifies a user's verification threshold to immediately de-verify them
 		/// </summary>
 		/// <param name="userID">Discord account ID</param>
 		public async Task<UserInformation> ForceRemoveUserVerification(ulong userID, float multiplier)
@@ -270,8 +267,8 @@ namespace ChickenBot.VerificationSystem.Models
 			command.CommandText =
 				@"CREATE TABLE IF NOT EXISTS `users` (
 						`UserID` BIGINT UNSIGNED NOT NULL,
-						`MessageCount` INT NOT NULL,
-						`VerificationThreshold` INT NOT NULL,
+						`MessageCount` INT UNSIGNED NOT NULL,
+						`VerificationThreshold` INT UNSIGNED NOT NULL,
 						`Eligible` DATETIME NOT NULL,
 						PRIMARY KEY (`UserID`)
 					)";

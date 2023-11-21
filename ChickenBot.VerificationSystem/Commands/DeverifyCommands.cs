@@ -57,7 +57,7 @@ namespace ChickenBot.VerificationSystem.Commands
 			if (!m_Verifier.CheckUserVerified(member))
 			{
 				embed = new DiscordEmbedBuilder()
-					.WithTitle("Couldn't Deverify user")
+					.WithTitle("Couldn't De-verify user")
 					.WithDescription("User isn't verified")
 					.WithColor(DiscordColor.Red);
 
@@ -65,12 +65,12 @@ namespace ChickenBot.VerificationSystem.Commands
 				return;
 			}
 
-			m_Logger.LogInformation("Moderator {username} ({id}) requested deverification of user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+			m_Logger.LogInformation("Moderator {username} ({id}) requested de-verification of user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
 
 			if (!await m_Verifier.RemoveUserVerificationAsync(member))
 			{
 				embed = new DiscordEmbedBuilder()
-					.WithTitle("Couldn't deverify user")
+					.WithTitle("Couldn't de-verify user")
 					.WithDescription("Failed to remove the verified role")
 					.WithColor(DiscordColor.Red);
 				await ctx.RespondAsync(embed);
@@ -84,8 +84,8 @@ namespace ChickenBot.VerificationSystem.Commands
 			var eligibleTimestamp = ((DateTimeOffset)info.Eligible).ToUnixTimeSeconds();
 
 			embed = new DiscordEmbedBuilder()
-				.WithTitle("User Deverified")
-				.WithDescription($"Deverified {member.Mention}")
+				.WithTitle("User De-verified")
+				.WithDescription($"De-verified {member.Mention}")
 				.AddField("Message Threshold", $"{newThreshold}", true)
 				.AddField("Verify Eligible: ", $"<t:{eligibleTimestamp}:R>", true)
 				.WithFooter($"Requested by {ctx.Message.Author.Username}");

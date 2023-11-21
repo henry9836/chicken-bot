@@ -23,6 +23,10 @@ namespace ChickenBot.VerificationSystem.Models
 
 		public bool CheckUserVerified(DiscordMember member)
 		{
+			if (VerifiedRoleID == 0)
+			{
+				m_Logger.LogWarning("Verified Role is not assigned in config");
+			}
 			return member.Roles.Any(x => x.Id == VerifiedRoleID);
 		}
 
@@ -41,7 +45,7 @@ namespace ChickenBot.VerificationSystem.Models
 				return false;
 			}
 
-			await member.RevokeRoleAsync(role, $"Deverification requested by moderator");
+			await member.RevokeRoleAsync(role, $"De-verification requested by moderator");
 
 			return true;
 		}
@@ -62,6 +66,7 @@ namespace ChickenBot.VerificationSystem.Models
 			}
 
 			await member.GrantRoleAsync(role);
+			
 			return true;
 		}
 

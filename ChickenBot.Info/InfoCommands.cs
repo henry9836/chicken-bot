@@ -29,7 +29,7 @@ namespace ChickenBot.Info
 			await ctx.RespondAsync(embed);
 		}
 
-		[Command("info"), Description("Shows info about the Dsicord server")]
+		[Command("info"), Description("Shows info about the Discord server")]
 		public async Task ServerInfoCommand(CommandContext ctx)
 		{
 			if (ctx.Guild == null)
