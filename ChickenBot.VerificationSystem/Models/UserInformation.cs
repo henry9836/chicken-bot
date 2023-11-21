@@ -1,6 +1,6 @@
 ﻿namespace ChickenBot.VerificationSystem.Models
 {
-	public struct UserInformation
+	public class UserInformation
 	{
 		public int MaxCycle { get; } = 3;
 		public ulong UserID { get; }

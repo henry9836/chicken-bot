@@ -25,7 +25,7 @@ namespace ChickenBot.VerificationSystem.Interfaces
 		/// <param name="userID">The Discord account ID of the user</param>
 		/// <param name="information">Resulting user information</param>
 		/// <returns><see langword="true"/> if the user was present in the cache</returns>
-		bool TryGetUser(ulong userID, out UserInformation information);
+		bool TryGetUser(ulong userID, out UserInformation? information);
 
 		/// <summary>
 		/// Tries to remove a user from the cache
@@ -33,7 +33,7 @@ namespace ChickenBot.VerificationSystem.Interfaces
 		/// <param name="userID">The Discord account ID of the user</param>
 		/// <param name="user">The output user information of the removed user</param>
 		/// <returns><see langword="true"/> if the user existed in the cache, and was removed.</returns>
-		bool TryRemoveUser(ulong userID, out UserInformation user);
+		bool TryRemoveUser(ulong userID, out UserInformation? user);
 
 		/// <summary>
 		/// Flushes the verified user cache to the database, and trims the cache

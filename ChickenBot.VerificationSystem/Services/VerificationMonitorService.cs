@@ -28,7 +28,7 @@ namespace ChickenBot.VerificationSystem.Services
 			m_Cache = cache;
 			m_Verifier = verifier;
 
-			m_Timer = new Timer(5000);
+			m_Timer = new Timer(60000);
 			m_Timer.AutoReset = true;
 		}
 

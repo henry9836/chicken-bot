@@ -68,7 +68,7 @@ namespace ChickenBot.VerificationSystem.Models
 		/// <param name="userID">The Discord account ID of the user</param>
 		/// <param name="user">The output user information of the removed user</param>
 		/// <returns><see langword="true"/> if the user existed in the cache, and was removed.</returns>
-		public bool TryRemoveUser(ulong userID, out UserInformation user)
+		public bool TryRemoveUser(ulong userID, out UserInformation? user)
 		{
 			return m_Cache.Remove(userID, out user);
 		}
@@ -79,7 +79,7 @@ namespace ChickenBot.VerificationSystem.Models
 		/// <param name="userID">The Discord account ID of the user</param>
 		/// <param name="information">Resulting user information</param>
 		/// <returns><see langword="true"/> if the user was present in the cache</returns>
-		public bool TryGetUser(ulong userID, out UserInformation information)
+		public bool TryGetUser(ulong userID, out UserInformation? information)
 		{
 			return m_Cache.TryGetValue(userID, out information);
 		}
@@ -89,29 +89,37 @@ namespace ChickenBot.VerificationSystem.Models
 		/// </summary>
 		public async Task FlushCacheAsync()
 		{
-			// Create a shallow copy of all current user IDs in the cache
-			var userIDs = m_Cache.Keys.ToImmutableArray();
-
-			foreach (var userID in userIDs)
+			m_Logger.LogInformation("Flushing cache...");
+			try
 			{
-				if (!TryGetUser(userID, out var cachedUserInfo))
+				// Create a shallow copy of all current user IDs in the cache
+				var userIDs = m_Cache.Keys.ToImmutableArray();
+
+				foreach (var userID in userIDs)
 				{
-					continue;
+					if (!TryGetUser(userID, out var cachedUserInfo) || cachedUserInfo == null)
+					{
+						continue;
+					}
+
+					// Update DB
+					await UpdateUserValues(cachedUserInfo.UserID, cachedUserInfo.MessageCount, cachedUserInfo.Threshold, cachedUserInfo.Eligible);
+
+					// Iterate our user tick
+					cachedUserInfo.CycleLevel -= 1;
+
+					if (cachedUserInfo.IsOutOfCycles())
+					{
+						TryRemoveUser(userID, out _);
+						m_Logger.LogInformation("cachedUser out of cycles.");
+					}
 				}
-
-				// Update DB
-				await UpdateUserValues(cachedUserInfo.UserID, cachedUserInfo.MessageCount, cachedUserInfo.Threshold, cachedUserInfo.Eligible);
-
-				// Iterate our user tick
-				cachedUserInfo.CycleLevel -= 1;
-
-				if (cachedUserInfo.IsOutOfCycles())
-				{
-					TryRemoveUser(userID, out _);
-					m_Logger.LogInformation("cachedUser out of cycles.");
-				}
+				m_Logger.LogInformation("Database Upload Done.");
 			}
-			m_Logger.LogInformation("Database Upload Done.");
+			catch (Exception ex)
+			{
+				m_Logger.LogError(ex, "Error flushing cache");
+			}
 		}
 
 		/// <summary>
@@ -121,19 +129,15 @@ namespace ChickenBot.VerificationSystem.Models
 		/// <returns><see langword="true"/> if the user has reached or passed their verification threshold</returns>
 		public bool IncrementUserMessages(ulong userID)
 		{
-			if (TryGetUser(userID, out var info))
+			if (TryGetUser(userID, out var info) && info != null)
 			{
-				m_Logger.LogInformation("Got user from cache, increment messages from {m}", info.MessageCount);
 				info.MessageCount++;
 				m_Logger.LogInformation("new message count: {c}", info.MessageCount);
 
-				var mc = (info.MessageCount >= info.Threshold);
+				var messageEligible = (info.MessageCount >= info.Threshold);
+				var timeEligible = info.Eligible <= DateTime.UtcNow;
 
-				var ec = info.Eligible <= DateTime.UtcNow;
-
-
-				m_Logger.LogInformation("Message Count Elligibile: {c}, date eligible: {v}", mc, ec);
-				return mc && ec;
+				return messageEligible && timeEligible;
 			}
 
 			// User is not in the cache, fetch them from the db, or create a new profile
@@ -148,11 +152,9 @@ namespace ChickenBot.VerificationSystem.Models
 
 		private async Task PopulateUserCache(ulong userID)
 		{
-			m_Logger.LogInformation("Populating cache for user {usr}", userID);
 			var info = await GetUserFromDatabase(userID)
 				?? new UserInformation(userID, 1, DetermineThreshold(), DetermineEligible());
 
-			m_Logger.LogInformation("Populated info: message: {mc}", info.MessageCount);
 			AddUser(userID, info);
 		}
 
@@ -188,7 +190,7 @@ namespace ChickenBot.VerificationSystem.Models
 				await reader.ReadAsync();
 
 				var id = reader.GetUInt64("UserID");
-				var messageCount = reader.GetUInt32("MessageCount");
+				var messageCount = reader.GetUInt32("MessageCount") + 1; // User sent a message to trigger this action
 				var verificationThreshold = reader.GetInt32("VerificationThreshold");
 				var eligible = reader.GetDateTime("Eligible");
 
@@ -237,7 +239,7 @@ namespace ChickenBot.VerificationSystem.Models
 			{
 				var info = await GetUserFromDatabase(userId);
 
-				information = info.HasValue ? info.Value : new UserInformation(userId, 0, 0, DateTime.UtcNow);
+				information = info != null ? info : new UserInformation(userId, 0, 0, DateTime.UtcNow);
 
 				AddUser(userId, information);
 			}
@@ -252,12 +254,12 @@ namespace ChickenBot.VerificationSystem.Models
 		/// <param name="userID">Discord account ID</param>
 		public async Task<UserInformation> ForceRemoveUserVerification(ulong userID, float multiplier)
 		{
-			UserInformation information;
+			UserInformation? information;
 			if (!m_Cache.TryGetValue(userID, out information))
 			{
 				var info = await GetUserFromDatabase(userID);
 
-				information = info.HasValue ? info.Value : new UserInformation(userID, 0, 0, DateTime.UtcNow);
+				information = info ?? new UserInformation(userID, 0, 0, DateTime.UtcNow);
 
 				AddUser(userID, information);
 			}
