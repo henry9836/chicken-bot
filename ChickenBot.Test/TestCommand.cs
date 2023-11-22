@@ -114,6 +114,9 @@ namespace ChickenBot.Test
 		/// </summary>
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
+			// Dereference 
+			m_Client.MessageCreated -= OnMessageCreated;
+			
 			// Same ordeal, async method, but not actually async
 			return Task.CompletedTask;
 		}

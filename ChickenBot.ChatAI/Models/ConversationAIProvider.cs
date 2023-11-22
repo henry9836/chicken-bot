@@ -3,6 +3,7 @@ using ChickenBot.ChatAI.Interfaces;
 using ChickenBot.ChatAI.Models.Discriminators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenAI_API;
 using OpenAI_API.Chat;
 using OpenAI_API.Moderation;
@@ -30,15 +31,26 @@ namespace ChickenBot.ChatAI.Models
 		private readonly IModerationEndpoint m_Moderation;
 
 		private readonly IServiceProvider m_Provider;
+		
+		private readonly ILogger<ConversationAIProvider> m_Logger;
 
-		public ConversationAIProvider(IConfiguration configuration, IServiceProvider provider)
+		public ConversationAIProvider(IConfiguration configuration, IServiceProvider provider, ILogger<ConversationAIProvider> logger)
 		{
 			m_Configuration = configuration;
 			m_Provider = provider;
+			m_Logger = logger;
 
-			var apiBase = new OpenAIAPI(Token);
-			m_Endpoint = apiBase.Chat;
-			m_Moderation = apiBase.Moderation;
+			try
+			{
+				var apiBase = new OpenAIAPI(Token);
+				m_Endpoint = apiBase.Chat;
+				m_Moderation = apiBase.Moderation;
+			}
+			catch (Exception e)
+			{
+				m_Logger.LogCritical("CANNOT INITIALISE CHAT AI, Maybe Config Token is empty? {err}", e.Message);
+				throw;
+			}
 		}
 
 		private IMessageDiscriminator GetDiscriminator()
