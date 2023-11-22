@@ -1,3 +1,5 @@
+using System.Text;
+using ChickenBot.API.Interfaces;
 using ChickenBot.ChatAI.Interfaces;
 using ChickenBot.ChatAI.Models;
 using DSharpPlus;
@@ -12,6 +14,7 @@ namespace ChickenBot.ChatAI;
 public class ChatAiService : IHostedService
 {
     private readonly IConfiguration m_Configuration;
+    private readonly IConfigEditor m_ConfigurationEditor;
     private readonly ILogger<ChatAiService> m_Logger;
     private readonly DiscordClient m_Client;
     private readonly IConversationAIProvider m_AiProvider;
@@ -22,19 +25,20 @@ public class ChatAiService : IHostedService
     private int m_ChatMessagesLeft = 0;
     private DateTime m_MainCooldownThreshold;
     private DateTime m_ChatCooldown;
-    private int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 20);
-    private int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 10);
+    private int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 3);
+    private int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 1);
     private ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("General", 0ul);
     private DiscordChannel? GeneralChannel;
     
     
-    public ChatAiService(DiscordClient client, IConfiguration configuration, ILogger<ChatAiService> logger, IConversationAIProvider aiProvider)
+    public ChatAiService(DiscordClient client, IConfiguration configuration, ILogger<ChatAiService> logger, IConversationAIProvider aiProvider, IConfigEditor configurationEditor)
     {
         // Store the servives we have injected so we can use them in StartAsync
         m_Client = client;
         m_Logger = logger;
         m_Configuration = configuration;
         m_AiProvider = aiProvider;
+        m_ConfigurationEditor = configurationEditor;
     }
     
     public Task StartAsync(CancellationToken cancellationToken)
@@ -42,7 +46,7 @@ public class ChatAiService : IHostedService
         m_Client.MessageCreated += ClientOnMessageCreated;
 
         // Get the main cooldown, if can't find make a new one
-        m_MainCooldownThreshold = m_Configuration.GetSection("ChatAI").GetValue("ChatCooldown", DateTime.MinValue);
+        m_MainCooldownThreshold = m_Configuration.GetSection("ChatAI").GetValue("AICooldownStamp", DateTime.MinValue);
         if (m_MainCooldownThreshold == DateTime.MinValue)
         {
             m_Logger.LogWarning("Couldn't find a cooldown value in the config file, generating a new one...");
@@ -89,7 +93,8 @@ public class ChatAiService : IHostedService
         // Get messages
         if (m_ConversationAi != null)
         {
-            await m_ConversationAi.PushChatMessage(member, args.Message.Content);
+            string message = args.Message.Content + $" - {member.Nickname ?? member.DisplayName}";
+            await m_ConversationAi.PushChatMessage(member, message);
         }
             
         // If either of our cooldowns are active exit out
@@ -122,27 +127,26 @@ public class ChatAiService : IHostedService
         // If our chat cooldown has expired send a new message :3
         if (m_ChatCooldown < DateTime.Now)
         {
-            // Send a new message
-            //await GeneralChannel.SendMessageAsync("HEY FROM THE BOT :3");
-            
-            // Run on threadpool so we don't hold up the bot waiting on openai
-            _ = Task.Run(PokeAIBrain);
-            
+            // Generate new cooldowns and iterate countdown
             CreateNewChatCooldown();
             m_ChatMessagesLeft--;
+            
+            // Run on threadpool so we don't hold up the bot waiting on openai
+            _ = Task.Run(() => PokeAIBrain(m_ChatMessagesLeft <= 0));
         }
 
         if (m_ChatMessagesLeft <= 0)
         {
-            await GeneralChannel.SendMessageAsync("GOOD BYE :)");
-            m_ConversationAi = null;
             CreateNewMainCooldown();
+            
+            // Save to config
+            await m_ConfigurationEditor.UpdateValueAsync("ChatAI:AICooldownStamp", m_MainCooldownThreshold);
         }
         
         return;
     }
 
-    private async Task PokeAIBrain()
+    private async Task PokeAIBrain(bool shouldShutdownAfterResponse)
     {
         if (m_ConversationAi == null)
         {
@@ -170,6 +174,12 @@ public class ChatAiService : IHostedService
         {
             m_Logger.LogError("Couldn't get a response from OpenAI: {e}", e.Message);
             throw;
+        }
+
+        if (shouldShutdownAfterResponse)
+        {
+            await GeneralChannel.SendMessageAsync("GOOD BYE :)");
+            m_ConversationAi = null;
         }
     }
 
