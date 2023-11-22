@@ -10,7 +10,7 @@ namespace ChickenBot.ChatAI.Interfaces
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
 		/// </remarks>
-		void PushChatMessage(DiscordUser user, string message);
+		Task PushChatMessage(DiscordUser user, string message);
 
 		/// <summary>
 		/// Gets a response as the chicken to the current chat feed

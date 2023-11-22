@@ -42,7 +42,7 @@ namespace ChickenBot.ChatAI.Models
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
 		/// </remarks>
-		public void PushChatMessage(DiscordUser user, string message)
+		public async Task PushChatMessage(DiscordUser user, string message)
 		{
 			if (user.IsBot)
 			{
@@ -54,7 +54,15 @@ namespace ChickenBot.ChatAI.Models
 			if (!m_WorkerActive)
 			{
 				m_WorkerActive = true;
-				Task.Run(ProcessMessagePush);
+				await m_Semaphore.WaitAsync();
+				try
+				{
+					await ProcessMessagePush();
+				}
+				finally
+				{
+					m_Semaphore.Release();
+				}
 			}
 		}
 
@@ -63,24 +71,15 @@ namespace ChickenBot.ChatAI.Models
 		/// </summary>
 		private async Task ProcessMessagePush()
 		{
-			await m_Semaphore.WaitAsync();
-			try
+			while (m_PushQueue.TryDequeue(out var message))
 			{
-				while (m_PushQueue.TryDequeue(out var message))
+				if (!await m_Discriminator.Discriminate(message.user, message.message))
 				{
-					if (!await m_Discriminator.Discriminate(message.user, message.message))
-					{
-						// Message was flagged, discard
-						continue;
-					}
-
-					PushChatMessageInternal(message.user, message.message);
+					// Message was flagged, discard
+					continue;
 				}
-			}
-			finally
-			{
-				m_Semaphore.Release();
-				m_WorkerActive = false;
+
+				PushChatMessageInternal(message.user, message.message);
 			}
 		}
 

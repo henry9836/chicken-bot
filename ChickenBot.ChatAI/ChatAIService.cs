@@ -89,7 +89,7 @@ public class ChatAiService : IHostedService
         // Get messages
         if (m_ConversationAi != null)
         {
-            m_ConversationAi.PushChatMessage(args.Author, args.Message.Content);
+            await m_ConversationAi.PushChatMessage(args.Author, args.Message.Content);
         }
             
         // If either of our cooldowns are active exit out
