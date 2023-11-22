@@ -24,7 +24,7 @@ public class ChatAiService : IHostedService
     private DateTime m_ChatCooldown;
     private int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 20);
     private int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 10);
-    private ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("general", 0ul);
+    private ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("General", 0ul);
     private DiscordChannel? GeneralChannel;
     
     
@@ -68,6 +68,18 @@ public class ChatAiService : IHostedService
             return;   
         }
 
+        // Check that our main cooldown isn't still active
+        if (m_MainCooldownThreshold > DateTime.Now)
+        {
+            return;
+        }
+        
+        // Is a bot talking (or us?)
+        if (args.Author.IsBot)
+        {
+            return;
+        }
+        
         // If we are not in general
         if (args.Channel.Id != GeneralChannelId)
         {
@@ -79,22 +91,6 @@ public class ChatAiService : IHostedService
         {
             m_ConversationAi.PushChatMessage(args.Author, args.Message.Content);
         }
-        
-        // Main Cooldown expired?
-            // No, then retuurn
-        // Running Cooldown expired?
-            // No, then return
-        
-        // Make a new conversation if there is none
-            // Set a new threshold
-        // Otherwise continue conversion 
-        
-        // Set a new running cooldown
-        
-        // Have we reached our max messages?
-            // Set a new cooldown
-            // Save to file
-            // Remove conversionation from memory
             
         // If either of our cooldowns are active exit out
         if (!IsMainCooldownOver() || !IsMainCooldownOver())
@@ -127,7 +123,10 @@ public class ChatAiService : IHostedService
         if (m_ChatCooldown < DateTime.Now)
         {
             // Send a new message
-            await GeneralChannel.SendMessageAsync("HEY FROM THE BOT :3");
+            //await GeneralChannel.SendMessageAsync("HEY FROM THE BOT :3");
+            
+            // Run on threadpool so we don't hold up the bot waiting on openai
+            _ = Task.Run(PokeAIBrain);
             
             CreateNewChatCooldown();
             m_ChatMessagesLeft--;
@@ -141,6 +140,37 @@ public class ChatAiService : IHostedService
         }
         
         return;
+    }
+
+    private async Task PokeAIBrain()
+    {
+        if (m_ConversationAi == null)
+        {
+            m_Logger.LogWarning("Conversation object was null when trying to send a response from ai");
+            return;
+        }
+
+        if (GeneralChannel == null)
+        {
+            m_Logger.LogWarning("General Channel was null when trying to send a response from ai");
+            return;
+        }
+
+        try
+        {
+            var response = await m_ConversationAi.GetResponseAsync();
+            if (string.IsNullOrEmpty(response))
+            {
+                m_Logger.LogWarning("AI responded with null value!");
+                return;
+            }
+            await GeneralChannel.SendMessageAsync(response);
+        }
+        catch (Exception e)
+        {
+            m_Logger.LogError("Couldn't get a response from OpenAI: {e}", e.Message);
+            throw;
+        }
     }
 
     private void CreateNewChatCooldown()
@@ -158,7 +188,7 @@ public class ChatAiService : IHostedService
         m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromHours(m_Random.Next(18, 60));
         
         //TODO: REMOVE BELOW
-        m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(45, 60));
+        m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(1, 5));
     }
 
     private void CreateNewChatLimit()

@@ -182,7 +182,7 @@ namespace ChickenBot.ChatAI.Models
 				m_Messages.RemoveAt(1);
 			}
 
-			m_Messages.Append(message);
+			m_Messages.Add(message);
 		}
 
 		/// <summary>

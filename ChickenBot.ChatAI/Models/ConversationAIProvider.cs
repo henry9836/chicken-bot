@@ -39,18 +39,15 @@ namespace ChickenBot.ChatAI.Models
 			m_Configuration = configuration;
 			m_Provider = provider;
 			m_Logger = logger;
-
-			try
+			
+			if (string.IsNullOrEmpty(Token))
 			{
-				var apiBase = new OpenAIAPI(Token);
-				m_Endpoint = apiBase.Chat;
-				m_Moderation = apiBase.Moderation;
+				m_Logger.LogError("OpenAI Token is empty!");
 			}
-			catch (Exception e)
-			{
-				m_Logger.LogCritical("CANNOT INITIALISE CHAT AI, Maybe Config Token is empty? {err}", e.Message);
-				throw;
-			}
+			var apiBase = new OpenAIAPI(Token);
+			
+			m_Endpoint = apiBase.Chat;
+			m_Moderation = apiBase.Moderation;
 		}
 
 		private IMessageDiscriminator GetDiscriminator()
@@ -68,7 +65,7 @@ namespace ChickenBot.ChatAI.Models
 		{
 			var settings = new ChatSettings()
 			{
-				MaxUsernameLength = 16,
+				MaxUsernameLength = 32,
 				Model = Model,
 				MaxResponseTokens = MaxTokens,
 				Prompt = Prompt,
