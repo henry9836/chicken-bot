@@ -53,13 +53,13 @@ namespace ChickenBot.ChatAI.Models
 		private IMessageDiscriminator GetDiscriminator()
 		{
 			return new CompoundDiscriminator();
-			var discriminators = new IMessageDiscriminator[]
-			{
-				new HiddenUserDiscriminator(new List<ulong>()),
-				ActivatorUtilities.CreateInstance<OpenAIDiscriminator>(m_Provider, m_Moderation)
-			};
+			//var discriminators = new IMessageDiscriminator[]
+			//{
+			//	new HiddenUserDiscriminator(new List<ulong>()),
+			//	ActivatorUtilities.CreateInstance<OpenAIDiscriminator>(m_Provider, m_Moderation)
+			//};
 
-			return new CompoundDiscriminator(discriminators);
+			//return new CompoundDiscriminator(discriminators);
 		}
 
 		public async Task<IConversationAI> CreateConversation()
@@ -75,7 +75,7 @@ namespace ChickenBot.ChatAI.Models
 				UseNumericNames = false
 			};
 
-			return new ConversationAI(settings, m_Endpoint, GetDiscriminator());
+			return ActivatorUtilities.CreateInstance<ConversationAI>(m_Provider, settings, m_Endpoint, GetDiscriminator());
 		}
 	}
 }

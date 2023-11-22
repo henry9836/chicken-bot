@@ -1,12 +1,17 @@
 ﻿using System.Collections.Concurrent;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 using ChickenBot.ChatAI.Interfaces;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 using OpenAI_API.Chat;
 
 namespace ChickenBot.ChatAI.Models
 {
 	public class ConversationAI : IConversationAI
 	{
+		private static Regex m_AttachedNameRegex = new Regex(@"\ ~\ \w{1,32}$");
+
 		private readonly List<ChatMessage> m_Messages = new List<ChatMessage>();
 
 		private readonly ChatSettings m_Settings;
@@ -21,17 +26,21 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly SemaphoreSlim m_Semaphore = new SemaphoreSlim(1);
 
-		private int m_ChatIDIndex = 0;
+		private readonly ILogger<ConversationAI> m_Logger;
 
 		private readonly ConcurrentQueue<(DiscordUser user, string message)> m_PushQueue = new();
 
+		private int m_ChatIDIndex = 0;
+
+
 		private bool m_WorkerActive = false;
 
-		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator)
+		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator, ILogger<ConversationAI> logger)
 		{
 			m_Settings = settings;
 			m_Endpoint = endpoint;
 			m_Discriminator = discriminator;
+			m_Logger = logger;
 
 			SetPrompt(settings.Prompt);
 		}
@@ -173,11 +182,14 @@ namespace ChickenBot.ChatAI.Models
 					return null;
 				}
 
-				var responseMessage = response.Choices[0].Message;
+				var rawResponse = response.Choices[0].Message.Content;
+				var responseMessage = PostProcessMessage(rawResponse);
 
-				AppendMessage(responseMessage);
+				var responseNode = new ChatMessage(ChatMessageRole.Assistant, responseMessage);
 
-				return responseMessage.Content;
+				AppendMessage(responseNode);
+
+				return responseMessage;
 			}
 			finally
 			{
@@ -185,6 +197,22 @@ namespace ChickenBot.ChatAI.Models
 			}
 		}
 
+		/// <summary>
+		/// Performs some post-processing on the OpenAI responses
+		/// </summary>
+		private string PostProcessMessage(string message)
+		{
+			var newMessage = m_AttachedNameRegex.Replace(message, string.Empty);
+
+			if (newMessage != message)
+			{
+				m_Logger.LogInformation("OpenAI responded using (~) name format: '{msg}'; removing it.", message);
+				newMessage = m_AttachedNameRegex.Replace(message, string.Empty);
+			}
+
+			return newMessage;
+		}
+ 
 		/// <summary>
 		/// Appends a message to the end of the sliding window
 		/// </summary>
