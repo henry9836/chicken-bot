@@ -52,6 +52,7 @@ namespace ChickenBot.ChatAI.Models
 
 		private IMessageDiscriminator GetDiscriminator()
 		{
+			return new CompoundDiscriminator();
 			var discriminators = new IMessageDiscriminator[]
 			{
 				new HiddenUserDiscriminator(new List<ulong>()),
