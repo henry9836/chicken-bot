@@ -27,6 +27,11 @@ namespace ChickenBot.AssignableRoles.Models
 		public async Task<bool> CreateNewAssignableRole(AssignableRole newRole)
 		{
 			//TODO: When we have writtable config :P
+
+
+
+
+
 			return true;
 		}
 

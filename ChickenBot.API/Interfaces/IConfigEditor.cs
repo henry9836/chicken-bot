@@ -13,7 +13,7 @@ namespace ChickenBot.API.Interfaces
 		/// <param name="path">Path to the Json property, separated by colons (:)</param>
 		/// <param name="nodeValue">The new value for the property</param>
 		/// <returns><see langword="true"/> if it could update the config value</returns>
-		Task<bool> ModifyConfigNodeAsync(string path, JsonValue nodeValue);
+		Task<bool> ModifyConfigAsync(string path, JsonValue nodeValue);
 
 
 		/// <summary>
@@ -23,6 +23,15 @@ namespace ChickenBot.API.Interfaces
 		/// <param name="path">Path to the Json property, separated by colons (:)</param>
 		/// <param name="value">The new value to set the target property to</param>
 		/// <returns><see langword="true"/> if it could update the config value</returns>
-		Task<bool> ModifyConfigAsync<T>(string path, T value);
+		Task<bool> UpdateValueAsync<T>(string path, T value);
+
+		/// <summary>
+		/// Append an object to an array, creating the array property if needed
+		/// </summary>
+		/// <typeparam name="T">Type of the object to append</typeparam>
+		/// <param name="path">Path to the Json array property</param>
+		/// <param name="value">Value to append to the array</param>
+		/// <returns><see langword="true"/> if it could update the config value</returns>
+		Task<bool> AppendValueAsync<T>(string path, T value);
 	}
 }
