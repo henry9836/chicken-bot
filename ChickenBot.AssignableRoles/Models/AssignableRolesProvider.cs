@@ -1,4 +1,5 @@
 ﻿using ChickenBot.API.Atrributes;
+using ChickenBot.API.Interfaces;
 using ChickenBot.AssignableRoles.Interfaces;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
@@ -11,11 +12,13 @@ namespace ChickenBot.AssignableRoles.Models
 	{
 		private readonly ILogger<AssignableRolesProvider> m_Logger;
 		private readonly IConfiguration m_Configuration;
+		private readonly IConfigEditor m_ConfigEditor;
 
-		public AssignableRolesProvider(ILogger<AssignableRolesProvider> logger, IConfiguration configuration)
+		public AssignableRolesProvider(ILogger<AssignableRolesProvider> logger, IConfiguration configuration, IConfigEditor editor)
 		{
 			m_Logger = logger;
 			m_Configuration = configuration;
+			m_ConfigEditor = editor;
 		}
 
 		public AssignableRole[] GetAssignableRoles()
@@ -26,14 +29,18 @@ namespace ChickenBot.AssignableRoles.Models
 
 		public async Task<bool> CreateNewAssignableRole(AssignableRole newRole)
 		{
-			//TODO: When we have writtable config :P
-			return true;
+			return await m_ConfigEditor.AppendValueAsync("AssignableRoles", newRole);
 		}
 
 		public async Task<bool> RemoveAssignableRole(AssignableRole roleToRemove)
 		{
-			//TODO: When we have writtable config :P
-			return true;
+			var roles = GetAssignableRoles();
+
+			var newRoles = roles
+				.Where(x => x != roleToRemove)
+				.ToArray();
+
+			return await m_ConfigEditor.UpdateValueAsync("AssignableRoles", newRoles);
 		}
         
 		public async Task<bool> AddUserRole(DiscordMember member, AssignableRole role)

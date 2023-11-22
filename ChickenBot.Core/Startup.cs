@@ -1,4 +1,5 @@
 ﻿using Autofac.Configuration;
+using ChickenBot.API.Interfaces;
 using ChickenBot.API.Models;
 using ChickenBot.Core.Models;
 using ChickenBot.Core.Services;
@@ -27,6 +28,8 @@ namespace ChickenBot.Core
 		{
 			var config = new ConfigurationBuilder();
 			config.AddJsonFile("config.json");
+
+			services.AddTransient<IConfigEditor>((_) => new ConfigEditor("config.json"));
 
 			var module = new ConfigurationModule(config.Build());
 
