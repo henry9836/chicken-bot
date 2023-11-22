@@ -42,7 +42,7 @@ namespace ChickenBot.ChatAI.Models
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
 		/// </remarks>
-		public  Task PushChatMessage(DiscordUser user, string message)
+		public  Task PushChatMessage(DiscordMember user, string message)
 		{
 			if (user.IsBot)
 			{
@@ -83,7 +83,7 @@ namespace ChickenBot.ChatAI.Models
 					continue;
 				}
 
-				PushChatMessageInternal(message.user, message.message);
+				//PushChatMessageInternal(message.user, message.message);
 			}
 		}
 
@@ -92,7 +92,7 @@ namespace ChickenBot.ChatAI.Models
 		/// </summary>
 		/// <param name="user"></param>
 		/// <param name="message"></param>
-		private void PushChatMessageInternal(DiscordUser user, string message)
+		private void PushChatMessageInternal(DiscordMember user, string message)
 		{
 			string userChatID;
 
@@ -107,7 +107,7 @@ namespace ChickenBot.ChatAI.Models
 			}
 			else
 			{
-				userChatID = user.Username;
+				userChatID = user.Nickname;
 
 				if (userChatID.Length > m_Settings.MaxUsernameLength)
 				{

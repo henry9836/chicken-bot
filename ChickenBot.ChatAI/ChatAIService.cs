@@ -63,7 +63,7 @@ public class ChatAiService : IHostedService
     private async Task ClientOnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
     {
         // Filter out dms
-        if (args.Author is not DiscordMember)
+        if (args.Author is not DiscordMember member)
         {
             return;   
         }
@@ -89,7 +89,7 @@ public class ChatAiService : IHostedService
         // Get messages
         if (m_ConversationAi != null)
         {
-            await m_ConversationAi.PushChatMessage(args.Author, args.Message.Content);
+            await m_ConversationAi.PushChatMessage(member, args.Message.Content);
         }
             
         // If either of our cooldowns are active exit out
