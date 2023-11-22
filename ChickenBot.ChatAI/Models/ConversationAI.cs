@@ -107,7 +107,7 @@ namespace ChickenBot.ChatAI.Models
 			}
 			else
 			{
-				userChatID = user.Nickname;
+				userChatID = user.Nickname ?? user.DisplayName;
 
 				if (userChatID.Length > m_Settings.MaxUsernameLength)
 				{
