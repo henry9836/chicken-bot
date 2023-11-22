@@ -27,7 +27,7 @@ namespace ChickenBot.Core
 		public static void ConfigureLogging(IServiceCollection services)
 		{
 			var config = new ConfigurationBuilder();
-			config.AddJsonFile("config.json");
+			config.AddJsonFile("config.json", optional: false, reloadOnChange: true);
 
 			services.AddTransient<IConfigEditor>((_) => new ConfigEditor("config.json"));
 

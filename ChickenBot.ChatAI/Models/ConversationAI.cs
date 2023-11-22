@@ -19,6 +19,8 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly Random m_Random = new Random();
 
+		private readonly SemaphoreSlim m_Semaphore = new SemaphoreSlim(1);
+
 		private int m_ChatIDIndex = 0;
 
 		private readonly ConcurrentQueue<(DiscordUser user, string message)> m_PushQueue = new();
@@ -61,6 +63,7 @@ namespace ChickenBot.ChatAI.Models
 		/// </summary>
 		private async Task ProcessMessagePush()
 		{
+			await m_Semaphore.WaitAsync();
 			try
 			{
 				while (m_PushQueue.TryDequeue(out var message))
@@ -76,6 +79,7 @@ namespace ChickenBot.ChatAI.Models
 			}
 			finally
 			{
+				m_Semaphore.Release();
 				m_WorkerActive = false;
 			}
 		}
@@ -154,20 +158,28 @@ namespace ChickenBot.ChatAI.Models
 		/// <returns>Message, or null if the AI decided to stay silent</returns>
 		public async Task<string?> GetResponseAsync()
 		{
-			var request = CreateRequest();
-
-			var response = await m_Endpoint.CreateChatCompletionAsync(request);
-
-			if (response.Choices.Count == 0)
+			await m_Semaphore.WaitAsync();
+			try
 			{
-				return null;
+				var request = CreateRequest();
+
+				var response = await m_Endpoint.CreateChatCompletionAsync(request);
+
+				if (response.Choices.Count == 0)
+				{
+					return null;
+				}
+
+				var responseMessage = response.Choices[0].Message;
+
+				AppendMessage(responseMessage);
+
+				return responseMessage.Content;
 			}
-
-			var responseMessage = response.Choices[0].Message;
-
-			AppendMessage(responseMessage);
-
-			return responseMessage.Content;
+			finally
+			{
+				m_Semaphore.Release();
+			}
 		}
 
 		/// <summary>
@@ -195,7 +207,8 @@ namespace ChickenBot.ChatAI.Models
 			if (m_Messages.Count == 0)
 			{
 				m_Messages.Add(message);
-			} else
+			}
+			else
 			{
 				m_Messages[0] = message;
 			}

@@ -30,7 +30,6 @@ namespace ChickenBot.ChatAI.Models
 			}
 
 			return true;
-
 		}
 	}
 }
