@@ -42,28 +42,32 @@ namespace ChickenBot.ChatAI.Models
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
 		/// </remarks>
-		public async Task PushChatMessage(DiscordUser user, string message)
+		public  Task PushChatMessage(DiscordUser user, string message)
 		{
 			if (user.IsBot)
 			{
-				return;
+				return Task.CompletedTask;
 			}
+			PushChatMessageInternal(user, message);
 
-			m_PushQueue.Enqueue((user, message));
+			return Task.CompletedTask;
 
-			if (!m_WorkerActive)
-			{
-				m_WorkerActive = true;
-				await m_Semaphore.WaitAsync();
-				try
-				{
-					await ProcessMessagePush();
-				}
-				finally
-				{
-					m_Semaphore.Release();
-				}
-			}
+
+			//m_PushQueue.Enqueue((user, message));
+
+			//if (!m_WorkerActive)
+			//{
+			//	m_WorkerActive = true;
+			//	await m_Semaphore.WaitAsync();
+			//	try
+			//	{
+			//		await ProcessMessagePush();
+			//	}
+			//	finally
+			//	{
+			//		m_Semaphore.Release();
+			//	}
+			//}
 		}
 
 		/// <summary>
