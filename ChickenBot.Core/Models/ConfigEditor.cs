@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using ChickenBot.API.Interfaces;
 
 namespace ChickenBot.Core.Models
@@ -8,11 +9,38 @@ namespace ChickenBot.Core.Models
 	/// </summary>
 	public class ConfigEditor : IConfigEditor
 	{
+		/// <summary>
+		/// The path to the json config file
+		/// </summary>
 		public string Config { get; }
 
+		/// <summary>
+		/// Serializer settings to modify the format of the resulting updated config file
+		/// </summary>
+		public JsonSerializerOptions SerializerOptions { get; }
+
+		/// <summary>
+		/// Creates a new json config editor for the specified file, with default serializer settings
+		/// </summary>
+		/// <param name="path">Path to the config file</param>
 		public ConfigEditor(string path)
 		{
 			Config = path;
+			SerializerOptions = new JsonSerializerOptions()
+			{
+				WriteIndented = true
+			};
+		}
+
+		/// <summary>
+		/// Creates a new json config editor for the specified file, with the specified serializer settings
+		/// </summary>
+		/// <param name="path">Path to the json config file</param>
+		/// <param name="serializerOptions">Json serializer settings used when modifying the config file</param>
+		public ConfigEditor(string path, JsonSerializerOptions serializerOptions)
+		{
+			Config = path;
+			SerializerOptions = serializerOptions;
 		}
 
 		/// <summary>
@@ -34,7 +62,7 @@ namespace ChickenBot.Core.Models
 
 			if (SetConfigKey(root, path, nodeValue))
 			{
-				jsonText = root.ToJsonString();
+				jsonText = root.ToJsonString(SerializerOptions);
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
@@ -70,7 +98,7 @@ namespace ChickenBot.Core.Models
 
 			if (SetConfigKey(root, path, newValue))
 			{
-				jsonText = root.ToJsonString();
+				jsonText = root.ToJsonString(SerializerOptions);
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
@@ -99,7 +127,7 @@ namespace ChickenBot.Core.Models
 
 			if (AppendValue(root, path, value))
 			{
-				jsonText = root.ToJsonString();
+				jsonText = root.ToJsonString(SerializerOptions);
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
@@ -138,6 +166,14 @@ namespace ChickenBot.Core.Models
 			return targetObj.TryAdd(targetNode, value);
 		}
 
+		/// <summary>
+		/// Appends a value to a JSON array
+		/// </summary>
+		/// <typeparam name="T">Type to append to the array</typeparam>
+		/// <param name="root">Root/context json node</param>
+		/// <param name="path">Path to the json array property</param>
+		/// <param name="value">Value to append to the array</param>
+		/// <returns><see langword="true"/> if the value could be appended</returns>
 		private bool AppendValue<T>(JsonNode root, string path, T value)
 		{
 			var pathSplit = path.Split(':');
@@ -174,6 +210,12 @@ namespace ChickenBot.Core.Models
 			return true;
 		}
 
+		/// <summary>
+		/// Iterates down the Json tree looking for the target node, creating missing parent nodes
+		/// </summary>
+		/// <param name="root">The root/context node</param>
+		/// <param name="path">The path to the json node</param>
+		/// <returns>The specified existing or newly created json node</returns>
 		private JsonNode IterateToTarget(JsonNode root, IEnumerable<string> path)
 		{
 			JsonNode target = root;
