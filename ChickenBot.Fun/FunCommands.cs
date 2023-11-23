@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using ChickenBot.API.Atrributes;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
@@ -48,26 +49,15 @@ namespace ChickenBot.Fun
 			await ctx.RespondRandom(replies);
 		}
 
-		[Command("talk"), Description("Echos a message as the bot")]
+		[Command("talk"), Description("Echos a message as the bot"), RequireBotManager]
 		public async Task TalkCommand(CommandContext ctx)
 		{
-			if ((ctx.User.Id != 102606498860896256) && (ctx.User.Id != 764761783965319189))
-			{
-				return;
-			}
-			
 			await ctx.Message.DeleteAsync();
 		}
 		
-		[Command("talk"), Description("Echos a message as the bot")]
-		public async Task TalkCommand(CommandContext ctx, string message)
+		[Command("talk"), Description("Echos a message as the bot"), RequireBotManager]
+		public async Task TalkCommand(CommandContext ctx, [RemainingText] string message)
 		{
-			//TODO: Replace this check with a service thing for devs or something idk
-			if ((ctx.User.Id != 102606498860896256) && (ctx.User.Id != 764761783965319189))
-			{
-				return;
-			}
-			
 			await ctx.Message.DeleteAsync();
 			await ctx.Channel.SendMessageAsync(message);
 		}
