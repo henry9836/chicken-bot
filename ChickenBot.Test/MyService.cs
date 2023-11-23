@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Test
 {
-	[Singleton] // If you want to share an instance betwen classes, you can register a type as a Singleton to the dependency injection container. This means we can inject this as a service anywhere we want
+	[Singleton] // If you want to share an instance between classes, you can register a type as a Singleton to the dependency injection container. This means we can inject this as a service anywhere we want
 	public class MyService
 	{
 		private readonly IConfiguration m_Configuration;

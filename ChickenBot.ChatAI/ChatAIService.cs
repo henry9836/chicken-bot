@@ -19,19 +19,9 @@ public class ChatAiService : IHostedService
     private readonly DiscordClient m_Client;
     private readonly IConversationAIProvider m_AiProvider;
     private readonly Random m_Random = new Random();
+    private ChatAISharedInfoService m_ChatInfoService;
     
-    // Conversation Data
-    private IConversationAI? m_ConversationAi;
-    private int m_ChatMessagesLeft = 0;
-    private DateTime m_MainCooldownThreshold;
-    private DateTime m_ChatCooldown;
-    private int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 3);
-    private int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 1);
-    private ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("General", 0ul);
-    private DiscordChannel? GeneralChannel;
-    
-    
-    public ChatAiService(DiscordClient client, IConfiguration configuration, ILogger<ChatAiService> logger, IConversationAIProvider aiProvider, IConfigEditor configurationEditor)
+    public ChatAiService(DiscordClient client, IConfiguration configuration, ILogger<ChatAiService> logger, IConversationAIProvider aiProvider, IConfigEditor configurationEditor, ChatAISharedInfoService infoService)
     {
         // Store the servives we have injected so we can use them in StartAsync
         m_Client = client;
@@ -39,6 +29,7 @@ public class ChatAiService : IHostedService
         m_Configuration = configuration;
         m_AiProvider = aiProvider;
         m_ConfigurationEditor = configurationEditor;
+        m_ChatInfoService = infoService;
     }
     
     public Task StartAsync(CancellationToken cancellationToken)
@@ -46,11 +37,11 @@ public class ChatAiService : IHostedService
         m_Client.MessageCreated += ClientOnMessageCreated;
 
         // Get the main cooldown, if can't find make a new one
-        m_MainCooldownThreshold = m_Configuration.GetSection("ChatAI").GetValue("AICooldownStamp", DateTime.MinValue);
-        if (m_MainCooldownThreshold == DateTime.MinValue)
+        m_ChatInfoService.m_MainCooldownThreshold = m_Configuration.GetSection("ChatAI").GetValue("AICooldownStamp", DateTime.MinValue);
+        if (m_ChatInfoService.m_MainCooldownThreshold == DateTime.MinValue)
         {
             m_Logger.LogWarning("Couldn't find a cooldown value in the config file, generating a new one...");
-            CreateNewMainCooldown();
+            m_ChatInfoService.UpdateMainCooldown();
         }
         
         return Task.CompletedTask;
@@ -73,7 +64,7 @@ public class ChatAiService : IHostedService
         }
 
         // Check that our main cooldown isn't still active
-        if (m_MainCooldownThreshold > DateTime.Now)
+        if (m_ChatInfoService.m_MainCooldownThreshold > DateTime.Now)
         {
             return;
         }
@@ -85,16 +76,16 @@ public class ChatAiService : IHostedService
         }
         
         // If we are not in general
-        if (args.Channel.Id != GeneralChannelId)
+        if (args.Channel.Id != m_ChatInfoService.GeneralChannelId)
         {
             return;
         }
         
         // Get messages
-        if (m_ConversationAi != null)
+        if (m_ChatInfoService.m_ConversationAi != null)
         {
             string message = args.Message.Content + $" - {member.Nickname ?? member.DisplayName}";
-            await m_ConversationAi.PushChatMessage(member, message);
+            await m_ChatInfoService.m_ConversationAi.PushChatMessage(member, message);
         }
             
         // If either of our cooldowns are active exit out
@@ -104,43 +95,40 @@ public class ChatAiService : IHostedService
         }
 
         // Create a new conversation if one doesn't exist
-        if (m_ConversationAi == null)
+        if (m_ChatInfoService.m_ConversationAi == null)
         {
-            m_ConversationAi = await m_AiProvider.CreateConversation();
+            m_ChatInfoService.m_ConversationAi = await m_AiProvider.CreateConversation();
             CreateNewChatLimit();
 
-            GeneralChannel = args.Channel;
+            m_ChatInfoService.GeneralChannel = args.Channel;
             
-            //TODO: Announce your alive-ment here
-            await GeneralChannel.SendMessageAsync("PING FROM THE AI SERVER :3");
+            var awakeMessage = m_ChatInfoService.m_AwakeMessages[m_Random.Next(0, m_ChatInfoService.m_AwakeMessages.Length)];
+            await m_ChatInfoService.GeneralChannel.SendMessageAsync(awakeMessage);
 
             // We don't really do anything except create what we need for a conversation so we will loop back round once we get a new message
             return;
         }
 
-        if (GeneralChannel == null)
+        if (m_ChatInfoService.GeneralChannel == null)
         {
             m_Logger.LogWarning("General Channel couldn't be set in AI Service");
             return;
         }
         
         // If our chat cooldown has expired send a new message :3
-        if (m_ChatCooldown < DateTime.Now)
+        if (m_ChatInfoService.m_ChatCooldown < DateTime.Now)
         {
             // Generate new cooldowns and iterate countdown
-            CreateNewChatCooldown();
-            m_ChatMessagesLeft--;
+            m_ChatInfoService.UpdateChatCooldown();
+            m_ChatInfoService.m_ChatMessagesLeft--;
             
             // Run on threadpool so we don't hold up the bot waiting on openai
-            _ = Task.Run(() => PokeAIBrain(m_ChatMessagesLeft <= 0));
+            _ = Task.Run(() => PokeAIBrain(m_ChatInfoService.m_ChatMessagesLeft <= 0));
         }
 
-        if (m_ChatMessagesLeft <= 0)
+        if (m_ChatInfoService.m_ChatMessagesLeft <= 0)
         {
-            CreateNewMainCooldown();
-            
-            // Save to config
-            await m_ConfigurationEditor.UpdateValueAsync("ChatAI:AICooldownStamp", m_MainCooldownThreshold);
+            m_ChatInfoService.UpdateMainCooldown();
         }
         
         return;
@@ -148,13 +136,13 @@ public class ChatAiService : IHostedService
 
     private async Task PokeAIBrain(bool shouldShutdownAfterResponse)
     {
-        if (m_ConversationAi == null)
+        if (m_ChatInfoService.m_ConversationAi == null)
         {
             m_Logger.LogWarning("Conversation object was null when trying to send a response from ai");
             return;
         }
 
-        if (GeneralChannel == null)
+        if (m_ChatInfoService.GeneralChannel == null)
         {
             m_Logger.LogWarning("General Channel was null when trying to send a response from ai");
             return;
@@ -162,13 +150,13 @@ public class ChatAiService : IHostedService
 
         try
         {
-            var response = await m_ConversationAi.GetResponseAsync();
+            var response = await m_ChatInfoService.m_ConversationAi.GetResponseAsync();
             if (string.IsNullOrEmpty(response))
             {
                 m_Logger.LogWarning("AI responded with null value!");
                 return;
             }
-            await GeneralChannel.SendMessageAsync(response);
+            await m_ChatInfoService.GeneralChannel.SendMessageAsync(response);
         }
         catch (Exception e)
         {
@@ -178,32 +166,15 @@ public class ChatAiService : IHostedService
 
         if (shouldShutdownAfterResponse)
         {
-            await GeneralChannel.SendMessageAsync("GOOD BYE :)");
-            m_ConversationAi = null;
+            var goodbyeMessage = m_ChatInfoService.m_ShutdownMessages[m_Random.Next(0, m_ChatInfoService.m_ShutdownMessages.Length)];
+            await m_ChatInfoService.GeneralChannel.SendMessageAsync(goodbyeMessage);
+            m_ChatInfoService.m_ConversationAi = null;
         }
-    }
-
-    private void CreateNewChatCooldown()
-    {
-        // Randomly cooldown chat from 10-180 seconds
-        m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(10, 180));
-        
-        //TODO: REMOVE BELOW
-        m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(1, 10));
-    }
-    
-    private void CreateNewMainCooldown()
-    {
-        // Randomly cooldown chat from 15-60 hours (18 hours - 2.5 days)
-        m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromHours(m_Random.Next(18, 60));
-        
-        //TODO: REMOVE BELOW
-        m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(1, 5));
     }
 
     private void CreateNewChatLimit()
     {
-        m_ChatMessagesLeft = m_Random.Next(MinChatMessages, MaxChatMessages);
+        m_ChatInfoService.m_ChatMessagesLeft = m_Random.Next(m_ChatInfoService.MinChatMessages, m_ChatInfoService.MaxChatMessages);
     }
     
     private bool IsMainCooldownOver()

@@ -67,13 +67,6 @@ namespace ChickenBot.ChatAI.Models.Discriminators
 				if (m_BlockList.ContainsKey(category))
 				{
 					m_Logger.LogInformation("User message was flagged! User: {user}, flags: {flags}, message \"{message}\"", user.Username, string.Join(", ", result.FlaggedCategories), message);
-					
-					// Ping admins, yikers!
-					if (result.FlaggedCategories.Contains("sexual/minors"))
-					{
-						//TODO: PING ADMINS
-					}
-					
 					return false;
 				}
 			}
