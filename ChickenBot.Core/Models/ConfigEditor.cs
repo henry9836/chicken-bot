@@ -26,7 +26,7 @@ namespace ChickenBot.Core.Models
 		public ConfigEditor(string path)
 		{
 			Config = path;
-			SerializerOptions = new JsonSerializerOptions()
+			SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General)
 			{
 				WriteIndented = true
 			};
