@@ -98,7 +98,7 @@ namespace ChickenBot.Core.Models
 
 			if (SetConfigKey(root, path, newValue))
 			{
-				jsonText = root.ToJsonString(SerializerOptions);
+				jsonText = root.ToString();
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
