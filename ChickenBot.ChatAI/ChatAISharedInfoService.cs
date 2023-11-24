@@ -89,7 +89,7 @@ public class ChatAISharedInfoService
     {
         // Randomly cooldown chat from 15-60 hours (18 hours - 2.5 days)
         m_MainCooldownThreshold = DateTime.Now + TimeSpan.FromHours(m_Random.Next(18, 60));
-            
+        
         // Save to config
         await m_ConfigurationEditor.UpdateValueAsync("ChatAI:AICooldownStamp", m_MainCooldownThreshold);
     }

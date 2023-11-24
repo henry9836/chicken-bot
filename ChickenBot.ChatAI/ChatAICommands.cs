@@ -1,3 +1,4 @@
+using ChickenBot.API.Atrributes;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -16,15 +17,9 @@ public class ChatAiCommands : BaseCommandModule
         m_Logger = logger;
     }
         
-    [Command("MagicCorn"), Description("Overrides the main cooldown to start the next AI session")]
+    [Command("MagicCorn"), Description("Overrides the main cooldown to start the next AI session"), RequireBotManager]
     public async Task MagicCornCommand(CommandContext ctx)
     {
-        //TODO: Replace this check with a service thing for devs or something idk
-        if ((ctx.User.Id != 102606498860896256) && (ctx.User.Id != 764761783965319189))
-        {
-            return;
-        }
-
         m_MyService.m_MainCooldownThreshold = DateTime.MinValue;
         
         // Stealth :3
@@ -32,16 +27,9 @@ public class ChatAiCommands : BaseCommandModule
     }
 
     // Only for devs
-    // TODO: Add admins and mods to be able to run this
-    [Command("Shut"), Description("Stops and AI Session")]
+    [Command("Shut"), Description("Stops an AI Session"), RequireBotManagerOrStaff]
     public async Task ShutCommand(CommandContext ctx)
     {
-        //TODO: Replace this check with a service thing for devs or something idk
-        if ((ctx.User.Id != 102606498860896256) && (ctx.User.Id != 764761783965319189))
-        {
-            return;
-        }
-
         m_MyService.UpdateMainCooldown();
     }
 }

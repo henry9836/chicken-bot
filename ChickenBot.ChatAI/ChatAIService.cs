@@ -66,6 +66,13 @@ public class ChatAiService : IHostedService
         // Check that our main cooldown isn't still active
         if (m_ChatInfoService.m_MainCooldownThreshold > DateTime.Now)
         {
+            // If our conversation is still active then someone used the !shut command and we need to say goodbye
+            if (m_ChatInfoService.m_ConversationAi != null)
+            {
+                _ = Task.Run(() => SendGoodbyeMessage());
+                m_ChatInfoService.m_ConversationAi = null;
+            }
+            
             return;
         }
         
@@ -166,10 +173,20 @@ public class ChatAiService : IHostedService
 
         if (shouldShutdownAfterResponse)
         {
-            var goodbyeMessage = m_ChatInfoService.m_ShutdownMessages[m_Random.Next(0, m_ChatInfoService.m_ShutdownMessages.Length)];
-            await m_ChatInfoService.GeneralChannel.SendMessageAsync(goodbyeMessage);
-            m_ChatInfoService.m_ConversationAi = null;
+            await SendGoodbyeMessage();
         }
+    }
+
+    private async Task SendGoodbyeMessage()
+    {
+        if (m_ChatInfoService.GeneralChannel == null)
+        {
+            return;
+        }
+        
+        var goodbyeMessage = m_ChatInfoService.m_ShutdownMessages[m_Random.Next(0, m_ChatInfoService.m_ShutdownMessages.Length)];
+        await m_ChatInfoService.GeneralChannel.SendMessageAsync(goodbyeMessage);
+        m_ChatInfoService.m_ConversationAi = null;
     }
 
     private void CreateNewChatLimit()
