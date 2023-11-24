@@ -62,7 +62,7 @@ namespace ChickenBot.Core.Models
 
 			if (SetConfigKey(root, path, nodeValue))
 			{
-				jsonText = root.ToJsonString(SerializerOptions);
+				jsonText = root.ToString();
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
@@ -127,7 +127,7 @@ namespace ChickenBot.Core.Models
 
 			if (AppendValue(root, path, value))
 			{
-				jsonText = root.ToJsonString(SerializerOptions);
+				jsonText = root.ToString();
 
 				await File.WriteAllTextAsync(Config, jsonText);
 
