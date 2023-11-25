@@ -23,7 +23,7 @@ public class ChatAISharedInfoService
     public int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 20);
     public int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 7);
     public ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("General", 0ul);
-    public ulong MaxRespondDelay => m_Configuration.GetSection("ChatAI").GetValue("MaxRespondDelay", 120ul);
+    public int MaxRespondDelay => m_Configuration.GetSection("ChatAI").GetValue("MaxRespondDelay", 120);
 	public DiscordChannel? GeneralChannel;
 
     public readonly string[] m_AwakeMessages =
