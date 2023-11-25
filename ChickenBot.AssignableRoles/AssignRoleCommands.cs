@@ -25,16 +25,11 @@ namespace ChickenBot.AssignableRoles
 
 		private DiscordEmbed CreateRolesEmbed(AssignableRole[] roles, DiscordUser user)
 		{
-			var sb = new StringBuilder();
-
-			foreach (var role in roles)
-			{
-				sb.AppendLine($"  *  {role.RoleName}");
-			}
+			var roletext = string.Join(", ", roles.Select(x => $"`{x}`"));
 
 			return new DiscordEmbedBuilder()
 				.WithTitle("Assignable Roles")
-				.WithDescription($"Assign a role with `add-role [Role]`, and remove it with `remove-role`\n{sb}")
+				.WithDescription($"Assign a role with `add-role [Role]`, and remove it with `remove-role`\n{roletext}")
 				.WithRequestedBy(user)
 				.Build();
 		}
