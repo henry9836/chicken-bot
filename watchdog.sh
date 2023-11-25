@@ -49,6 +49,7 @@ do
         ./ChickenBot
 
         # Backup to tmp
+        cp config.json ~/config.json.runtime.bak
         cp config.json /tmp/config.json.bak
 
         # Reset
