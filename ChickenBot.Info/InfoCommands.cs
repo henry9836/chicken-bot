@@ -7,7 +7,7 @@ namespace ChickenBot.Info
 {
 	public class InfoCommands : BaseCommandModule
 	{
-		[Command("avatar"), Hidden]
+		[Command("avatar"), Description("Displays a user's profile picture")]
 		public async Task AvatarCommand(CommandContext ctx)
 		{
 			var embed = new DiscordEmbedBuilder()

@@ -75,7 +75,7 @@ namespace ChickenBot.Fun
 			await ctx.RespondRandom(replies);
 		}
 
-		[Command("ping"), Aliases("echo"), Hidden]
+		[Command("ping"), Aliases("echo")]
 		public async Task PingCommand(CommandContext ctx)
 		{
 			var random = new Random();
@@ -105,6 +105,8 @@ namespace ChickenBot.Fun
 			// ~Nitro: But Volt said it would be funny :3
 
 			// ~Tek: I am still not impressed
+			
+			// ~Nitro: :toothless_babyboo:
 
 			if (member.Id == 102606498860896256)
 			{
