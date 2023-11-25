@@ -11,7 +11,7 @@ namespace ChickenBot.Quotes
 	public class NsfwQuoteCommand : BaseCommandModule
 	{
 		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);
-		private DiscordChannel m_NsfwChannel;
+		private DiscordChannel? m_NsfwChannel;
 
 		private readonly ILogger<NsfwQuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
