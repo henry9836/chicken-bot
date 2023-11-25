@@ -151,7 +151,7 @@ namespace ChickenBot.ChatAI.Models
 		/// Determines the next message's temperature
 		/// </summary>
 		/// <remarks>
-		/// Generates a number between 0.85 - 1.35
+		/// Generates a number between 0.85 - 1.4
 		/// </remarks>
 		private double DetermineTemperature()
 		{
