@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ChickenBot.API;
 using ChickenBot.API.Atrributes;
+using ChickenBot.API.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -15,8 +16,6 @@ namespace ChickenBot.Petitions
 
 		private readonly IConfiguration m_Configuration;
 		private readonly ILogger<PetitionCommand> m_Logger;
-
-		private readonly string[] m_ImageExtensions = new[] { "png", "jpg", "jpeg", "gif", "tiff", "webp" };
 
 		public PetitionCommand(IConfiguration configuration, ILogger<PetitionCommand> logger)
 		{
@@ -79,7 +78,7 @@ namespace ChickenBot.Petitions
 
 			if (attachments.Count > 0)
 			{
-				var images = attachments.Where(IsImage).ToArray();
+				var images = attachments.Where(AttachmentUtils.IsImage).ToArray();
 				if (images.Length == 1)
 				{
 					onlyImageUrl = images[0];
@@ -115,13 +114,6 @@ namespace ChickenBot.Petitions
 			}
 
 			m_Logger.LogInformation("Created petition, as requested by {user}", ctx.Message.Author.Username);
-		}
-
-		private bool IsImage(string url)
-		{
-			var baseUrl = url.Split('?')[0];
-			var ext = Path.GetExtension(baseUrl).Trim('.').ToLowerInvariant();
-			return m_ImageExtensions.Contains(ext);
 		}
 	}
 }

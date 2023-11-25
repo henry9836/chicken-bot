@@ -37,7 +37,6 @@ namespace ChickenBot.FlagGame.Models
 				return null;
 			}
 			return games.LastOrDefault();
-
 		}
 	}
 }

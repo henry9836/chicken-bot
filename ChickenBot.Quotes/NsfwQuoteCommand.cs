@@ -1,4 +1,5 @@
 ﻿using ChickenBot.API.Atrributes;
+using ChickenBot.API.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -53,9 +54,7 @@ namespace ChickenBot.Quotes
 				return;
 			}
 
-			var extension = Path.GetExtension(attachmentUrl);
-
-			var isAllowed = m_AllowedTypes.Any(x => extension.EndsWith(x, StringComparison.InvariantCultureIgnoreCase));
+			var isAllowed = AttachmentUtils.IsImage(attachmentUrl);
 
 			if (!isAllowed)
 			{
