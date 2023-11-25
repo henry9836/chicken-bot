@@ -28,7 +28,7 @@ namespace ChickenBot.AdminCommands
 			"bot-spam"
 		};
 
-		[Command("set-channel"), Aliases("setchannel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
+		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx)
 		{
 			var channels = string.Join(", ", m_AssignableChannels.Select(x => $"`{x}`"));
@@ -41,7 +41,7 @@ namespace ChickenBot.AdminCommands
 			await ctx.RespondAsync(embed);
 		}
 
-		[Command("set-channel"), Aliases("setchannel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
+		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx, string channelName, DiscordChannel channel)
 		{
 			channelName = channelName.ToLowerInvariant();
