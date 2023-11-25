@@ -1,4 +1,4 @@
-﻿using ChickenBot.FlagGame.Models;
+using ChickenBot.FlagGame.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
