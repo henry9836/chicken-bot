@@ -119,7 +119,8 @@ namespace ChickenBot.Petitions
 
 		private bool IsImage(string url)
 		{
-			var ext = Path.GetExtension(url).Trim('.').ToLowerInvariant();
+			var baseUrl = url.Split('?')[0];
+			var ext = Path.GetExtension(baseUrl).Trim('.').ToLowerInvariant();
 			return m_ImageExtensions.Contains(ext);
 		}
 	}

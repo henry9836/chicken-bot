@@ -104,6 +104,8 @@ namespace ChickenBot.Fun
 			
 			// ~Nitro: But Volt said it would be funny :3
 
+			// ~Tek: I am still not impressed
+
 			if (member.Id == 102606498860896256)
 			{
 				await ctx.RespondAsync($"*pecks and chases* {ctx.Message.Author.Username}`");

@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.AdminCommands", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.ChatAI", "ChickenBot.ChatAI\ChickenBot.ChatAI.csproj", "{3F6A0528-0CA9-459F-9546-817683FFBAF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyBuild", "DependencyBuild\DependencyBuild.csproj", "{847B9666-1772-4561-B629-1312F844E166}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyBuild", "DependencyBuild\DependencyBuild.csproj", "{847B9666-1772-4561-B629-1312F844E166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.FlagGame", "ChickenBot.FlagGame\ChickenBot.FlagGame.csproj", "{D89D8E29-15AA-4752-BAF7-084573E28730}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,10 @@ Global
 		{847B9666-1772-4561-B629-1312F844E166}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{847B9666-1772-4561-B629-1312F844E166}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{847B9666-1772-4561-B629-1312F844E166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D89D8E29-15AA-4752-BAF7-084573E28730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D89D8E29-15AA-4752-BAF7-084573E28730}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D89D8E29-15AA-4752-BAF7-084573E28730}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D89D8E29-15AA-4752-BAF7-084573E28730}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{24176408-2287-469F-B039-CB53A2053A48} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{936D456A-C4DE-4339-965E-754BAF2C6C0D} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{3F6A0528-0CA9-459F-9546-817683FFBAF8} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
+		{D89D8E29-15AA-4752-BAF7-084573E28730} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C2CB5B5-36FD-4598-A136-C127AA4B9EBE}
