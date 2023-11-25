@@ -99,9 +99,14 @@ namespace ChickenBot.Petitions
 				.WithContent(string.Join('\n', attachments));
 
 			var petition = await channel.SendMessageAsync(message);
+			if (petition == null)
+			{
+				m_Logger.LogWarning("Could not post to petitions channel");
+				return;
+			}
 
-			var thumbsUp = DiscordEmoji.FromName(ctx.Client, "thumbsup", includeGuilds: false);
-			var thumbsDown = DiscordEmoji.FromName(ctx.Client, "thumbsdown", includeGuilds: false);
+			var thumbsUp = DiscordEmoji.FromName(ctx.Client, ":thumbsup:", includeGuilds: false);
+			var thumbsDown = DiscordEmoji.FromName(ctx.Client, ":thumbsdown:", includeGuilds: false);
 
 			if (thumbsUp != null)
 			{
