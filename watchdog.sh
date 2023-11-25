@@ -27,7 +27,7 @@ do
         echo
         echo
         pushd ChickenBot/bin/Debug/net7.0/plugins
-        cp /tmp/config.json.bak ../config.json
+        cp ~/config.json.runtime.bak ../config.json
         mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net7.0/ChickenBot.AdminCommands.dll ./
         mv ../../../../../ChickenBot.API/bin/Debug/net7.0/ChickenBot.API.dll ./
         mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net7.0/ChickenBot.AssignableRoles.dll ./
@@ -50,7 +50,6 @@ do
 
         # Backup to tmp
         cp config.json ~/config.json.runtime.bak
-        cp config.json /tmp/config.json.bak
 
         # Reset
         popd
