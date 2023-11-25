@@ -10,7 +10,8 @@ namespace ChickenBot.Quotes
 {
 	public class NsfwQuoteCommand : BaseCommandModule
 	{
-		public ulong NsfwQuotesChannelID => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);
+		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);
+		private DiscordChannel m_NsfwChannel;
 
 		private readonly ILogger<NsfwQuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
@@ -70,21 +71,25 @@ namespace ChickenBot.Quotes
 				return;
 			}
 
-			var quotesChannel = ctx.Guild.GetChannel(NsfwQuotesChannelID);
-
-			if (quotesChannel == null)
+			if (m_NsfwChannel == null)
 			{
-				await ctx.RespondAsync("Begawk! I can't seem to find the nsfw-quotes channel");
-				return;
+				m_NsfwChannel = ctx.Guild.GetChannel(NsfwQuotesChannelId);
+				if (m_NsfwChannel == null)
+				{
+					await ctx.RespondAsync("Begawk! I can't seem to find the nsfw-quotes channel");
+					return;
+				}
 			}
-
+			
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
 				.WithTitle($"Quote by {ctx.Message.Author.Username}")
-				.WithFooter($"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>")
-				.WithDescription(text)
-				.WithColor(DiscordColor.Red);
+				.WithTimestamp(DateTime.Now)
+				.WithDescription($"{text}\n<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>".Trim())
+				.WithColor(new DiscordColor("#c4160a"));
 
+			await m_NsfwChannel.SendMessageAsync(embed);
+			
 			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author.Username, attachmentUrl, text);
 		}
 	}

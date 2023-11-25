@@ -8,9 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Quotes
 {
-	public class QuoteCommand
+	public class QuoteCommand : BaseCommandModule
 	{
-		public ulong QuotesChannelID => m_Configuration.GetSection("Channels").GetValue("Quotes", 0ul);
+		private ulong QuotesChannelID => m_Configuration.GetSection("Channels").GetValue("Quotes", 0ul);
+		private DiscordChannel m_QuotesChannel;
 
 		private readonly ILogger<QuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
@@ -27,7 +28,7 @@ namespace ChickenBot.Quotes
 		{
 			if (ctx.Channel.IsNSFW)
 			{
-				await ctx.RespondAsync("Bonk!");
+				await ctx.RespondAsync("Bonk! If quoting a nsfw item please use nsfw-quote instead");
 				return;
 			}
 			
@@ -68,20 +69,24 @@ namespace ChickenBot.Quotes
 				return;
 			}
 
-			var quotesChannel = ctx.Guild.GetChannel(QuotesChannelID);
-
-			if (quotesChannel == null)
+			if (m_QuotesChannel == null)
 			{
-				await ctx.RespondAsync("Begawk! I can't seem to find the quotes channel");
-				return;
+				m_QuotesChannel = ctx.Guild.GetChannel(QuotesChannelID);
+				if (m_QuotesChannel == null)
+				{
+					await ctx.RespondAsync("Begawk! I can't seem to find the quotes channel");
+					return;
+				}
 			}
 
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
 				.WithTitle($"Quote by {ctx.Message.Author.Username}")
-				.WithFooter($"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>")
-				.WithDescription(text)
-				.WithColor(DiscordColor.Green);
+				.WithTimestamp(DateTime.Now)
+				.WithDescription($"{text}\n<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>".Trim())
+				.WithColor(new DiscordColor("#19b017"));
+
+			await m_QuotesChannel.SendMessageAsync(embed);
 
 			m_Logger.LogInformation("Posted quote from user {user}: {url} '{text}'", ctx.Message.Author.Username, attachmentUrl, text);
 		}
