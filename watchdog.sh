@@ -17,6 +17,7 @@ do
         echo Compiling Bot...
         echo
         echo
+        dotnet clean ./ChickenBot.sln
         dotnet build ./ChickenBot.sln
 
         # Move modules into runtime folder
@@ -26,6 +27,7 @@ do
         echo
         echo
         pushd ChickenBot/bin/Debug/net7.0/plugins
+        cp /tmp/config.json.bak ../config.json
         mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net7.0/ChickenBot.AdminCommands.dll ./
         mv ../../../../../ChickenBot.API/bin/Debug/net7.0/ChickenBot.API.dll ./
         mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net7.0/ChickenBot.AssignableRoles.dll ./
@@ -45,6 +47,9 @@ do
         echo
         pushd ChickenBot/bin/Debug/net7.0/
         ./ChickenBot
+
+        # Backup to tmp
+        cp config.json /tmp/config.json.bak
 
         # Reset
         popd
