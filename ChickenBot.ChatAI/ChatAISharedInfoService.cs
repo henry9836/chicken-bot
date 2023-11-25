@@ -82,7 +82,6 @@ public class ChatAISharedInfoService
     {
         // Randomly cooldown chat from 10-180 seconds
         m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(5, 180));
-        m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(1, 5));
     }
     
     public async void UpdateMainCooldown()
