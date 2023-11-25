@@ -52,10 +52,10 @@ namespace ChickenBot.VerificationSystem.Services
 			// We need to stop the timer, or else it will continue to raise events
 			m_Timer.Stop();
 
-			m_Logger.LogInformation("Flushing cache to database...");
+			m_Logger.LogDebug("Flushing cache to database...");
 			await m_Cache.FlushCacheAsync();
 
-			m_Logger.LogInformation("Verification Module Stopped.");
+			m_Logger.LogDebug("Verification Module Stopped.");
 		}
 
 		private void RunDatabaseSync(object? sender, System.Timers.ElapsedEventArgs e)

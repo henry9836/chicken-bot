@@ -9,7 +9,7 @@ namespace ChickenBot
 		public static IServiceProvider ConfigureServices(IServiceCollection services)
 		{
 			// Configure logging with Serilog
-			Log.Logger = ChickenMarks.CreateLogger();
+			Log.Logger = ChickenMarks.CreateLogger(services);
 
 			services.AddLogging(loggingBuilder =>
 				loggingBuilder.AddSerilog());

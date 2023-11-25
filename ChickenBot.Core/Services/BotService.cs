@@ -35,6 +35,7 @@ namespace ChickenBot.Core.Services
 		{
 			m_Subcontext.ChildServices.AddHostedService<CommandsNextService>();
 			m_Subcontext.ChildServices.AddHostedService<DiscordConnectionService>();
+			m_Subcontext.ChildServices.AddHostedService<DiscordLoggerService>();
 
 			var subService = m_Subcontext.BuildSubservice();
 

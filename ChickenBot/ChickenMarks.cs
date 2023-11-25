@@ -1,22 +1,30 @@
 using ChickenBot.Core.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Microsoft.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace ChickenBot;
 public static class ChickenMarks
 {
-	public static Serilog.ILogger CreateLogger()
+	public static Serilog.ILogger CreateLogger(IServiceCollection services)
 	{
+		var discordLogger = new DiscordLogger();
+
+		services.AddSingleton(discordLogger);
+
 		return new Serilog.LoggerConfiguration()
 			.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss}] [{CustomLevel}] [{source}] {Message:lj}{NewLine}{Exception}", theme: ChickenScratcher.Theme())
+			.WriteTo.Sink(discordLogger, LogEventLevel.Information)
 			.Enrich.FromLogContext()
 			.Enrich.With<LogSourceEnricher>()
 			.MinimumLevel.Debug()
 			.Enrich.With<ChickenScratcher>()
 			.WriteTo.File(path: Path.Combine("Logs", "_.log"), rollingInterval: RollingInterval.Day)
-			.WriteTo.File(path: Path.Combine("Logs", "Errors", "error.log"), rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning)
+			.WriteTo.File(path: Path.Combine("Logs", "Errors", "error.log"), rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: LogEventLevel.Warning)
 			.CreateLogger();
 	}
 }

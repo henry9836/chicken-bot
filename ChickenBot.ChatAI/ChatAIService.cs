@@ -167,7 +167,7 @@ public class ChatAiService : IHostedService
         }
         catch (Exception e)
         {
-            m_Logger.LogError("Couldn't get a response from OpenAI: {e}", e.Message);
+            m_Logger.LogError(e, "Couldn't get a response from OpenAI:");
             throw;
         }
 

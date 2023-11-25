@@ -25,10 +25,11 @@ namespace ChickenBot.AdminCommands
 			"verified",
 			"nsfw-quotes",
 			"petitions",
-			"bot-spam"
+			"bot-spam",
+			"bot-log"
 		};
 
-		[Command("set-channel"), Aliases("setchannel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
+		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx)
 		{
 			var channels = string.Join(", ", m_AssignableChannels.Select(x => $"`{x}`"));
@@ -41,7 +42,7 @@ namespace ChickenBot.AdminCommands
 			await ctx.RespondAsync(embed);
 		}
 
-		[Command("set-channel"), Aliases("setchannel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
+		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx, string channelName, DiscordChannel channel)
 		{
 			channelName = channelName.ToLowerInvariant();
@@ -57,6 +58,44 @@ namespace ChickenBot.AdminCommands
 			m_Logger.LogInformation("User updated channel for {name} to {channel} ({channelID})", channelName, channel.Name, channel.Id);
 
 			await ctx.RespondAsync($"Updated channel for {channelName}.");
+
+		}
+
+		private static readonly List<string> m_AssignableRoles = new List<string>()
+		{
+			"verified",
+			"bot-dev"
+		};
+
+		[Command("set-role"), RequireBotManagerOrAdmin, Description("Sets a role in the config")]
+		public async Task SetRoleCommand(CommandContext ctx)
+		{
+			var roles = string.Join(", ", m_AssignableRoles.Select(x => $"`{x}`"));
+
+			var embed = new DiscordEmbedBuilder()
+				.WithTitle("Set-Role")
+				.WithDescription($"Sets a role in the config.\nConfigurable Channels: {roles}\nSet a channel with `set-role [name] [@role mention]`")
+				.WithRequestedBy(ctx.User);
+
+			await ctx.RespondAsync(embed);
+		}
+
+		[Command("set-role"), RequireBotManagerOrAdmin, Description("Sets a role in the config")]
+		public async Task SetRoleCommand(CommandContext ctx, string roleName, DiscordRole role)
+		{
+			roleName = roleName.ToLowerInvariant();
+
+			if (!m_AssignableRoles.Contains(roleName))
+			{
+				await ctx.RespondAsync("Unknown role setting");
+				return;
+			}
+
+			await m_ConfigEditor.UpdateValueAsync($"Roles:{roleName}", role.Id);
+
+			m_Logger.LogInformation("Role updated channel for {name} to {role} ({roleID})", roleName, role.Name, role.Id);
+
+			await ctx.RespondAsync($"Updated channel for {roleName}.");
 		}
 	}
 }

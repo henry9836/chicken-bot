@@ -89,7 +89,7 @@ namespace ChickenBot.VerificationSystem.Models
 		/// </summary>
 		public async Task FlushCacheAsync()
 		{
-			m_Logger.LogInformation("Flushing cache...");
+			m_Logger.LogDebug("Flushing cache...");
 			try
 			{
 				// Create a shallow copy of all current user IDs in the cache
@@ -111,10 +111,10 @@ namespace ChickenBot.VerificationSystem.Models
 					if (cachedUserInfo.IsOutOfCycles())
 					{
 						TryRemoveUser(userID, out _);
-						m_Logger.LogInformation("cachedUser out of cycles.");
+						m_Logger.LogDebug("cachedUser out of cycles.");
 					}
 				}
-				m_Logger.LogInformation("Database Upload Done.");
+				m_Logger.LogDebug("Database Upload Done.");
 			}
 			catch (Exception ex)
 			{
@@ -132,7 +132,7 @@ namespace ChickenBot.VerificationSystem.Models
 			if (TryGetUser(userID, out var info) && info != null)
 			{
 				info.MessageCount++;
-				m_Logger.LogInformation("new message count: {c}", info.MessageCount);
+				m_Logger.LogDebug("new message count: {c}", info.MessageCount);
 
 				var messageEligible = (info.MessageCount >= info.Threshold);
 				var timeEligible = info.Eligible <= DateTime.UtcNow;
