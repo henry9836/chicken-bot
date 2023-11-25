@@ -19,7 +19,7 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly IMessageDiscriminator m_Discriminator;
 
-		private readonly Dictionary<ulong, int> m_UserChatIDs = new Dictionary<ulong, int>();
+		//private readonly Dictionary<ulong, int> m_UserChatIDs = new Dictionary<ulong, int>();
 
 		private readonly Random m_Random = new Random();
 
@@ -27,11 +27,8 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly ILogger<ConversationAI> m_Logger;
 
-		private readonly ConcurrentQueue<(DiscordUser user, string message)> m_PushQueue = new();
+		//private int m_ChatIDIndex = 0;
 
-		private int m_ChatIDIndex = 0;
-
-		private bool m_WorkerActive = false;
 
 		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator, ILogger<ConversationAI> logger)
 		{
@@ -79,19 +76,19 @@ namespace ChickenBot.ChatAI.Models
 		/// <summary>
 		/// Processes and discriminates user messages in strict order, to push to the sliding window
 		/// </summary>
-		private async Task ProcessMessagePush()
-		{
-			while (m_PushQueue.TryDequeue(out var message))
-			{
-				if (!await m_Discriminator.Discriminate(message.user, message.message))
-				{
-					// Message was flagged, discard
-					continue;
-				}
+		//private async Task ProcessMessagePush()
+		//{
+		//	while (m_PushQueue.TryDequeue(out var message))
+		//	{
+		//		if (!await m_Discriminator.Discriminate(message.user, message.message))
+		//		{
+		//			// Message was flagged, discard
+		//			continue;
+		//		}
 
-				//PushChatMessageInternal(message.user, message.message);
-			}
-		}
+		//		//PushChatMessageInternal(message.user, message.message);
+		//	}
+		//}
 
 		/// <summary>
 		/// Pushes a confirmed message onto the sliding window
@@ -100,26 +97,26 @@ namespace ChickenBot.ChatAI.Models
 		/// <param name="message"></param>
 		private void PushChatMessageInternal(DiscordMember user, string message)
 		{
-			string userChatID;
+			//string userChatID;
 
-			if (m_Settings.UseNumericNames)
-			{
-				if (!m_UserChatIDs.TryGetValue(user.Id, out var chatID))
-				{
-					chatID = m_ChatIDIndex++;
-					m_UserChatIDs[user.Id] = chatID;
-				}
-				userChatID = chatID.ToString();
-			}
-			else
-			{
-				userChatID = user.Nickname ?? user.DisplayName;
+			//if (m_Settings.UseNumericNames)
+			//{
+			//	if (!m_UserChatIDs.TryGetValue(user.Id, out var chatID))
+			//	{
+			//		chatID = m_ChatIDIndex++;
+			//		m_UserChatIDs[user.Id] = chatID;
+			//	}
+			//	userChatID = chatID.ToString();
+			//}
+			//else
+			//{
+			//	userChatID = user.Nickname ?? user.DisplayName;
 
-				if (userChatID.Length > m_Settings.MaxUsernameLength)
-				{
-					userChatID = userChatID.Substring(0, m_Settings.MaxUsernameLength);
-				}
-			}
+			//	if (userChatID.Length > m_Settings.MaxUsernameLength)
+			//	{
+			//		userChatID = userChatID.Substring(0, m_Settings.MaxUsernameLength);
+			//	}
+			//}
 
 			var msg = new ChatMessage(ChatMessageRole.User, message)
 			{

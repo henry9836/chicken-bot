@@ -28,8 +28,9 @@ public class ChatAiCommands : BaseCommandModule
 
     // Only for devs
     [Command("Shut"), Description("Stops an AI Session"), RequireBotManagerOrStaff]
-    public async Task ShutCommand(CommandContext ctx)
+    public Task ShutCommand(CommandContext ctx)
     {
         m_MyService.UpdateMainCooldown();
+        return Task.CompletedTask;
     }
 }

@@ -11,7 +11,7 @@ namespace ChickenBot.Quotes
 	public class QuoteCommand : BaseCommandModule
 	{
 		private ulong QuotesChannelID => m_Configuration.GetSection("Channels").GetValue("Quotes", 0ul);
-		private DiscordChannel m_QuotesChannel;
+		private DiscordChannel? m_QuotesChannel;
 
 		private readonly ILogger<QuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;

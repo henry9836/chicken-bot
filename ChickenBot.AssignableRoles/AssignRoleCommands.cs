@@ -36,7 +36,7 @@ namespace ChickenBot.AssignableRoles
 		
 		[Command("add-new-assignable-role")]
 		[RequireBotPermissions(Permissions.Administrator)]
-		public async Task AddNewAssignableRole(CommandContext ctx, ulong roleId)
+		public async Task AddNewAssignableRole(CommandContext ctx, DiscordRole role, [RemainingText] string roleName)
 		{
 			if (ctx.User is not DiscordMember member)
 			{
@@ -45,11 +45,11 @@ namespace ChickenBot.AssignableRoles
 			}
 			
 			// Create the new role
-			var guildRole = member.Guild.GetRole(roleId);
+			var guildRole = member.Guild.GetRole(role.Id);
 			
 			AssignableRole newRole = new AssignableRole
 			{
-				RoleName = guildRole.Name,
+				RoleName = roleName,
 				RoleID = guildRole.Id
 			};
 
@@ -68,7 +68,7 @@ namespace ChickenBot.AssignableRoles
 		
 		[Command("remove-assignable-role")]
 		[RequireBotPermissions(Permissions.Administrator)]
-		public async Task RemoveAssignableRole(CommandContext ctx, string roleId)
+		public async Task RemoveAssignableRole(CommandContext ctx, [RemainingText] string roleName)
 		{
 			if (ctx.User is not DiscordMember member)
 			{
@@ -79,7 +79,7 @@ namespace ChickenBot.AssignableRoles
 			// Create the new role
 			var roles = m_Roles.GetAssignableRoles();
 
-			var roleToRemove = roles.FirstOrDefault(x => x.RoleName.Equals(roleId, StringComparison.InvariantCultureIgnoreCase));
+			var roleToRemove = roles.FirstOrDefault(x => x.RoleName.Equals(roleName, StringComparison.InvariantCultureIgnoreCase));
 
 			// If the role is already in our assignable roles do not add a repeat
 			if (roleToRemove == null)
@@ -121,7 +121,7 @@ namespace ChickenBot.AssignableRoles
 		
 		[Command("add-role"), Description("Gives you a self-assignable role")]
 		[RequireBotPermissions(Permissions.ManageRoles)]
-		public async Task AddRoleCommand(CommandContext ctx, string role)
+		public async Task AddRoleCommand(CommandContext ctx, [RemainingText] string role)
 		{
 			if (ctx.User is not DiscordMember member)
 			{
@@ -168,7 +168,7 @@ namespace ChickenBot.AssignableRoles
 
 		[Command("remove-role"), Description("Removes a self-assignable role")]
 		[RequireBotPermissions(Permissions.ManageRoles)]
-		public async Task RemoveRoleCommand(CommandContext ctx, string role)
+		public async Task RemoveRoleCommand(CommandContext ctx, [RemainingText] string role)
 		{
 			if (ctx.User is not DiscordMember member)
 			{
