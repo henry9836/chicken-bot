@@ -25,7 +25,7 @@ namespace ChickenBot.AssignableRoles
 
 		private DiscordEmbed CreateRolesEmbed(AssignableRole[] roles, DiscordUser user)
 		{
-			var roletext = string.Join(", ", roles.Select(x => $"`{x}`"));
+			var roletext = string.Join(", ", roles.Select(x => $"`{x.RoleName}`"));
 
 			return new DiscordEmbedBuilder()
 				.WithTitle("Assignable Roles")
