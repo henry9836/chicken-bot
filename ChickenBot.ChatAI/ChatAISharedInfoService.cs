@@ -23,7 +23,8 @@ public class ChatAISharedInfoService
     public int MaxChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MaxChatMessages", 20);
     public int MinChatMessages => m_Configuration.GetSection("ChatAI").GetValue("MinChatMessages", 7);
     public ulong GeneralChannelId => m_Configuration.GetSection("Channels").GetValue("General", 0ul);
-    public DiscordChannel? GeneralChannel;
+    public ulong MaxRespondDelay => m_Configuration.GetSection("ChatAI").GetValue("MaxRespondDelay", 120ul);
+	public DiscordChannel? GeneralChannel;
 
     public readonly string[] m_AwakeMessages =
     {
@@ -81,7 +82,7 @@ public class ChatAISharedInfoService
     public void UpdateChatCooldown()
     {
         // Randomly cooldown chat from 10-180 seconds
-        m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(5, 120));
+        m_ChatCooldown = DateTime.Now + TimeSpan.FromSeconds(m_Random.Next(5, MaxRespondDelay));
     }
     
     public async void UpdateMainCooldown()

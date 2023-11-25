@@ -123,7 +123,7 @@ namespace ChickenBot.ChatAI.Models
 
 			var msg = new ChatMessage(ChatMessageRole.User, message)
 			{
-				Name = userChatID
+				Name = user.Id.ToString()
 			};
 
 			AppendMessage(msg);
