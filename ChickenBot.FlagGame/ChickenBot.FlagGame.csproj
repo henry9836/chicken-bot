@@ -7,7 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="flags.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="flags.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

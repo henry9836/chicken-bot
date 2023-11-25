@@ -19,7 +19,8 @@ namespace ChickenBot.AdminCommands
 			"quotes",
 			"verified",
 			"nsfw-quotes",
-			"petitions"
+			"petitions",
+			"bot-spam"
 		};
 
 		private static readonly List<string> m_AssignableRoles = new List<string>
