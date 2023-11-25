@@ -1,3 +1,4 @@
+using ChickenBot.Core.Models;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -9,8 +10,9 @@ public static class ChickenMarks
 	public static Serilog.ILogger CreateLogger()
 	{
 		return new Serilog.LoggerConfiguration()
-			.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss}] [{CustomLevel}] {Message:lj}{NewLine}{Exception}", theme: ChickenScratcher.Theme())
+			.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss}] [{CustomLevel}] [{source}] {Message:lj}{NewLine}{Exception}", theme: ChickenScratcher.Theme())
 			.Enrich.FromLogContext()
+			.Enrich.With<LogSourceEnricher>()
 			.MinimumLevel.Debug()
 			.Enrich.With<ChickenScratcher>()
 			.WriteTo.File(path: Path.Combine("Logs", "_.log"), rollingInterval: RollingInterval.Day)
@@ -50,7 +52,6 @@ public class ChickenScratcher : ILogEventEnricher
 				msg = logEvent.Level.ToString();
 				break;
 		}
-
 		logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("CustomLevel", msg));
 	}
 

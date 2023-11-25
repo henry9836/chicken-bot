@@ -14,7 +14,6 @@ namespace ChickenBot.Quotes
 
 		private readonly ILogger<QuoteCommand> m_Logger;
 		private readonly IConfiguration m_Configuration;
-		private readonly string[] m_AllowedTypes = new[] { "png", "jpg", "jpeg", "webp" };
 
 		public QuoteCommand(ILogger<QuoteCommand> logger, IConfiguration configuration)
 		{
