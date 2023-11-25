@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Text.RegularExpressions;
 using ChickenBot.ChatAI.Interfaces;
 using DSharpPlus.Entities;
@@ -32,7 +31,6 @@ namespace ChickenBot.ChatAI.Models
 
 		private int m_ChatIDIndex = 0;
 
-
 		private bool m_WorkerActive = false;
 
 		public ConversationAI(ChatSettings settings, IChatEndpoint endpoint, IMessageDiscriminator discriminator, ILogger<ConversationAI> logger)
@@ -51,7 +49,7 @@ namespace ChickenBot.ChatAI.Models
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
 		/// </remarks>
-		public  Task PushChatMessage(DiscordMember user, string message)
+		public Task PushChatMessage(DiscordMember user, string message)
 		{
 			if (user.IsBot)
 			{
@@ -60,7 +58,6 @@ namespace ChickenBot.ChatAI.Models
 			PushChatMessageInternal(user, message);
 
 			return Task.CompletedTask;
-
 
 			//m_PushQueue.Enqueue((user, message));
 
@@ -202,17 +199,17 @@ namespace ChickenBot.ChatAI.Models
 		/// </summary>
 		private string PostProcessMessage(string message)
 		{
-			var newMessage = m_AttachedNameRegex.Replace(message, string.Empty);
-
-			if (newMessage != message)
+			var newMessage = message;
+			if (m_AttachedNameRegex.IsMatch(message))
 			{
-				m_Logger.LogInformation("OpenAI responded using (~) name format: '{msg}'; removing it.", message);
 				newMessage = m_AttachedNameRegex.Replace(message, string.Empty);
+
+				m_Logger.LogInformation("OpenAI responded using (~) name format: '{msg}'; removing it.", message);
 			}
 
 			return newMessage;
 		}
- 
+
 		/// <summary>
 		/// Appends a message to the end of the sliding window
 		/// </summary>
