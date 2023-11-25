@@ -40,12 +40,13 @@ namespace ChickenBot.API.Models
 		{
 			var attachments = new List<string>();
 
-			var doLimit = limit == -1;
+			var doLimit = limit != -1;
 			var sb = new StringBuilder();
 
 			foreach (var word in content.Split(' '))
 			{
-				if (Uri.TryCreate(word, UriKind.Absolute, out var uri) // if the word is a valid URI
+				if (Uri.TryCreate(word, UriKind.Absolute, out var uri) // If the word is a valid URI
+					&& IsWebURI(uri)                                   // If the URI has a scheme of http or https
 					&& (requireFile ? IsFileURI(uri) : true)           // And If it matches IsFileURI (So long as requireFile is true)
 					&& (doLimit ? limit-- >= 0 : true))                // And If limit >= 0, and decrement limit (So long as doLimit is true)
 				{
@@ -87,6 +88,14 @@ namespace ChickenBot.API.Models
 		{
 			var file = uri.LocalPath.Split('/').Last();
 			return file.Contains('.'); // Contains *a* file extension
+		}
+
+		/// <summary>
+		/// Verifies the specified uri has a scheme of http or https
+		/// </summary>
+		public static bool IsWebURI(Uri uri)
+		{
+			return uri.Scheme == "https" || uri.Scheme == "http";
 		}
 	}
 }

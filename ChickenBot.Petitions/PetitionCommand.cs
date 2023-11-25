@@ -56,22 +56,10 @@ namespace ChickenBot.Petitions
 				attachments.Add(file.Url);
 			}
 
-			var sb = new StringBuilder();
-
-			foreach (var word in petitionText.Split(' '))
+			foreach(var file in AttachmentUtils.ExtractAttachments(ref petitionText))
 			{
-				if (Uri.IsWellFormedUriString(word, UriKind.Absolute))
-				{
-					// Remove urls from the petition text, to add to attachments list
-					attachments.Add(word);
-					continue;
-				}
-
-				sb.Append(word);
-				sb.Append(' ');
+				attachments.Add(file);
 			}
-
-			petitionText = sb.ToString().Trim();
 
 			// Determine if the petition only has a single image attached, to embed inside the petition embed
 			string? onlyImageUrl = null;

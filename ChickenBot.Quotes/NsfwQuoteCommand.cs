@@ -43,18 +43,7 @@ namespace ChickenBot.Quotes
 			}
 			else if (text != null)
 			{
-				// Quote from provided image URL
-				var providedUrl = text.Split(' ').First();
-
-				// Ensure it is a http or https URL
-				if (Uri.TryCreate(providedUrl, UriKind.Absolute, out var parsedUri) &&
-					(parsedUri.Scheme == "https" || parsedUri.Scheme == "http"))
-				{
-					attachmentUrl = parsedUri.AbsoluteUri;
-				}
-
-				// Remove link from description
-				text = text.Substring(providedUrl.Length).Trim();
+				attachmentUrl = AttachmentUtils.ExtractAttachment(ref text);
 			}
 
 			if (attachmentUrl == null)
