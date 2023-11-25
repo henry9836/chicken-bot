@@ -150,22 +150,19 @@ namespace ChickenBot.Fun
 
 			var random = new Random();
 
-			var emojiName = emojis[random.Next(0, emojis.Length)];
+			var emojiName = $":{emojis[random.Next(0, emojis.Length)]}:";
 			var joke = jokes[random.Next(0, jokes.Length)];
 
-			var emoji = DiscordEmoji.FromName(ctx.Client, emojiName, includeGuilds: true);
-
-			if (emoji == null)
+			try
+			{
+				var emoji = DiscordEmoji.FromName(ctx.Client, emojiName, includeGuilds: true);
+				await ctx.RespondAsync($"{emoji} {joke}");
+			}
+			catch
 			{
 				m_Logger.LogWarning("Failed to find emoji {emoji}", emojiName);
 				await ctx.RespondAsync(joke);
 			}
-			else
-			{
-				await ctx.RespondAsync($"{emoji} {joke}");
-			}
-			
-			// Told you :3
 		}
 	}
 }
