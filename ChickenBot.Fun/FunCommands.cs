@@ -75,7 +75,7 @@ namespace ChickenBot.Fun
 			await ctx.RespondRandom(replies);
 		}
 
-		[Command("ping"), Aliases("echo"), Hidden]
+		[Command("ping"), Aliases("echo")]
 		public async Task PingCommand(CommandContext ctx)
 		{
 			var random = new Random();
@@ -105,6 +105,8 @@ namespace ChickenBot.Fun
 			// ~Nitro: But Volt said it would be funny :3
 
 			// ~Tek: I am still not impressed
+			
+			// ~Nitro: :toothless_babyboo:
 
 			if (member.Id == 102606498860896256)
 			{
@@ -148,22 +150,19 @@ namespace ChickenBot.Fun
 
 			var random = new Random();
 
-			var emojiName = emojis[random.Next(0, emojis.Length)];
+			var emojiName = $":{emojis[random.Next(0, emojis.Length)]}:";
 			var joke = jokes[random.Next(0, jokes.Length)];
 
-			var emoji = DiscordEmoji.FromName(ctx.Client, emojiName, includeGuilds: true);
-
-			if (emoji == null)
+			try
+			{
+				var emoji = DiscordEmoji.FromName(ctx.Client, emojiName, includeGuilds: true);
+				await ctx.RespondAsync($"{emoji} {joke}");
+			}
+			catch
 			{
 				m_Logger.LogWarning("Failed to find emoji {emoji}", emojiName);
 				await ctx.RespondAsync(joke);
 			}
-			else
-			{
-				await ctx.RespondAsync($"{emoji} {joke}");
-			}
-			
-			// Told you :3
 		}
 	}
 }

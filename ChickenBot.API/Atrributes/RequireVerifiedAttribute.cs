@@ -23,6 +23,11 @@ namespace ChickenBot.API.Atrributes
 
 			var isVerified = ctx.Member.Roles.Any(x => x.Id == verifiedRoleID);
 
+			if (!isVerified && !help)
+			{
+				ctx.RespondAsync("You have to be verified to use this command");
+			}
+			
 			return Task.FromResult(isVerified);
 		}
 	}

@@ -100,6 +100,25 @@ namespace ChickenBot.AssignableRoles
 			await ctx.RespondAsync(CreateRolesEmbed(roles, ctx.User));
 		}
 
+		[Command("role-list"), Description("Returns a list of assignable roles"), Aliases("list-role", "roles", "list-roles")]
+		public async Task RoleListCommand(CommandContext ctx)
+		{
+			if (ctx.User is not DiscordMember member)
+			{
+				await ctx.RespondAsync("This command cannot be used in DMs");
+				return;
+			}
+			
+			var roles = m_Roles.GetAssignableRoles();
+
+			var roleEmbed = new DiscordEmbedBuilder()
+				.WithTitle($"Assignable Roles")
+				.WithDescription("Self assignable roles, please only use this command in the bot channel")
+				.AddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")));
+
+			await ctx.RespondAsync(roleEmbed);
+		}
+		
 		[Command("add-role"), Description("Gives you a self-assignable role")]
 		[RequireBotPermissions(Permissions.ManageRoles)]
 		public async Task AddRoleCommand(CommandContext ctx, string role)
