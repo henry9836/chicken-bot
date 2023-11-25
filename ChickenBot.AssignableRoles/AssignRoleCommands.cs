@@ -1,21 +1,26 @@
-﻿using System.Text;
+﻿using System.Data;
+using System.Text;
 using ChickenBot.API;
+using ChickenBot.API.Atrributes;
 using ChickenBot.AssignableRoles.Interfaces;
 using ChickenBot.AssignableRoles.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AssignableRoles
 {
 	public class AssignRoleCommands : BaseCommandModule
 	{
 		private readonly IAssignableRoles m_Roles;
+		private readonly ILogger<AssignRoleCommands> m_Logger;
 
-		public AssignRoleCommands(IAssignableRoles roles)
+		public AssignRoleCommands(IAssignableRoles roles, ILogger<AssignRoleCommands> logger)
 		{
 			m_Roles = roles;
+			m_Logger = logger;
 		}
 
 		private DiscordEmbed CreateRolesEmbed(AssignableRole[] roles, DiscordUser user)
@@ -34,9 +39,10 @@ namespace ChickenBot.AssignableRoles
 				.Build();
 		}
 		
+
 		[Command("add-new-assignable-role")]
-		[RequireBotPermissions(Permissions.Administrator)]
-		public async Task AddNewAssignableRole(CommandContext ctx, DiscordRole role, [RemainingText] string roleName)
+		[RequireBotManagerOrAdmin]
+		public async Task AddNewAssignableRole(CommandContext ctx, DiscordRole role, [RemainingText] string? roleName)
 		{
 			if (ctx.User is not DiscordMember member)
 			{
@@ -49,7 +55,7 @@ namespace ChickenBot.AssignableRoles
 			
 			AssignableRole newRole = new AssignableRole
 			{
-				RoleName = roleName,
+				RoleName = roleName ?? role.Name,
 				RoleID = guildRole.Id
 			};
 
@@ -61,13 +67,16 @@ namespace ChickenBot.AssignableRoles
 				await ctx.RespondAsync("Role already assigned to assignable roles");
 				return;
 			}
-			
+
 			// Add the new role
 			await m_Roles.CreateNewAssignableRole(newRole);
+
+			m_Logger.LogInformation("User {username} created new self-assignable role {role} -> {roleName} ({roleID})", ctx.User.Username, newRole.RoleName, role.Name, role.Id);
+			await ctx.RespondAsync($"Created new assignable role {newRole.RoleName}");
 		}
 		
 		[Command("remove-assignable-role")]
-		[RequireBotPermissions(Permissions.Administrator)]
+		[RequireBotManagerOrAdmin]
 		public async Task RemoveAssignableRole(CommandContext ctx, [RemainingText] string roleName)
 		{
 			if (ctx.User is not DiscordMember member)
@@ -90,6 +99,8 @@ namespace ChickenBot.AssignableRoles
 			
 			// Add the new role
 			await m_Roles.RemoveAssignableRole(roleToRemove);
+			m_Logger.LogInformation("User {username} deleted self-assignable role {role}", ctx.User.Username, roleName);
+			await ctx.RespondAsync($"Removed the self-assignable role {roleName}");
 		}
 
 		[Command("add-role")]
