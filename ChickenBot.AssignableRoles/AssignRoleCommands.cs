@@ -38,7 +38,63 @@ namespace ChickenBot.AssignableRoles
 				.WithRequestedBy(user)
 				.Build();
 		}
-		
+
+		[Command("create-assignable-role")]
+		[RequireBotManagerOrAdmin]
+		[Description("A fuzzy-search tool to create self-assignable roles with the same display name as their role name")]
+		public async Task AddNewAssignableRole(CommandContext ctx, [RemainingText] string roleName)
+		{
+			if (ctx.User is not DiscordMember member)
+			{
+				await ctx.RespondAsync("This command cannot be used in DMs");
+				return;
+			}
+
+			if (string.IsNullOrWhiteSpace(roleName))
+			{
+				await ctx.RespondAsync("Invalid role name!");
+				return;
+			}
+
+			var targetRoles = member.Guild.Roles.Values.Where(x => x.Name.Contains(roleName, StringComparison.InvariantCultureIgnoreCase));
+
+			if (targetRoles.Count() > 1)
+			{
+				await ctx.RespondAsync("Multiple roles by that name");
+				return;
+			}
+
+			var targetRole = targetRoles.FirstOrDefault();
+
+			if (targetRole == null)
+			{
+				await ctx.RespondAsync("Couldn't find a role with that name");
+				return;
+			}
+
+			// Create the new role
+			AssignableRole newRole = new AssignableRole
+			{
+				RoleName = targetRole.Name,
+				RoleID = targetRole.Id
+			};
+
+			var roles = m_Roles.GetAssignableRoles();
+
+			// If the role is already in our assignable roles do not add a repeat
+			if (roles.Contains(newRole))
+			{
+				await ctx.RespondAsync("Role already assigned to assignable roles");
+				return;
+			}
+
+			// Add the new role
+			await m_Roles.CreateNewAssignableRole(newRole);
+
+			m_Logger.LogInformation("User {username} created new self-assignable role {role} -> {roleName} ({roleID})", ctx.User.Username, newRole.RoleName, targetRole.Name, targetRole.Id);
+			await ctx.RespondAsync($"Created new assignable role {newRole.RoleName}");
+		}
+
 
 		[Command("add-new-assignable-role")]
 		[RequireBotManagerOrAdmin]
