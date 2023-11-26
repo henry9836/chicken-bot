@@ -23,7 +23,7 @@ namespace ChickenBot.Core.SubServices
 
 			// DSharpPlus does not wait for the connection to be finalized before exiting ConnectAsync
 			// Calling something right after can cause Unauthorized errors, if it runs before the socket is finalized
-			await Task.Delay(5000);
+			await Task.Delay(2000);
 
 			m_Logger.LogInformation("Initializing Discord Client...");
 			await m_Discord.InitializeAsync();

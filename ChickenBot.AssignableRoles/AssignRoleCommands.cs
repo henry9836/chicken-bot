@@ -29,8 +29,9 @@ namespace ChickenBot.AssignableRoles
 
 			return new DiscordEmbedBuilder()
 				.WithTitle("Assignable Roles")
-				.WithDescription($"Assign a role with `add-role [Role]`, and remove it with `remove-role`\n{roletext}")
+				.WithDescription($"Assign a role with `add-role [Role]`, and remove it with `remove-role`")
 				.WithRequestedBy(user)
+				.AddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")))
 				.Build();
 		}
 
@@ -216,7 +217,8 @@ namespace ChickenBot.AssignableRoles
 				return;
 			}
 
-			var tickEmoji = DiscordEmoji.FromName(ctx.Client, "white_checkmark", includeGuilds: false);
+
+			var tickEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", includeGuilds: false);
 
 			if (tickEmoji != null)
 			{
@@ -263,7 +265,7 @@ namespace ChickenBot.AssignableRoles
 				return;
 			}
 
-			var tickEmoji = DiscordEmoji.FromName(ctx.Client, "white_checkmark", includeGuilds: false);
+			var tickEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", includeGuilds: false);
 
 			if (tickEmoji != null)
 			{

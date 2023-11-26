@@ -1,4 +1,4 @@
-using ChickenBot.Core.Models;
+﻿using ChickenBot.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
@@ -37,23 +37,23 @@ public class ChickenScratcher : ILogEventEnricher
 		switch (logEvent.Level)
 		{
 			case LogEventLevel.Debug:
-				msg = "-";
+				msg = "\u001b[0;37m-";
 				break;
 
 			case LogEventLevel.Information:
-				msg = "+";
+				msg = "\u001b[0;37m+";
 				break;
 
 			case LogEventLevel.Warning:
-				msg = "!";
+				msg = "\u001b[1;33m!";
 				break;
 
 			case LogEventLevel.Error:
-				msg = "*";
+				msg = "\u001b[1;31mx";
 				break;
 
 			case LogEventLevel.Fatal:
-				msg = "X";
+				msg = "\u001b[1;31m\u001b[0;41mX";
 				break;
 			default:
 				// Unknown log level

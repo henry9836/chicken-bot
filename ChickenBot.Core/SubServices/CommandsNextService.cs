@@ -7,7 +7,7 @@ namespace ChickenBot.Core.SubServices
 {
 	public class CommandsNextService : IHostedService
 	{
-		private CommandsNextExtension m_CommandsNext;
+		private readonly CommandsNextExtension m_CommandsNext;
 
 		private readonly PluginRegistry m_Registry;
 

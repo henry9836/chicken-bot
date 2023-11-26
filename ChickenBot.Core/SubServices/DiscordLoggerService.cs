@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.Text;
+﻿using System.Text;
 using ChickenBot.Core.Models;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +31,9 @@ namespace ChickenBot.Core.SubServices
 
 		private readonly SemaphoreSlim m_Semaphore = new SemaphoreSlim(1);
 
-		public DiscordLoggerService(DiscordLogger discordLogger, IConfiguration configuration, DiscordClient discord, ILogger<DiscordLogger> logger)
+		private readonly CommandsNextExtension m_CommandsNext;
+
+		public DiscordLoggerService(DiscordLogger discordLogger, IConfiguration configuration, DiscordClient discord, ILogger<DiscordLogger> logger, CommandsNextExtension commandsNext)
 		{
 			m_DiscordLogger = discordLogger;
 			m_Configuration = configuration;
@@ -39,6 +41,7 @@ namespace ChickenBot.Core.SubServices
 			m_Logger = logger;
 			m_LogTimer = new Timer(5000);
 			m_LogTimer.Elapsed += OnTimerElapsed;
+			m_CommandsNext = commandsNext;
 		}
 
 		public async Task StartAsync(CancellationToken cancellationToken)
@@ -47,6 +50,9 @@ namespace ChickenBot.Core.SubServices
 			{
 				m_Logger.LogWarning("Bot log channel not setup.");
 			}
+
+			m_CommandsNext.CommandExecuted += OnCommandExecute;
+			m_CommandsNext.CommandErrored += OnCommanedErrored;
 
 			try
 			{
@@ -68,11 +74,27 @@ namespace ChickenBot.Core.SubServices
 			}
 		}
 
+		private Task OnCommanedErrored(CommandsNextExtension sender, CommandErrorEventArgs args)
+		{
+			m_Logger.LogError(args.Exception, "Command ran by {user} errored", args.Context.User.Username);
+			return Task.CompletedTask;
+		}
+
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
+			m_CommandsNext.CommandExecuted -= OnCommandExecute;
+			m_CommandsNext.CommandErrored -= OnCommanedErrored;
+
 			m_LogTimer.Stop();
 			return Task.CompletedTask;
 		}
+
+		private Task OnCommandExecute(CommandsNextExtension sender, CommandExecutionEventArgs args)
+		{
+			m_Logger.LogInformation("User {user} executed command '{command}'", args.Context.User.Username, args.Context.Message.Content);
+			return Task.CompletedTask;
+		}
+
 
 		private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -85,7 +107,6 @@ namespace ChickenBot.Core.SubServices
 			{
 				return;
 			}
-
 			Task.Run(FlushLogsAsync);
 		}
 
@@ -119,14 +140,14 @@ namespace ChickenBot.Core.SubServices
 			}
 
 			var source = new StringWriter();
-			log.Properties["source"].Render(source);
+			log.Properties["rawsource"].Render(source);
 
 			var embed = new DiscordEmbedBuilder()
 				.WithTitle(level.ToString())
-				.WithDescription(log.RenderMessage())
+				.WithDescription(ReformatLog(log.RenderMessage()))
 				.WithColor(DiscordColor.Red)
 				.AddField("Log Level", log.Level.ToString(), true)
-				.AddField("Source", source.ToString(), true);
+				.AddField("Source", ReformatLog(source, string.Empty), true);
 
 			if (log.Exception != null)
 			{
@@ -196,7 +217,7 @@ namespace ChickenBot.Core.SubServices
 						maxLevel = logLevel;
 					}
 
-					var log = $"[`{level}`] {logEvent.RenderMessage()}";
+					var log = $"[`{level}`] {ReformatLog(logEvent.RenderMessage())}";
 					if (sb.Length + log.Length > 500) // max of 4k characters in description, but limit it to 500 for readability
 					{
 						floatingLog = log;
@@ -206,14 +227,11 @@ namespace ChickenBot.Core.SubServices
 					sb.AppendLine(log);
 				}
 
-				if (sb.Length > 0)
+				if (sb.Length > 8)
 				{
-
 					builder.AddEmbed(new DiscordEmbedBuilder()
-					{
-						Color = GetLogColor(maxLevel),
-						Description = sb.ToString()
-					});
+							.WithColor(GetLogColor(maxLevel))
+							.WithDescription(sb.ToString()));
 				}
 			}
 		}
@@ -258,6 +276,24 @@ namespace ChickenBot.Core.SubServices
 			}
 		}
 
+		/// <summary>
+		/// Reformats some quotes into back ticks, for discord embedding
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		private string ReformatLog(string input, string parenthesis = "`")
+		{
+			return input
+				.Replace("`", "\\`")
+				.Replace("\'\"", parenthesis)
+				.Replace("\"\'", parenthesis)
+				.Replace("\"", parenthesis);
+		}
+
+		private string ReformatLog(object input, string parenthesis = "`")
+		{
+			return ReformatLog(input.ToString() ?? string.Empty, parenthesis);
+		}
 
 		/// <summary>
 		/// Checks for certain types of log messages, can be used to increase or decrease their log level. To suppress some messages or promote others
@@ -271,7 +307,7 @@ namespace ChickenBot.Core.SubServices
 		{
 			var rendered = logEvent.RenderMessage();
 
-			switch(logEvent.Level)
+			switch (logEvent.Level)
 			{
 				case LogEventLevel.Fatal:
 
@@ -282,5 +318,110 @@ namespace ChickenBot.Core.SubServices
 					break;
 			}
 		}
+
+		#region "Experimental"
+
+		private void CreateAnsiLogMessage(DiscordMessageBuilder builder)
+		{
+			builder.WithContent("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+			string? floatingLog = null;
+
+			string defaultLogFormat = "\u001b[0;36m";
+
+			for (int i = 0; i < 10; i++) // max of 10 embeds per message
+			{
+				if (m_DiscordLogger.EventQueue.Count == 0)
+				{
+					return;
+				}
+
+				var sb = new StringBuilder();
+				sb.AppendLine("```ansi");
+
+				if (floatingLog != null)
+				{
+					sb.AppendLine(floatingLog);
+				}
+
+				var maxLevel = LogEventLevel.Verbose;
+
+				while (true)
+				{
+					if (!m_DiscordLogger.EventQueue.TryDequeue(out var logEvent))
+					{
+						// End of log
+						break;
+					}
+
+					var logLevel = logEvent.Level;
+
+					RunLogSuppressions(logEvent, ref logLevel);
+
+					if (logEvent.Exception != null || logLevel >= LogEventLevel.Error)
+					{
+						Task.Run(async () => await FireRaisedMessage(logEvent, logLevel));
+					}
+
+					string level = GetAnsiLevelName(logLevel);
+
+					if (logLevel > maxLevel)
+					{
+						maxLevel = logLevel;
+					}
+
+					var log = $"\u001b[0;33m[{level}\u001b[0;30m] {defaultLogFormat}{ReformatLogAnsi(logEvent.RenderMessage(), "\u001b[0;34m", defaultLogFormat)}";
+					if (sb.Length + log.Length >= 500) // max of 4k characters in description, but limit it to 500 for readability
+					{
+						floatingLog = log;
+						break;
+					}
+
+					sb.AppendLine(log);
+				}
+
+				if (sb.Length > 8)
+				{
+					sb.AppendLine("```");
+
+					builder.AddEmbed(new DiscordEmbedBuilder()
+							.WithColor(GetLogColor(maxLevel))
+							.WithDescription(sb.ToString()));
+				}
+			}
+		}
+
+		private string GetAnsiLevelName(LogEventLevel level)
+		{
+			switch (level)
+			{
+				case LogEventLevel.Verbose:
+					return "\u001b[0;37mVerbose";
+				case LogEventLevel.Debug:
+					return "\u001b[0;37mDebug";
+				case LogEventLevel.Information:
+					return "\u001b[0;37mInfo";
+				case LogEventLevel.Warning:
+					return "\u001b[0;33mWarn";
+				case LogEventLevel.Error:
+					return "\u001b[1;31mERROR";
+				case LogEventLevel.Fatal:
+					return "\u001b[1;31m\u001b[1;47mFATAL";
+				default:
+					return "?";
+			}
+		}
+
+		private string ReformatLogAnsi(string input, string format1, string def)
+		{
+			return input
+				.Replace("`", "\\`")
+				.Replace("\'\"", format1)
+				.Replace("\"\'", format1)
+				.Replace("\"", "");
+		}
+
+		#endregion
+
 	}
 }
+

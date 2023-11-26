@@ -17,7 +17,8 @@ namespace ChickenBot.Core.Models
 
 			if (logEvent.Properties["SourceContext"] is ScalarValue scalar && scalar.Value != null)
 			{
-				logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("source", scalar?.Value?.ToString()?.Split('.').Last()));
+				logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("source", "\u001b[0;32m" + scalar?.Value?.ToString()?.Split('.').Last()));
+				logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty("rawsource", scalar?.Value?.ToString()?.Split('.').Last()));
 			}
 		}
 	}
