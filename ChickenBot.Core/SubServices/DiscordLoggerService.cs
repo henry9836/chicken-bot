@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -47,24 +48,32 @@ namespace ChickenBot.Core.SubServices
 				m_Logger.LogWarning("Bot log channel not setup.");
 			}
 
-			var guild = await m_Discord.GetGuildAsync(GuildID);
+			try
+			{
+				var guild = await m_Discord.GetGuildAsync(GuildID);
 
-			if (guild != null)
-			{
-				m_LogChannel = guild.GetChannel(BotLogChannelID);
-				m_LogTimer.Start();
+				if (guild != null)
+				{
+					m_LogChannel = guild.GetChannel(BotLogChannelID);
+					m_LogTimer.Start();
+				}
+				else
+				{
+					m_Logger.LogWarning("Couldn't find bot log channel!");
+				}
+
+
+				m_Logger.LogCritical("Connection terminated (4000, '\"\"'), reconnecting");
 			}
-			else
+			catch (Exception ex)
 			{
-				m_Discord.GuildAvailable += OnGuildAvailable;
+				m_Logger.LogCritical(ex, "Failed to get bot logging channel. Discord logging is inactive");
 			}
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
-			m_Discord.GuildAvailable -= OnGuildAvailable;
 			m_LogTimer.Stop();
-
 			return Task.CompletedTask;
 		}
 
@@ -105,7 +114,7 @@ namespace ChickenBot.Core.SubServices
 			}
 		}
 
-		private async Task FireRaisedMessage(LogEvent log)
+		private async Task FireRaisedMessage(LogEvent log, LogEventLevel level)
 		{
 			if (m_LogChannel == null)
 			{
@@ -116,7 +125,7 @@ namespace ChickenBot.Core.SubServices
 			log.Properties["source"].Render(source);
 
 			var embed = new DiscordEmbedBuilder()
-				.WithTitle(log.Level.ToString())
+				.WithTitle(level.ToString())
 				.WithDescription(log.RenderMessage())
 				.WithColor(DiscordColor.Red)
 				.AddField("Log Level", log.Level.ToString(), true)
@@ -174,16 +183,20 @@ namespace ChickenBot.Core.SubServices
 						break;
 					}
 
-					if (logEvent.Exception != null || logEvent.Level >= LogEventLevel.Error)
+					var logLevel = logEvent.Level;
+
+					RunLogSuppressions(logEvent, ref logLevel);
+
+					if (logEvent.Exception != null || logLevel >= LogEventLevel.Error)
 					{
-						Task.Run(async () => await FireRaisedMessage(logEvent));
+						Task.Run(async () => await FireRaisedMessage(logEvent, logLevel));
 					}
 
-					string level = GetLevelName(logEvent.Level);
+					string level = GetLevelName(logLevel);
 
-					if (logEvent.Level > maxLevel)
+					if (logLevel > maxLevel)
 					{
-						maxLevel = logEvent.Level;
+						maxLevel = logLevel;
 					}
 
 					var log = $"[`{level}`] {logEvent.RenderMessage()}";
@@ -248,20 +261,29 @@ namespace ChickenBot.Core.SubServices
 			}
 		}
 
-		private Task OnGuildAvailable(DiscordClient sender, DSharpPlus.EventArgs.GuildCreateEventArgs args)
+
+		/// <summary>
+		/// Checks for certain types of log messages, can be used to increase or decrease their log level. To suppress some messages or promote others
+		/// </summary>
+		/// <remarks>
+		/// Used to suppress/downgrade certain system log messages, to prevent them from pinging devs
+		/// </remarks>
+		/// <param name="logEvent">Source log event</param>
+		/// <param name="level">The level the log event is being evaluated at</param>
+		private void RunLogSuppressions(LogEvent logEvent, ref LogEventLevel level)
 		{
-			var channel = args.Guild.GetChannel(BotLogChannelID);
+			var rendered = logEvent.RenderMessage();
 
-			if (channel == null)
+			switch(logEvent.Level)
 			{
-				return Task.CompletedTask;
+				case LogEventLevel.Fatal:
+
+					if (rendered.Contains("(4000, '\"\"')"))
+					{
+						level = LogEventLevel.Warning;
+					}
+					break;
 			}
-
-			m_Logger.LogInformation("Bot log channel is now available, starting discord logging service.");
-			m_LogChannel = channel;
-			m_LogTimer.Start();
-
-			return Task.CompletedTask;
 		}
 	}
 }
