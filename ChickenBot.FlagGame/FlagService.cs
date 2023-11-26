@@ -63,13 +63,11 @@ namespace ChickenBot.FlagGame
 				if (game.Answer.Equals(inputAnswer, StringComparison.InvariantCultureIgnoreCase))
 				{
 					// Correct!
-					m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", args.Author.Username, game.Answer);
 					await SendCongratulatoryMessage(args.Message, game.Answer);
 				} else
 				{
 					// Failiure
-					m_Logger.LogInformation("User {user} guessed the flag incorrectly: {flag}", args.Author.Username, game.Answer);
-					await SendFailiureMessage(args.Message, game.Answer);
+					await SendFailiureMessage(args.Message, game.Answer, inputAnswer);
 				}
 
 				m_GameRegistry.TryFinalizeGame(game);
@@ -97,11 +95,13 @@ namespace ChickenBot.FlagGame
 			// Evaluate answer, ignore incorrect answers
 			if (lastGame.Answer.Equals(inputAnswer, StringComparison.InvariantCultureIgnoreCase))
 			{
-				m_Logger.LogInformation("Implicit user {user} guessed the flag correctly: {flag}", args.Author.Username, lastGame.Answer);
 				await SendCongratulatoryMessage(args.Message, lastGame.Answer);
 				m_GameRegistry.TryFinalizeGame(lastGame);
 			}
 		}
+
+
+
 
 		/// <summary>
 		/// Congradulate users on getting the flag correct
@@ -114,15 +114,19 @@ namespace ChickenBot.FlagGame
 				$"*does a small dance*, that's right {message.Author.Mention}, that's the flag of {answer}"
 			};
 
+
+
 			var response = responses[m_Random.Next(0, responses.Length)];
 
 			await message.RespondAsync(response);
+
+			m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", message.Author.Username, answer);
 		}
 
 		/// <summary>
 		/// This user sucks, laugh at them
 		/// </summary>
-		private async Task SendFailiureMessage(DiscordMessage message, string answer)
+		private async Task SendFailiureMessage(DiscordMessage message, string answer, string input)
 		{
 			var responses = new string[]
 			{
@@ -133,6 +137,24 @@ namespace ChickenBot.FlagGame
 			var response = responses[m_Random.Next(0, responses.Length)];
 
 			await message.RespondAsync(response);
+
+			// A little funny for bot logs
+			var logComments = new string[]
+			{
+				"Laugh at this user.",
+				"What a fool.",
+				"But it was so easy??",
+				"Not sure how they got it wrong.",
+				"Idiot.",
+				"Bumbling buffoon.",
+				"How!?",
+				"They fucked that one up.",
+				"They skipped one too many geography classes"
+			};
+
+			var comment = logComments[m_Random.Next(logComments.Length)];
+
+			m_Logger.LogInformation("User {user} guessed the flag incorrectly: '{answer}', Correct: '{flag}'. {comment}", message.Author.Username, input, answer, comment);
 		}
 	}
 }
