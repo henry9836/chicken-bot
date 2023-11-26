@@ -2,6 +2,7 @@
 using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -76,7 +77,13 @@ namespace ChickenBot.Core.SubServices
 
 		private Task OnCommanedErrored(CommandsNextExtension sender, CommandErrorEventArgs args)
 		{
-			m_Logger.LogError(args.Exception, "Command ran by {user} errored", args.Context.User.Username);
+			if (args.Exception is CommandNotFoundException   // Don't log errors for unknown commands
+				|| args.Exception is ChecksFailedException)  // Don't log errors for when a user doesn't have perms for a command
+			{
+				return Task.CompletedTask;
+			}
+
+			m_Logger.LogError(args.Exception, "Command {command} ran by {user} errored", args.Command?.Name ?? "N/A", args.Context.User.Username);
 			return Task.CompletedTask;
 		}
 
