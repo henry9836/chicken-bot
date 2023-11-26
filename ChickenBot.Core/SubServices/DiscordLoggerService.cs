@@ -61,9 +61,6 @@ namespace ChickenBot.Core.SubServices
 				{
 					m_Logger.LogWarning("Couldn't find bot log channel!");
 				}
-
-
-				m_Logger.LogCritical("Connection terminated (4000, '\"\"'), reconnecting");
 			}
 			catch (Exception ex)
 			{
