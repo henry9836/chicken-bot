@@ -1,4 +1,5 @@
 ﻿using ChickenBot.API.Atrributes;
+using ChickenBot.API.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -11,9 +12,12 @@ namespace ChickenBot.Fun
 	{
 		private readonly ILogger<FunCommands> m_Logger;
 
+		private readonly string[] m_Spice;
+
 		public FunCommands(ILogger<FunCommands> logger)
 		{
 			m_Logger = logger;
+			m_Spice = ManifestResourceLoader.LoadResource<string[]>("spice.json") ?? Array.Empty<string>();
 		}
 
 		[Command("Love"), Description("<3")]
@@ -131,19 +135,10 @@ namespace ChickenBot.Fun
 			"toothless_troll", "toothless_upright", "toothless_upsidedown", "toothless_wdt",
 			"toothless_wheeze", "toothless_wink", "toothless_wow"};
 
-			if (!File.Exists("spice.json"))
-			{
-				m_Logger.LogWarning("Jokes file spice.json doesn't exist!");
-				await ctx.RespondAsync(":(");
-				return;
-			}
 
-			var json = await File.ReadAllTextAsync("spice.json");
-			var jokes = JsonConvert.DeserializeObject<string[]>(json);
-
-			if (jokes == null)
+			if (m_Spice.Length == 0)
 			{
-				m_Logger.LogWarning("spice.json is null");
+				m_Logger.LogWarning("No spicy");
 				await ctx.RespondAsync(":(");
 				return;
 			}
@@ -151,7 +146,7 @@ namespace ChickenBot.Fun
 			var random = new Random();
 
 			var emojiName = $":{emojis[random.Next(0, emojis.Length)]}:";
-			var joke = jokes[random.Next(0, jokes.Length)];
+			var joke = m_Spice[random.Next(m_Spice.Length)];
 
 			try
 			{

@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="spice.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="spice.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
   </ItemGroup>
 

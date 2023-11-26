@@ -1,4 +1,5 @@
 ﻿using ChickenBot.API;
+using ChickenBot.API.Models;
 using ChickenBot.FlagGame.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -25,7 +26,8 @@ namespace ChickenBot.FlagGame
 			m_Configuration = configuration;
 			m_Logger = logger;
 			m_Random = new Random();
-			m_Flags = LoadFlags();
+			m_Flags = ManifestResourceLoader.LoadResource<CountryFlag[]>("flags.json") 
+															?? Array.Empty<CountryFlag>();
 			m_GameRegistry.UpdateFlags(m_Flags);
 			m_Logger.LogInformation("Loaded {count} flags.", m_Flags.Length);
 		}
@@ -68,39 +70,6 @@ namespace ChickenBot.FlagGame
 		}
 
 
-		/// <summary>
-		/// Loads the list of flags from flags.json, or from the embedded resource if the file does not exist
-		/// </summary>
-		/// <returns>Array of flags available to the flags game</returns>
-		private CountryFlag[] LoadFlags()
-		{
-			string json;
-			if (File.Exists("flags.json"))
-			{
-				// Load via file
-				json = File.ReadAllText("flags.json");
-			}
-			else
-			{
-				// Load via manifest stream
-
-				using var stream = typeof(FlagCommands).Assembly.GetManifestResourceStream("ChickenBot.FlagGame.flags.json");
-
-				if (stream == null)
-				{
-					m_Logger.LogWarning("Failed to load flags from assembly manifest!");
-					return Array.Empty<CountryFlag>();
-				}
-
-				using var reader = new StreamReader(stream);
-
-				json = reader.ReadToEnd();
-
-			}
-
-			// Parse flags
-			return JsonConvert.DeserializeObject<CountryFlag[]>(json)
-									?? Array.Empty<CountryFlag>();
-		}
+		
 	}
 }
