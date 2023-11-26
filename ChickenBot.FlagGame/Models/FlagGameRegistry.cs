@@ -5,7 +5,14 @@ namespace ChickenBot.FlagGame.Models
 	[Singleton]
 	public class FlagGameRegistry
 	{
+		public CountryFlag[] Flags { get; private set; } = Array.Empty<CountryFlag>();
+
 		private Dictionary<ulong, List<GameInstance>> m_Games = new Dictionary<ulong, List<GameInstance>>();
+
+		public void UpdateFlags(CountryFlag[] flags)
+		{
+			Flags = flags;
+		}
 
 		public void RegisterGame(GameInstance game)
 		{

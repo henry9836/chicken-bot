@@ -26,6 +26,7 @@ namespace ChickenBot.FlagGame
 			m_Logger = logger;
 			m_Random = new Random();
 			m_Flags = LoadFlags();
+			m_GameRegistry.UpdateFlags(m_Flags);
 			m_Logger.LogInformation("Loaded {count} flags.", m_Flags.Length);
 		}
 
@@ -58,9 +59,14 @@ namespace ChickenBot.FlagGame
 
 			// Register the game so the flag service can handle responses for it
 
-			var game = new GameInstance(ctx.Channel.Id, message.Id, flag.Country);
+			var game = new GameInstance(ctx.Channel.Id, message.Id, flag.Country, async (footer) =>
+			{
+				embed.WithFooter(footer);
+				await message.ModifyAsync(new Optional<DiscordEmbed>(embed.Build()));
+			});
 			m_GameRegistry.RegisterGame(game);
 		}
+
 
 		/// <summary>
 		/// Loads the list of flags from flags.json, or from the embedded resource if the file does not exist

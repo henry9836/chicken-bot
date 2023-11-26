@@ -1,7 +1,6 @@
 using ChickenBot.FlagGame.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -63,11 +62,12 @@ namespace ChickenBot.FlagGame
 				if (game.Answer.Equals(inputAnswer, StringComparison.InvariantCultureIgnoreCase))
 				{
 					// Correct!
-					await SendCongratulatoryMessage(args.Message, game.Answer);
-				} else
+					await SendCongratulatoryMessage(args.Message, game);
+				}
+				else
 				{
 					// Failiure
-					await SendFailiureMessage(args.Message, game.Answer, inputAnswer);
+					await SendFailiureMessage(args.Message, game, inputAnswer);
 				}
 
 				m_GameRegistry.TryFinalizeGame(game);
@@ -92,46 +92,49 @@ namespace ChickenBot.FlagGame
 				return;
 			}
 
-			// Evaluate answer, ignore incorrect answers
+			// Evaluate answer, ignore incorrect answers that are not a country name (misc chat messages)
 			if (lastGame.Answer.Equals(inputAnswer, StringComparison.InvariantCultureIgnoreCase))
 			{
-				await SendCongratulatoryMessage(args.Message, lastGame.Answer);
+				await SendCongratulatoryMessage(args.Message, lastGame);
+				m_GameRegistry.TryFinalizeGame(lastGame);
+			}
+			else if (IsCountryName(inputAnswer))
+			{
+				// Failiure
+				await SendFailiureMessage(args.Message, lastGame, inputAnswer);
 				m_GameRegistry.TryFinalizeGame(lastGame);
 			}
 		}
 
-
-
-
 		/// <summary>
 		/// Congradulate users on getting the flag correct
 		/// </summary>
-		private async Task SendCongratulatoryMessage(DiscordMessage message, string answer)
+		private async Task SendCongratulatoryMessage(DiscordMessage message, GameInstance instance)
 		{
 			var responses = new string[]
 			{
-				$"{message.Author.Mention}, happy squawk That's the flag of {answer}",
-				$"*does a small dance*, that's right {message.Author.Mention}, that's the flag of {answer}"
+				$"{message.Author.Mention}, happy squawk That's the flag of {instance.Answer}",
+				$"*does a small dance*, that's right {message.Author.Mention}, that's the flag of {instance.Answer}"
 			};
-
-
 
 			var response = responses[m_Random.Next(0, responses.Length)];
 
 			await message.RespondAsync(response);
 
-			m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", message.Author.Username, answer);
+			m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", message.Author.Username, instance.Answer);
+
+			await instance.UpdateMessage($"Winner: {message.Author.Username}");
 		}
 
 		/// <summary>
 		/// This user sucks, laugh at them
 		/// </summary>
-		private async Task SendFailiureMessage(DiscordMessage message, string answer, string input)
+		private async Task SendFailiureMessage(DiscordMessage message, GameInstance game, string input)
 		{
 			var responses = new string[]
 			{
-				$"{message.Author.Mention}, pecks your foot dejectedly That's the flag of {answer}",
-				$"*stares at you disappointedly*, that's the flag of {answer}."
+				$"{message.Author.Mention}, pecks your foot dejectedly That's the flag of {game.Answer}",
+				$"*stares at you disappointedly*, that's the flag of {game.Answer}."
 			};
 
 			var response = responses[m_Random.Next(0, responses.Length)];
@@ -141,20 +144,27 @@ namespace ChickenBot.FlagGame
 			// A little funny for bot logs
 			var logComments = new string[]
 			{
-				"Laugh at this user.",
-				"What a fool.",
-				"But it was so easy??",
-				"Not sure how they got it wrong.",
-				"Idiot.",
-				"Bumbling buffoon.",
-				"How!?",
-				"They fucked that one up.",
-				"They skipped one too many geography classes"
+				"~Laugh at this user.",
+				"~What a fool.",
+				"~But it was so easy??",
+				"~Not sure how they got it wrong.",
+				"~Idiot.",
+				"~Bumbling buffoon.",
+				"~How!?",
+				"~They fucked that one up.",
+				"~They skipped one too many geography classes"
 			};
 
 			var comment = logComments[m_Random.Next(logComments.Length)];
 
-			m_Logger.LogInformation("User {user} guessed the flag incorrectly: '{answer}', Correct: '{flag}'. {comment}", message.Author.Username, input, answer, comment);
+			m_Logger.LogInformation("User {user} guessed the flag incorrectly: '{answer}', Correct: '{flag}'. {comment}", message.Author.Username, input, game.Answer, comment);
+
+			await game.UpdateMessage($"Game Over; Answer: {game.Answer}");
+		}
+
+		private bool IsCountryName(string countryName)
+		{
+			return m_GameRegistry.Flags.Any(x => x.Country.Equals(countryName, StringComparison.InvariantCultureIgnoreCase));
 		}
 	}
 }
