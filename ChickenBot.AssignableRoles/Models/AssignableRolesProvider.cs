@@ -23,7 +23,7 @@ namespace ChickenBot.AssignableRoles.Models
 
 		public AssignableRole[] GetAssignableRoles()
 		{
-			return m_Configuration.GetSection("AssignableRoles").Get<AssignableRole[]>()
+			return m_Configuration.GetSection("AssignableRoles")?.Get<AssignableRole[]>()
 				?? Array.Empty<AssignableRole>();
 		}
 
@@ -37,7 +37,7 @@ namespace ChickenBot.AssignableRoles.Models
 			var roles = GetAssignableRoles();
 
 			var newRoles = roles
-				.Where(x => x != roleToRemove)
+				.Where(x => !x.RoleName.Equals(roleToRemove.RoleName, StringComparison.InvariantCultureIgnoreCase))
 				.ToArray();
 
 			return await m_ConfigEditor.UpdateValueAsync("AssignableRoles", newRoles);

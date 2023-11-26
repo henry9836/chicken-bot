@@ -31,7 +31,7 @@ namespace ChickenBot.AssignableRoles
 				.WithTitle("Assignable Roles")
 				.WithDescription($"Assign a role with `add-role [Role]`, and remove it with `remove-role`")
 				.WithRequestedBy(user)
-				.AddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")))
+				.TryAddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")))
 				.Build();
 		}
 
@@ -177,7 +177,7 @@ namespace ChickenBot.AssignableRoles
 			var roleEmbed = new DiscordEmbedBuilder()
 				.WithTitle($"Assignable Roles")
 				.WithDescription("Self assignable roles, please only use this command in the bot channel")
-				.AddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")));
+				.TryAddField("Roles", string.Join(", ", roles.Select(role => $"`{role.RoleName}`")) ?? string.Empty);
 
 			await ctx.RespondAsync(roleEmbed);
 		}
