@@ -318,7 +318,7 @@ namespace ChickenBot.Core.SubServices
 			{
 				case LogEventLevel.Fatal:
 
-					if (rendered.Contains("(4000, '\"\"')"))
+					if (rendered.Contains("Connection terminated"))
 					{
 						level = LogEventLevel.Warning;
 					}
