@@ -99,7 +99,7 @@ public class ChatAiService : IHostedService
         }
             
         // If either of our cooldowns are active exit out
-        if (!IsMainCooldownOver() || !IsMainCooldownOver())
+        if (!IsMainCooldownOver() || !IsChatCooldownOver())
         {
             return;
         }
