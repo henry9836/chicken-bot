@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.Core.Models;
 using ChickenBot.VerificationSystem.Interfaces;
 using Microsoft.Extensions.Configuration;

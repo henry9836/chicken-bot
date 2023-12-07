@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Text;
 using ChickenBot.API;
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.AssignableRoles.Interfaces;
 using ChickenBot.AssignableRoles.Models;
 using DSharpPlus;

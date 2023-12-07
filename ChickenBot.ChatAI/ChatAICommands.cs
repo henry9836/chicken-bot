@@ -1,4 +1,4 @@
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;

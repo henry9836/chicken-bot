@@ -1,5 +1,5 @@
 ﻿using ChickenBot.API;
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;

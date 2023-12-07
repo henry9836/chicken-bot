@@ -1,4 +1,4 @@
-﻿using ChickenBot.API.Atrributes;
+﻿using ChickenBot.API.Attributes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,4 @@
-﻿using ChickenBot.API.Atrributes;
+﻿using ChickenBot.API.Attributes;
 using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;

@@ -22,5 +22,18 @@ namespace ChickenBot.API
 
 			return builder;
 		}
+
+		/// <summary>
+		/// Conditionally adds a field to the embed, so long as the value is not null or empty
+		/// </summary>
+		public static DiscordEmbedBuilder TryWithThumbnail(this DiscordEmbedBuilder builder, string? url)
+		{
+			if (!string.IsNullOrWhiteSpace(url))
+			{
+				builder.WithThumbnail(url);
+			}
+
+			return builder;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using ChickenBot.API.Atrributes;
+﻿using ChickenBot.API.Attributes;
 using ChickenBot.ChatAI.Interfaces;
 using ChickenBot.ChatAI.Models.Discriminators;
 using Microsoft.Extensions.Configuration;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace ChickenBot.API.Atrributes
+namespace ChickenBot.API.Attributes
 {
 	public class RequireAnyAttribute : CheckBaseAttribute
 	{

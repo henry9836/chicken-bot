@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using ChickenBot.API;
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;

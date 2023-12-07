@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ChickenBot.API.Atrributes
+namespace ChickenBot.API.Attributes
 {
 	public class RequireBotSpam : CheckBaseAttribute
 	{

@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Models;
 using ChickenBot.Core.Attributes;
 using ChickenBot.Core.Models;

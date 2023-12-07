@@ -1,4 +1,4 @@
-using ChickenBot.API.Atrributes;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using ChickenBot.ChatAI.Interfaces;
 using DSharpPlus.Entities;

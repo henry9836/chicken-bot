@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ChickenBot.API.Atrributes
+namespace ChickenBot.API.Attributes
 {
 	/// <summary>
 	/// Requires that a user has the verified role to run a command

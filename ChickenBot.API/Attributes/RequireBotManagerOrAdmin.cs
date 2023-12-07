@@ -2,7 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace ChickenBot.API.Atrributes
+namespace ChickenBot.API.Attributes
 {
 	public class RequireBotManagerOrAdmin : CheckBaseAttribute
 	{
