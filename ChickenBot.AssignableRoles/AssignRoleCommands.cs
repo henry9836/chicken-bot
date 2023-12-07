@@ -62,7 +62,7 @@ namespace ChickenBot.AssignableRoles
 
 			var targetRole = targetRoles.FirstOrDefault();
 
-			if (targetRole == null)
+			if (targetRole is null)
 			{
 				await ctx.RespondAsync("Couldn't find a role with that name");
 				return;
@@ -220,7 +220,7 @@ namespace ChickenBot.AssignableRoles
 
 			var tickEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", includeGuilds: false);
 
-			if (tickEmoji != null)
+			if (tickEmoji is not null)
 			{
 				await ctx.Message.CreateReactionAsync(tickEmoji);
 			}
@@ -267,7 +267,7 @@ namespace ChickenBot.AssignableRoles
 
 			var tickEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", includeGuilds: false);
 
-			if (tickEmoji != null)
+			if (tickEmoji is not null)
 			{
 				await ctx.Message.CreateReactionAsync(tickEmoji);
 			}

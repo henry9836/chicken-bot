@@ -1,6 +1,5 @@
 ﻿using ChickenBot.API.Attributes;
 using ChickenBot.ChatAI.Interfaces;
-using ChickenBot.ChatAI.Models.Discriminators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,7 +21,6 @@ namespace ChickenBot.ChatAI.Models
 
 		private string Token => m_Configuration.GetSection("ChatAI")?.GetValue("Token", string.Empty) ?? string.Empty;
 
-
 		private readonly IConfiguration m_Configuration;
 
 		private readonly IChatEndpoint m_Endpoint;
@@ -30,7 +28,7 @@ namespace ChickenBot.ChatAI.Models
 		private readonly IModerationEndpoint m_Moderation;
 
 		private readonly IServiceProvider m_Provider;
-		
+
 		private readonly ILogger<ConversationAIProvider> m_Logger;
 
 		public ConversationAIProvider(IConfiguration configuration, IServiceProvider provider, ILogger<ConversationAIProvider> logger)
@@ -38,13 +36,13 @@ namespace ChickenBot.ChatAI.Models
 			m_Configuration = configuration;
 			m_Provider = provider;
 			m_Logger = logger;
-			
+
 			if (string.IsNullOrEmpty(Token))
 			{
 				m_Logger.LogError("OpenAI Token is empty!");
 			}
 			var apiBase = new OpenAIAPI(Token);
-			
+
 			m_Endpoint = apiBase.Chat;
 			m_Moderation = apiBase.Moderation;
 		}
@@ -61,7 +59,7 @@ namespace ChickenBot.ChatAI.Models
 			//return new CompoundDiscriminator(discriminators);
 		}
 
-		public async Task<IConversationAI> CreateConversation()
+		public Task<IConversationAI> CreateConversation()
 		{
 			var settings = new ChatSettings()
 			{
@@ -74,7 +72,8 @@ namespace ChickenBot.ChatAI.Models
 				UseNumericNames = false
 			};
 
-			return ActivatorUtilities.CreateInstance<ConversationAI>(m_Provider, settings, m_Endpoint, GetDiscriminator());
+			var result = ActivatorUtilities.CreateInstance<ConversationAI>(m_Provider, settings, m_Endpoint, GetDiscriminator());
+			return Task.FromResult<IConversationAI>(result);
 		}
 	}
 }

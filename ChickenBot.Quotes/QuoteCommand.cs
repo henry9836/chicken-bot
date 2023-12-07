@@ -57,10 +57,10 @@ namespace ChickenBot.Quotes
 				return;
 			}
 
-			if (m_QuotesChannel == null)
+			if (m_QuotesChannel is null)
 			{
 				m_QuotesChannel = ctx.Guild.GetChannel(QuotesChannelID);
-				if (m_QuotesChannel == null)
+				if (m_QuotesChannel is null)
 				{
 					await ctx.RespondAsync("Begawk! I can't seem to find the quotes channel");
 					return;

@@ -91,7 +91,10 @@ public class ChatAiService : IHostedService
         // Get messages
         if (m_ChatInfoService.m_ConversationAi != null)
         {
-            string message = args.Message.Content + $" - {member.Nickname ?? member.DisplayName}";
+            var name = string.IsNullOrWhiteSpace(member.Nickname) ? member.GlobalName : member.Nickname;
+
+            var message = args.Message.Content + $" - {name}";
+
             await m_ChatInfoService.m_ConversationAi.PushChatMessage(member, message);
         }
             
@@ -116,7 +119,7 @@ public class ChatAiService : IHostedService
             return;
         }
 
-        if (m_ChatInfoService.GeneralChannel == null)
+        if (m_ChatInfoService.GeneralChannel is null)
         {
             m_Logger.LogWarning("General Channel couldn't be set in AI Service");
             return;
@@ -149,7 +152,7 @@ public class ChatAiService : IHostedService
             return;
         }
 
-        if (m_ChatInfoService.GeneralChannel == null)
+        if (m_ChatInfoService.GeneralChannel is null)
         {
             m_Logger.LogWarning("General Channel was null when trying to send a response from ai");
             return;
@@ -179,7 +182,7 @@ public class ChatAiService : IHostedService
 
     private async Task SendGoodbyeMessage()
     {
-        if (m_ChatInfoService.GeneralChannel == null)
+        if (m_ChatInfoService.GeneralChannel is null)
         {
             return;
         }

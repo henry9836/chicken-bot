@@ -23,7 +23,7 @@ namespace ChickenBot.VerificationSystem.Commands
 		[Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
 		public async Task DeverifyUserCommand(CommandContext ctx)
 		{
-			if (ctx.Member == null)
+			if (ctx.Member is null)
 			{
 				await ctx.RespondAsync("This command cannot be used in DMs");
 				return;
@@ -46,7 +46,7 @@ namespace ChickenBot.VerificationSystem.Commands
 		[Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
 		public async Task DeverifyUserCommand(CommandContext ctx, DiscordMember member, float multiplier)
 		{
-			if (ctx.Member == null)
+			if (ctx.Member is null)
 			{
 				await ctx.RespondAsync("This command cannot be used in DMs");
 				return;

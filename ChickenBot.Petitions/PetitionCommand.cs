@@ -40,7 +40,7 @@ namespace ChickenBot.Petitions
 			// Get petitions channel
 			var channel = ctx.Guild.GetChannel(PetitionsChannelID);
 
-			if (channel == null)
+			if (channel is null)
 			{
 				await ctx.RespondAsync("Begawk! I can't seem to find the petitions channel...");
 				m_Logger.LogWarning("Cannot get petitions channel");
@@ -78,7 +78,7 @@ namespace ChickenBot.Petitions
 			var embed = new DiscordEmbedBuilder()
 				.WithTitle($"Petition by {ctx.Message.Author.Username}")
 				.WithDescription(petitionText)
-				.WithImageUrl(onlyImageUrl)
+				.WithImageUrl(onlyImageUrl!)
 				.Build();
 
 			// Create parent message to also include additional attachments
@@ -87,7 +87,7 @@ namespace ChickenBot.Petitions
 				.WithContent(string.Join('\n', attachments));
 
 			var petition = await channel.SendMessageAsync(message);
-			if (petition == null)
+			if (petition is null)
 			{
 				m_Logger.LogWarning("Could not post to petitions channel");
 				return;
@@ -96,12 +96,12 @@ namespace ChickenBot.Petitions
 			var thumbsUp = DiscordEmoji.FromName(ctx.Client, ":thumbsup:", includeGuilds: false);
 			var thumbsDown = DiscordEmoji.FromName(ctx.Client, ":thumbsdown:", includeGuilds: false);
 
-			if (thumbsUp != null)
+			if (thumbsUp is not null)
 			{
 				await petition.CreateReactionAsync(thumbsUp);
 			}
 
-			if (thumbsDown != null)
+			if (thumbsDown is not null)
 			{
 				await petition.CreateReactionAsync(thumbsDown);
 			}

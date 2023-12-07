@@ -48,15 +48,15 @@ namespace ChickenBot.Core.Services
 
 			var token = configuration["Token"];
 
-			var disordConfig = new DiscordConfiguration()
+			var discordConfig = new DiscordConfiguration()
 			{
-				Token = token,
+				Token = token!,
 				TokenType = TokenType.Bot,
 				Intents = DiscordIntents.All,
-				LoggerFactory = loggerFactory
+				LoggerFactory = loggerFactory!
 			};
 
-			return new DiscordClient(disordConfig);
+			return new DiscordClient(discordConfig);
 		}
 
 		private static CommandsNextExtension CommandsNextFactory(IServiceProvider provider)

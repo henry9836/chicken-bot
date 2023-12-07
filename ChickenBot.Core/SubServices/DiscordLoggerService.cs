@@ -59,7 +59,7 @@ namespace ChickenBot.Core.SubServices
 			{
 				var guild = await m_Discord.GetGuildAsync(GuildID);
 
-				if (guild != null)
+				if (guild is not null)
 				{
 					m_LogChannel = guild.GetChannel(BotLogChannelID);
 					m_LogTimer.Start();
@@ -97,7 +97,7 @@ namespace ChickenBot.Core.SubServices
 		{
 			var emoji = DiscordEmoji.FromName(ctx.Client, ":question:", false);
 
-			if (emoji != null)
+			if (emoji is not null)
 			{
 				await ctx.Message.CreateReactionAsync(emoji);
 			}
@@ -120,7 +120,7 @@ namespace ChickenBot.Core.SubServices
 
 		private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
 		{
-			if (m_LogChannel == null)
+			if (m_LogChannel is null)
 			{
 				return;
 			}
@@ -134,7 +134,7 @@ namespace ChickenBot.Core.SubServices
 
 		private async Task FlushLogsAsync()
 		{
-			if (m_LogChannel == null)
+			if (m_LogChannel is null)
 			{
 				return;
 			}
@@ -156,7 +156,7 @@ namespace ChickenBot.Core.SubServices
 
 		private async Task FireRaisedMessage(LogEvent log, LogEventLevel level)
 		{
-			if (m_LogChannel == null)
+			if (m_LogChannel is null)
 			{
 				return;
 			}

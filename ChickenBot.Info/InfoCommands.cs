@@ -32,7 +32,7 @@ namespace ChickenBot.Info
 		[Command("info"), Description("Shows info about the Discord server")]
 		public async Task ServerInfoCommand(CommandContext ctx)
 		{
-			if (ctx.Guild == null)
+			if (ctx.Guild is null)
 			{
 				await ctx.RespondAsync("This command cannot be used in DMs");
 				return;

@@ -60,10 +60,10 @@ namespace ChickenBot.Quotes
 				return;
 			}
 
-			if (m_NsfwChannel == null)
+			if (m_NsfwChannel is null)
 			{
 				m_NsfwChannel = ctx.Guild.GetChannel(NsfwQuotesChannelId);
-				if (m_NsfwChannel == null)
+				if (m_NsfwChannel is null)
 				{
 					await ctx.RespondAsync("Begawk! I can't seem to find the nsfw-quotes channel");
 					return;

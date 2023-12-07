@@ -19,8 +19,6 @@ namespace ChickenBot.ChatAI.Models
 
 		private readonly IMessageDiscriminator m_Discriminator;
 
-		//private readonly Dictionary<ulong, int> m_UserChatIDs = new Dictionary<ulong, int>();
-
 		private readonly Random m_Random = new Random();
 
 		private readonly SemaphoreSlim m_Semaphore = new SemaphoreSlim(1);
@@ -41,7 +39,7 @@ namespace ChickenBot.ChatAI.Models
 		}
 
 		/// <summary>
-		/// Lazy method to push a chat message to the conversaiton
+		/// Lazy method to push a chat message to the conversation
 		/// </summary>
 		/// <remarks>
 		/// Chat messages pushed here are subject to message discriminators, and might be rejected from the chat context
@@ -56,39 +54,8 @@ namespace ChickenBot.ChatAI.Models
 
 			return Task.CompletedTask;
 
-			//m_PushQueue.Enqueue((user, message));
 
-			//if (!m_WorkerActive)
-			//{
-			//	m_WorkerActive = true;
-			//	await m_Semaphore.WaitAsync();
-			//	try
-			//	{
-			//		await ProcessMessagePush();
-			//	}
-			//	finally
-			//	{
-			//		m_Semaphore.Release();
-			//	}
-			//}
 		}
-
-		/// <summary>
-		/// Processes and discriminates user messages in strict order, to push to the sliding window
-		/// </summary>
-		//private async Task ProcessMessagePush()
-		//{
-		//	while (m_PushQueue.TryDequeue(out var message))
-		//	{
-		//		if (!await m_Discriminator.Discriminate(message.user, message.message))
-		//		{
-		//			// Message was flagged, discard
-		//			continue;
-		//		}
-
-		//		//PushChatMessageInternal(message.user, message.message);
-		//	}
-		//}
 
 		/// <summary>
 		/// Pushes a confirmed message onto the sliding window
@@ -97,27 +64,6 @@ namespace ChickenBot.ChatAI.Models
 		/// <param name="message"></param>
 		private void PushChatMessageInternal(DiscordMember user, string message)
 		{
-			//string userChatID;
-
-			//if (m_Settings.UseNumericNames)
-			//{
-			//	if (!m_UserChatIDs.TryGetValue(user.Id, out var chatID))
-			//	{
-			//		chatID = m_ChatIDIndex++;
-			//		m_UserChatIDs[user.Id] = chatID;
-			//	}
-			//	userChatID = chatID.ToString();
-			//}
-			//else
-			//{
-			//	userChatID = user.Nickname ?? user.DisplayName;
-
-			//	if (userChatID.Length > m_Settings.MaxUsernameLength)
-			//	{
-			//		userChatID = userChatID.Substring(0, m_Settings.MaxUsernameLength);
-			//	}
-			//}
-
 			var msg = new ChatMessage(ChatMessageRole.User, message)
 			{
 				Name = user.Id.ToString()

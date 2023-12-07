@@ -47,7 +47,7 @@ namespace ChickenBot.AssignableRoles.Models
 		{
 			var guildRole = member.Guild.GetRole(role.RoleID);
 
-			if (guildRole == null)
+			if (guildRole is null)
 			{
 				return false;
 			}
@@ -62,7 +62,7 @@ namespace ChickenBot.AssignableRoles.Models
 		{
 			var guildRole = member.Guild.GetRole(role.RoleID);
 
-			if (guildRole == null)
+			if (guildRole is null)
 			{
 				return false;
 			}

@@ -39,7 +39,7 @@ namespace ChickenBot.VerificationSystem.Models
 
 			var role = member.Guild.GetRole(VerifiedRoleID);
 
-			if (role == null)
+			if (role is null)
 			{
 				m_Logger.LogWarning("Couldn't Remove user verification, Verified role '{role}' does not exist in server", VerifiedRoleID);
 				return false;
@@ -59,7 +59,7 @@ namespace ChickenBot.VerificationSystem.Models
 
 			var role = member.Guild.GetRole(VerifiedRoleID);
 
-			if (role == null)
+			if (role is null)
 			{
 				m_Logger.LogWarning("Couldn't verify user, Verified role '{role}' does not exist in server", VerifiedRoleID);
 				return false;
@@ -74,7 +74,7 @@ namespace ChickenBot.VerificationSystem.Models
 		{
 			var channel = member.Guild.GetChannel(VerifiedChannelID);
 
-			if (channel == null)
+			if (channel is null)
 			{
 				m_Logger.LogWarning("Couldn't announce user verification: verified channel doesn't exist");
 				return false;

@@ -192,7 +192,7 @@ namespace ChickenBot.ReverseSearch
 			}
 
 			// Iterate up reply tree
-			if (message.ReferencedMessage != null)
+			if (message.ReferencedMessage is not null)
 			{
 				return TryGetAttachment(message.ReferencedMessage, depth + 1);
 			}

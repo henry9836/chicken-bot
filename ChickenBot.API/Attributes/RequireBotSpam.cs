@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using System.Data;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ namespace ChickenBot.API.Attributes
 			if (!result && !help)
 			{
 				var emoji = DiscordEmoji.FromName(ctx.Client, ":toothless_no:", true);
-				if (emoji != null)
+				if (emoji is not null)
 				{
 					await ctx.Message.CreateReactionAsync(emoji);
 				}
