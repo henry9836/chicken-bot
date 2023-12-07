@@ -26,18 +26,19 @@ do
         echo Moving modules...
         echo
         echo
-        pushd ChickenBot/bin/Debug/net7.0/plugins
+        pushd ChickenBot/bin/Debug/net8.0/plugins
         cp ~/config.json.runtime.bak ../config.json
-        mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net7.0/ChickenBot.AdminCommands.dll ./
-        mv ../../../../../ChickenBot.API/bin/Debug/net7.0/ChickenBot.API.dll ./
-        mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net7.0/ChickenBot.AssignableRoles.dll ./
-        mv ../../../../../ChickenBot.ChatAI/bin/Debug/net7.0/ChickenBot.ChatAI.dll ./
-        mv ../../../../../ChickenBot.FlagGame/bin/Debug/net7.0/ChickenBot.FlagGame.dll ./
-        mv ../../../../../ChickenBot.Fun/bin/Debug/net7.0/ChickenBot.Fun.dll ./
-        mv ../../../../../ChickenBot.Info/bin/Debug/net7.0/ChickenBot.Info.dll ./
-        mv ../../../../../ChickenBot.Petitions/bin/Debug/net7.0/ChickenBot.Petitions.dll ./
-        mv ../../../../../ChickenBot.Quotes/bin/Debug/net7.0/ChickenBot.Quotes.dll ./
-        mv ../../../../../ChickenBot.VerificationSystem/bin/Debug/net7.0/ChickenBot.VerificationSystem.dll ./
+        mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net8.0/ChickenBot.AdminCommands.dll ./
+        mv ../../../../../ChickenBot.API/bin/Debug/net8.0/ChickenBot.API.dll ./
+        mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net8.0/ChickenBot.AssignableRoles.dll ./
+        mv ../../../../../ChickenBot.ChatAI/bin/Debug/net8.0/ChickenBot.ChatAI.dll ./
+        mv ../../../../../ChickenBot.FlagGame/bin/Debug/net8.0/ChickenBot.FlagGame.dll ./
+        mv ../../../../../ChickenBot.Fun/bin/Debug/net8.0/ChickenBot.Fun.dll ./
+        mv ../../../../../ChickenBot.Info/bin/Debug/net8.0/ChickenBot.Info.dll ./
+        mv ../../../../../ChickenBot.Petitions/bin/Debug/net8.0/ChickenBot.Petitions.dll ./
+        mv ../../../../../ChickenBot.Quotes/bin/Debug/net8.0/ChickenBot.Quotes.dll ./
+        mv ../../../../../ChickenBot.ReverseSearch/bin/Debug/net8.0/ChickenBot.ReverseSearch.dll ./
+        mv ../../../../../ChickenBot.VerificationSystem/bin/Debug/net8.0/ChickenBot.VerificationSystem.dll ./
         popd
 
         echo
@@ -45,7 +46,7 @@ do
         echo Starting bot...
         echo
         echo
-        pushd ChickenBot/bin/Debug/net7.0/
+        pushd ChickenBot/bin/Debug/net8.0/
         ./ChickenBot
 
         # Backup to tmp
