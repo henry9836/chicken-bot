@@ -63,9 +63,10 @@ namespace ChickenBot.Fun
 		[Command("Cat"), Description("Sends a random cat"), RequireBotSpam]
 		public async Task CatCommand(CommandContext ctx)
 		{
+			var rng = new Random();
 			await ctx.RespondAsync(new DiscordEmbedBuilder()
 				.WithTitle("Random cat")
-				.WithImageUrl("https://cataas.com/cat"));
+				.WithImageUrl($"https://cataas.com/cat?nonce={rng.Next(999999)}")); // random nonce to prevent discord from caching the image
 		}
 
 		// Had to be disabled since the API was flooded with random shit
