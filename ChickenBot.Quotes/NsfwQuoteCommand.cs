@@ -33,7 +33,7 @@ namespace ChickenBot.Quotes
 				await ctx.Message.DeleteAsync();
 				return;
 			}
-			
+
 			string? attachmentUrl = null;
 
 			if (ctx.Message.Attachments.Count > 0)
@@ -69,7 +69,7 @@ namespace ChickenBot.Quotes
 					return;
 				}
 			}
-			
+
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
 				.WithTitle($"Quote by {ctx.Message.Author.Username}")
@@ -78,8 +78,15 @@ namespace ChickenBot.Quotes
 				.WithColor(new DiscordColor("#c4160a"));
 
 			await m_NsfwChannel.SendMessageAsync(embed);
-			
+
 			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author.Username, attachmentUrl, text);
+
+			var emoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", false);
+
+			if (emoji is not null)
+			{
+				await ctx.Message.CreateReactionAsync(emoji);
+			}
 		}
 	}
 }

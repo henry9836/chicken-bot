@@ -77,6 +77,14 @@ namespace ChickenBot.Quotes
 			await m_QuotesChannel.SendMessageAsync(embed);
 
 			m_Logger.LogInformation("Posted quote from user {user}: {url} '{text}'", ctx.Message.Author.Username, attachmentUrl, text);
+
+
+			var emoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", false);
+
+			if (emoji is not null)
+			{
+				await ctx.Message.CreateReactionAsync(emoji);
+			}
 		}
 	}
 }
