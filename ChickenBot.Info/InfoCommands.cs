@@ -22,7 +22,7 @@ namespace ChickenBot.Info
 		public async Task AvatarCommand(CommandContext ctx, DiscordMember member)
 		{
 			var embed = new DiscordEmbedBuilder()
-				.WithTitle($"{member.Nickname}'s Avatar")
+				.WithTitle($"{member.DisplayName}'s Avatar")
 				.WithImageUrl(member.AvatarUrl ?? member.DefaultAvatarUrl)
 				.WithRequestedBy(ctx.User);
 

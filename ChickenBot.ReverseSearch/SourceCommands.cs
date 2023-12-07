@@ -53,7 +53,7 @@ namespace ChickenBot.ReverseSearch
 			{
 				var result = await m_SearchTool.SearchAsync(safeUrl, ctx.Channel.IsNSFW);
 
-				var embed = GetSearchEmbed(result, ctx.User);
+				var embed = GetSearchEmbed(result, ctx.User, safeUrl);
 
 				await ctx.RespondAsync(embed);
 			}
@@ -69,12 +69,12 @@ namespace ChickenBot.ReverseSearch
 		/// </summary>
 		/// <param name="result">Response to convert</param>
 		/// <returns>Response discord embed</returns>
-		private DiscordEmbedBuilder GetSearchEmbed(ReverseSearchResult result, DiscordUser user)
+		private DiscordEmbedBuilder GetSearchEmbed(ReverseSearchResult result, DiscordUser user, string sourceUrl)
 		{
 			switch (result.Status)
 			{
 				case ELookupResult.Success:
-					return BuildSearchSuccess(result, user);
+					return BuildSearchSuccess(result, user, sourceUrl);
 
 				case ELookupResult.UnknownFileSize:
 					return new DiscordEmbedBuilder()
@@ -107,7 +107,7 @@ namespace ChickenBot.ReverseSearch
 			}
 		}
 
-		private DiscordEmbedBuilder BuildSearchSuccess(ReverseSearchResult result, DiscordUser user)
+		private DiscordEmbedBuilder BuildSearchSuccess(ReverseSearchResult result, DiscordUser user, string sourceUrl)
 		{
 			if (result.HasExactMatch)
 			{
@@ -148,7 +148,8 @@ namespace ChickenBot.ReverseSearch
 
 			return new DiscordEmbedBuilder()
 				.WithTitle("Image Source")
-				.WithDescription("Failed to find the image source.\nIt might take some time for the image to be discoverable if the image was recently uploaded.");
+				.WithDescription("Failed to find the image source.\nIt might take some time for the image to be discoverable if the image was recently uploaded.")
+				.WithThumbnail(sourceUrl);
 		}
 
 		/// <summary>
