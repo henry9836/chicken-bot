@@ -116,7 +116,10 @@ namespace ChickenBot.Fun
 			{
 				"*Disappointed squark*",
 				"*looks at you with disappointment*",
-				$"*pecks and chases* ${ctx.User.Mention}"
+				"*looks at you with disappointment*", // prefer this response
+				"*looks at you with disappointment*",
+				"*looks at you with disappointment*",
+				$"*pecks and chases* {ctx.User.Mention}"
 			};
 			await ctx.RespondRandom(responses);
 		}
