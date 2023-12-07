@@ -53,7 +53,7 @@ namespace ChickenBot.Core.SubServices
 			}
 
 			m_CommandsNext.CommandExecuted += OnCommandExecute;
-			m_CommandsNext.CommandErrored += OnCommanedErrored;
+			m_CommandsNext.CommandErrored += OnCommandedErrored;
 
 			try
 			{
@@ -75,7 +75,7 @@ namespace ChickenBot.Core.SubServices
 			}
 		}
 
-		private Task OnCommanedErrored(CommandsNextExtension sender, CommandErrorEventArgs args)
+		private Task OnCommandedErrored(CommandsNextExtension sender, CommandErrorEventArgs args)
 		{
 			if (args.Exception is CommandNotFoundException   // Don't log errors for unknown commands
 				|| args.Exception is ChecksFailedException)  // Don't log errors for when a user doesn't have perms for a command
@@ -84,13 +84,29 @@ namespace ChickenBot.Core.SubServices
 			}
 
 			m_Logger.LogError(args.Exception, "Command {command} ran by {user} errored", args.Command?.Name ?? "N/A", args.Context.User.Username);
+
+			if (args.Exception is ArgumentException)
+			{
+				Task.Run(async () => await AddConfused(args.Context));
+			}
+
 			return Task.CompletedTask;
+		}
+
+		private async Task AddConfused(CommandContext ctx)
+		{
+			var emoji = DiscordEmoji.FromName(ctx.Client, ":question:", false);
+
+			if (emoji != null)
+			{
+				await ctx.Message.CreateReactionAsync(emoji);
+			}
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
 			m_CommandsNext.CommandExecuted -= OnCommandExecute;
-			m_CommandsNext.CommandErrored -= OnCommanedErrored;
+			m_CommandsNext.CommandErrored -= OnCommandedErrored;
 
 			m_LogTimer.Stop();
 			return Task.CompletedTask;
@@ -101,7 +117,6 @@ namespace ChickenBot.Core.SubServices
 			m_Logger.LogInformation("User {user} executed command '{command}'", args.Context.User.Username, args.Context.Message.Content);
 			return Task.CompletedTask;
 		}
-
 
 		private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -212,7 +227,7 @@ namespace ChickenBot.Core.SubServices
 
 					RunLogSuppressions(logEvent, ref logLevel);
 
-					if (logEvent.Exception != null || logLevel >= LogEventLevel.Error)
+					if (logLevel >= LogEventLevel.Error)
 					{
 						Task.Run(async () => await FireRaisedMessage(logEvent, logLevel));
 					}
@@ -313,12 +328,20 @@ namespace ChickenBot.Core.SubServices
 		private void RunLogSuppressions(LogEvent logEvent, ref LogEventLevel level)
 		{
 			var rendered = logEvent.RenderMessage();
+			var error = logEvent.Exception?.Message ?? string.Empty;
 
 			switch (logEvent.Level)
 			{
 				case LogEventLevel.Fatal:
 
 					if (rendered.Contains("Connection terminated"))
+					{
+						level = LogEventLevel.Warning;
+					}
+					break;
+				case LogEventLevel.Error:
+
+					if (error.Contains("Could not find a suitable overload"))
 					{
 						level = LogEventLevel.Warning;
 					}
