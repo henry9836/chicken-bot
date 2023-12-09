@@ -6,10 +6,10 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
+using ChickenBot.API.Attributes;
 namespace ChickenBot.AdminCommands.Commands
 {
-	[Group("join-message")]
+	[Group("join-message"), RequireBotManagerOrAdmin]
 	public class WelcomeMessageCommands : BaseCommandModule
 	{
 		private readonly IConfigEditor m_ConfigEditor;
@@ -23,7 +23,7 @@ namespace ChickenBot.AdminCommands.Commands
 			m_Configuration = configuration;
 		}
 
-		[GroupCommand]
+		[GroupCommand, RequireBotManagerOrAdmin]
 		public async Task WelcomeMessageCommand(CommandContext ctx, [RemainingText] string? r)
 		{
 			var sb = new StringBuilder();
@@ -54,7 +54,7 @@ namespace ChickenBot.AdminCommands.Commands
 			await ctx.RespondAsync(embed);
 		}
 
-		[Command("add")]
+		[Command("add"), RequireBotManagerOrAdmin]
 		public async Task AddWelcomeMessageCommand(CommandContext ctx, [RemainingText] string format)
 		{
 			if (string.IsNullOrWhiteSpace(format))
@@ -66,7 +66,7 @@ namespace ChickenBot.AdminCommands.Commands
 			await ctx.RespondAsync($"Join message format added");
 		}
 
-		[Command("remove")]
+		[Command("remove"), RequireBotManagerOrAdmin]
 		public async Task AddWelcomeMessageCommand(CommandContext ctx, int index)
 		{
 			var joinFormats = m_Configuration.Value("AutoMsg:JoinFormats", Array.Empty<string>());

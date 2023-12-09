@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using ChickenBot.API;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Commands
 {
-	[Group("leave-message")]
+	[Group("leave-message"), RequireBotManagerOrAdmin]
 	public class LeaveMessageCommands : BaseCommandModule
 	{
 		private readonly IConfigEditor m_ConfigEditor;
@@ -23,7 +24,7 @@ namespace ChickenBot.AdminCommands.Commands
 			m_Configuration = configuration;
 		}
 
-		[GroupCommand]
+		[GroupCommand, RequireBotManagerOrAdmin]
 		public async Task LeaveMessageCommand(CommandContext ctx, [RemainingText] string? _)
 		{
 			var sb = new StringBuilder();
@@ -54,7 +55,7 @@ namespace ChickenBot.AdminCommands.Commands
 			await ctx.RespondAsync(embed);
 		}
 
-		[Command("add")]
+		[Command("add"), RequireBotManagerOrAdmin]
 		public async Task AddLeaveMessageCommand(CommandContext ctx, [RemainingText] string format)
 		{
 			if (string.IsNullOrWhiteSpace(format))
@@ -66,7 +67,7 @@ namespace ChickenBot.AdminCommands.Commands
 			await ctx.RespondAsync($"Leave message format added");
 		}
 
-		[Command("remove")]
+		[Command("remove"), RequireBotManagerOrAdmin]
 		public async Task AddLeaveMessageCommand(CommandContext ctx, int index)
 		{
 			var leaveFormats = m_Configuration.Value("AutoMsg:LeaveFormats", Array.Empty<string>());

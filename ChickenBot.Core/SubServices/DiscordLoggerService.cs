@@ -227,9 +227,13 @@ namespace ChickenBot.Core.SubServices
 
 					RunLogSuppressions(logEvent, ref logLevel);
 
+
 					if (logLevel >= LogEventLevel.Error)
 					{
 						Task.Run(async () => await FireRaisedMessage(logEvent, logLevel));
+					} else if (logLevel <= LogEventLevel.Debug)
+					{
+						continue;
 					}
 
 					string level = GetLevelName(logLevel);
@@ -336,7 +340,7 @@ namespace ChickenBot.Core.SubServices
 
 					if (rendered.Contains("Connection terminated"))
 					{
-						level = LogEventLevel.Warning;
+						level = LogEventLevel.Debug;
 					}
 					break;
 				case LogEventLevel.Error:
@@ -344,6 +348,20 @@ namespace ChickenBot.Core.SubServices
 					if (error.Contains("Could not find a suitable overload"))
 					{
 						level = LogEventLevel.Warning;
+					}
+					break;
+
+				case LogEventLevel.Warning:
+					if (rendered.Contains("Unknown event") || error.Contains("Unknown event"))
+					{
+						level = LogEventLevel.Debug;
+					}
+					break;
+
+				case LogEventLevel.Information:
+					if (rendered.Contains("DSharpPlus, version"))
+					{
+						level = LogEventLevel.Debug;
 					}
 					break;
 			}
