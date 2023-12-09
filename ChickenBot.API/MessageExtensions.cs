@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace ChickenBot.API
 {
@@ -34,6 +35,43 @@ namespace ChickenBot.API
 			}
 
 			return builder;
+		}
+
+		public static string Pluralize(this int value)
+		{
+			if (value == 1)
+			{
+				return string.Empty;
+			}
+			return "s";
+		}
+
+		public static string Pluralize(this double value)
+		{
+			if (value == 1)
+			{
+				return string.Empty;
+			}
+			return "s";
+		}
+
+		/// <summary>
+		/// Gets the specified config value as the specified type, or returns the default value
+		/// </summary>
+		/// <typeparam name="T">Config parameter type</typeparam>
+		/// <param name="configuration">config instance</param>
+		/// <param name="key">Key to config value</param>
+		/// <param name="defaultValue">Default value if the item is not set</param>
+		/// <returns>Config value instance</returns>
+		public static T Value<T>(this IConfiguration configuration, string key, T defaultValue)
+		{
+			var sect = configuration.GetSection(key);
+			if (sect == null)
+			{
+				return defaultValue;
+			}
+
+			return sect.Get<T>() ?? defaultValue;
 		}
 	}
 }
