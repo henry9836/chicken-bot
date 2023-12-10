@@ -18,7 +18,7 @@ namespace ChickenBot.AdminCommands
 			m_Lifetime = lifetime;
 		}
 
-		[Command("restart"), RequireBotManager]
+		[Command("restart"), Aliases("update"), RequireBotManager]
 		public async Task RestartCommand(CommandContext ctx)
 		{
 			await ctx.RespondAsync("Restarting the bot...");

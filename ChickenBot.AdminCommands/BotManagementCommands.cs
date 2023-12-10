@@ -30,6 +30,12 @@ namespace ChickenBot.AdminCommands
 			"bot-log",
 			"join-leave"
 		};
+		
+		private static readonly List<string> m_AssignableRoles = new List<string>()
+		{
+			"verified",
+			"bot-dev"
+		};
 
 		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx)
@@ -62,12 +68,6 @@ namespace ChickenBot.AdminCommands
 			await ctx.RespondAsync($"Updated channel for {channelName}.");
 
 		}
-
-		private static readonly List<string> m_AssignableRoles = new List<string>()
-		{
-			"verified",
-			"bot-dev"
-		};
 
 		[Command("set-role"), RequireBotManagerOrAdmin, Description("Sets a role in the config")]
 		public async Task SetRoleCommand(CommandContext ctx)
