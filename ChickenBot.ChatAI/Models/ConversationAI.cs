@@ -97,11 +97,11 @@ namespace ChickenBot.ChatAI.Models
 		/// Determines the next message's temperature
 		/// </summary>
 		/// <remarks>
-		/// Generates a number between 1.2 - 1.55
+		/// Generates a number between 1.2 - 1.45
 		/// </remarks>
 		private double DetermineTemperature()
 		{
-			return 1.2 + (m_Random.NextDouble() * 0.35);
+			return 1.2 + (m_Random.NextDouble() * 0.25);
 		}
 
 		/// <summary>
