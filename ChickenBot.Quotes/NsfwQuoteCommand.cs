@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Quotes
 {
+	[Category("Fun")]
 	public class NsfwQuoteCommand : BaseCommandModule
 	{
 		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);

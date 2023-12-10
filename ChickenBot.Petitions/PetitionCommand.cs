@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Petitions
 {
+	[Category("Fun")]
 	public class PetitionCommand : BaseCommandModule
 	{
 		public ulong PetitionsChannelID => m_Configuration.GetSection("Channels").GetValue("Petitions", 0ul);

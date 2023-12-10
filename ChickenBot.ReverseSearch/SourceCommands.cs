@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.ReverseSearch
 {
+	[Category("Utility")]
 	public class SourceCommands : BaseCommandModule
 	{
 		private readonly ILogger<SourceCommands> m_Logger;

@@ -11,7 +11,7 @@ namespace ChickenBot.API.Attributes
             var botManager = RequireBotManager.m_BotManagers.Contains(ctx.User.Id);
             var moderator = false;
 
-            if (ctx.Member != null)
+            if (ctx.Member is not null)
             {
                 if ((ctx.Member.Permissions & Permissions.KickMembers) != 0)
                 {

@@ -17,7 +17,7 @@ public class ChatAiCommands : BaseCommandModule
         m_Logger = logger;
     }
         
-    [Command("MagicCorn"), Description("Overrides the main cooldown to start the next AI session"), RequireBotManager]
+    [Command("MagicCorn"), Description("Overrides the main cooldown to start the next AI session"), RequireBotManager, Category("Developer")]
     public async Task MagicCornCommand(CommandContext ctx)
     {
         m_MyService.m_MainCooldownThreshold = DateTime.MinValue;
@@ -26,8 +26,7 @@ public class ChatAiCommands : BaseCommandModule
         await ctx.Message.DeleteAsync();
     }
 
-    // Only for devs
-    [Command("Shut"), Description("Stops an AI Session"), RequireBotManagerOrStaff]
+    [Command("Shut"), Description("Stops an AI Session"), RequireBotManagerOrStaff, Category("Admin")]
     public Task ShutCommand(CommandContext ctx)
     {
         m_MyService.UpdateMainCooldown();

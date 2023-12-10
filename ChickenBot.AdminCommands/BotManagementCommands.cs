@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands
 {
+	[Category("Admin")]
 	public class BotManagementCommands : BaseCommandModule
 	{
 		private readonly IConfigEditor m_ConfigEditor;

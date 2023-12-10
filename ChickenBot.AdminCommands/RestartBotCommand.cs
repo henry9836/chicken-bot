@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands
 {
+	[Category("Developer")]
 	public class RestartBotCommand : BaseCommandModule
 	{
 		private readonly ILogger<RestartBotCommand> m_Logger;
@@ -17,7 +18,7 @@ namespace ChickenBot.AdminCommands
 			m_Lifetime = lifetime;
 		}
 
-		[Command("restart"), Hidden, RequireBotManager]
+		[Command("restart"), RequireBotManager]
 		public async Task RestartCommand(CommandContext ctx)
 		{
 			await ctx.RespondAsync("Restarting the bot...");

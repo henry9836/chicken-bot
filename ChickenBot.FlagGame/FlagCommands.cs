@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace ChickenBot.FlagGame
 {
+	[Category("Fun")]
 	public class FlagCommands : BaseCommandModule
 	{
 		private ulong BotChannelID => m_Configuration.GetSection("Channels")?.GetValue("bot-spam", 0ul) ?? 0ul;

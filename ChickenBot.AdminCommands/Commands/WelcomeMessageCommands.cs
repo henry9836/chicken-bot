@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using ChickenBot.API.Attributes;
 namespace ChickenBot.AdminCommands.Commands
 {
-	[Group("join-message"), RequireBotManagerOrAdmin]
+	[Group("join-message"), RequireBotManagerOrAdmin, Category("Admin")]
 	public class WelcomeMessageCommands : BaseCommandModule
 	{
 		private readonly IConfigEditor m_ConfigEditor;

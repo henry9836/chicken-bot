@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.VerificationSystem.Commands
 {
+	[Category("Admin")]
 	public class DeverifyCommands : BaseCommandModule
 	{
 		private readonly IVerificationCache m_Cache;

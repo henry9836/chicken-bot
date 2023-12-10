@@ -12,7 +12,7 @@ namespace ChickenBot.API.Attributes
 	{
 		public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
 		{
-			if (ctx.Member == null)
+			if (ctx.Member is null)
 			{
 				return Task.FromResult(false);
 			}

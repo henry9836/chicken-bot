@@ -231,7 +231,7 @@ namespace ChickenBot.Core.SubServices
 					if (logLevel >= LogEventLevel.Error)
 					{
 						Task.Run(async () => await FireRaisedMessage(logEvent, logLevel));
-					} else if (logLevel <= LogEventLevel.Debug)
+					} else if (logLevel == LogEventLevel.Debug)
 					{
 						continue;
 					}
@@ -358,12 +358,12 @@ namespace ChickenBot.Core.SubServices
 					}
 					break;
 
-				case LogEventLevel.Information:
-					if (rendered.Contains("DSharpPlus, version"))
-					{
-						level = LogEventLevel.Debug;
-					}
-					break;
+				//case LogEventLevel.Information:
+				//	if (rendered.Contains("DSharpPlus, version"))
+				//	{
+				//		level = LogEventLevel.Debug;
+				//	}
+				//	break;
 			}
 		}
 

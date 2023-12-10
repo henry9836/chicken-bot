@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.VerificationSystem.Commands
 {
+	[Category("Admin")]
 	public class VerifyCommand : BaseCommandModule
 	{
 		private readonly IVerificationCache m_Cache;
@@ -23,7 +24,7 @@ namespace ChickenBot.VerificationSystem.Commands
 		[Command("Verify"), RequirePermissions(Permissions.ManageMessages)]
 		public async Task VerifyUserCommand(CommandContext ctx)
 		{
-			if (ctx.Member == null)
+			if (ctx.Member is null)
 			{
 				await ctx.RespondAsync("This command cannot be used in DMs");
 				return;
@@ -46,7 +47,7 @@ namespace ChickenBot.VerificationSystem.Commands
 		[Command("Verify"), RequirePermissions(Permissions.ManageMessages)]
 		public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member, bool announce)
 		{
-			if (ctx.Member == null)
+			if (ctx.Member is null)
 			{
 				await ctx.RespondAsync("This command cannot be used in DMs");
 				return;

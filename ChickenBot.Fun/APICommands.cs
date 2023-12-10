@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Fun
 {
+	[Category("Fun")]
 	public class APICommands : BaseCommandModule
 	{
 		private readonly ILogger<APICommands> m_Logger;

@@ -4,10 +4,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace ChickenBot.Fun
 {
+	[Category("Fun")]
 	public class FunCommands : BaseCommandModule
 	{
 		private readonly ILogger<FunCommands> m_Logger;
@@ -58,14 +58,14 @@ namespace ChickenBot.Fun
 		{
 			await ctx.Message.DeleteAsync();
 		}
-		
+
 		[Command("talk"), Description("Echos a message as the bot"), RequireBotManager]
 		public async Task TalkCommand(CommandContext ctx, [RemainingText] string message)
 		{
 			await ctx.Message.DeleteAsync();
 			await ctx.Channel.SendMessageAsync(message);
 		}
-		
+
 		[Command("pet"), Aliases("feed")]
 		public async Task PetCommand(CommandContext ctx)
 		{
@@ -105,11 +105,11 @@ namespace ChickenBot.Fun
 
 			// ~Tek: Not adding in that part that exempts Nitro from being attacked
 			//   that's cringe of you Nitro ;/
-			
+
 			// ~Nitro: But Volt said it would be funny :3
 
 			// ~Tek: I am still not impressed
-			
+
 			// ~Nitro: :toothless_babyboo:
 
 			if (member.Id == 102606498860896256)
@@ -134,7 +134,6 @@ namespace ChickenBot.Fun
 			"toothless_shrug", "toothless_stare", "toothless_smile", "toothless_skeptic",
 			"toothless_troll", "toothless_upright", "toothless_upsidedown", "toothless_wdt",
 			"toothless_wheeze", "toothless_wink", "toothless_wow"};
-
 
 			if (m_Spice.Length == 0)
 			{

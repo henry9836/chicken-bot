@@ -5,6 +5,7 @@ using DSharpPlus.Entities;
 
 namespace ChickenBot.Info
 {
+	[Category("Utility")]
 	public class InfoCommands : BaseCommandModule
 	{
 		[Command("avatar"), Description("Displays a user's profile picture")]

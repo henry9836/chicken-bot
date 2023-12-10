@@ -1,6 +1,7 @@
 ﻿using ChickenBot.API;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ namespace ChickenBot.VerificationSystem.Services
 		{
 			m_Discord.GuildMemberAdded += UserJoined;
 			m_Discord.GuildMemberRemoved += UserLeft;
+			m_Logger.LogInformation("Welcome service started");
 			return Task.CompletedTask;
 		}
 
@@ -39,10 +41,23 @@ namespace ChickenBot.VerificationSystem.Services
 		{
 			m_Discord.GuildMemberAdded -= UserJoined;
 			m_Discord.GuildMemberRemoved -= UserLeft;
+			m_Logger.LogInformation("Welcome service stopped");
 			return Task.CompletedTask;
 		}
 
-		private async Task UserJoined(DiscordClient sender, DSharpPlus.EventArgs.GuildMemberAddEventArgs args)
+		private async Task UserJoined(DiscordClient sender, GuildMemberAddEventArgs args)
+		{
+			try
+			{
+				await HandleUserJoined(args);
+			}
+			catch (Exception ex)
+			{
+				m_Logger.LogError(ex, "Error handling user joined");
+			}
+		}
+
+		private async Task HandleUserJoined(GuildMemberAddEventArgs args)
 		{
 			var created = DateTime.UtcNow - args.Member.CreationTimestamp;
 
