@@ -1,9 +1,11 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChickenBot.API
 {
-	public static class MessageExtensions
+	public static class Extensions
 	{
 		public static DiscordEmbedBuilder WithRequestedBy(this DiscordEmbedBuilder builder, DiscordUser user)
 		{
@@ -55,6 +57,14 @@ namespace ChickenBot.API
 			return "s";
 		}
 
+		public static async Task TryRespondAsync(this CommandContext? ctx, string message)
+		{
+			if (ctx is not null)
+			{
+				await ctx.RespondAsync(message);
+			}
+		}
+
 		/// <summary>
 		/// Gets the specified config value as the specified type, or returns the default value
 		/// </summary>
@@ -72,6 +82,29 @@ namespace ChickenBot.API
 			}
 
 			return sect.Get<T>() ?? defaultValue;
+		}
+
+		/// <summary>
+		/// Shorthand extension for <seealso cref="ActivatorUtilities.CreateInstance{T}(IServiceProvider, object[])"/>
+		/// </summary>
+		/// <typeparam name="T">Type to activate</typeparam>
+		/// <param name="provider">Service provider to get services from</param>
+		/// <param name="parameters">Extra service parameters</param>
+		/// <returns>Service instance</returns>
+		public static T ActivateType<T>(this IServiceProvider provider, params object[] parameters) where T : class
+		{
+			return ActivatorUtilities.CreateInstance<T>(provider, parameters: parameters);
+		}
+
+		/// <summary>
+		/// Shorthand extension for <seealso cref="string.Contains(string, StringComparison)"/>, with <seealso cref="StringComparison.InvariantCultureIgnoreCase"/>
+		/// </summary>
+		/// <param name="str"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static bool ContainsInvariant(this string str, string value)
+		{
+			return str.Contains(value, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }
