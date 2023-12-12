@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using ChickenBot.API.Attributes;
+using ChickenBot.API.Interfaces;
 using ChickenBot.API.Models;
 using ChickenBot.Core.Attributes;
 using ChickenBot.Core.Models;
@@ -57,7 +58,7 @@ namespace ChickenBot.Core.Services
 							continue;
 						}
 
-						m_Logger.LogInformation("Registering singleton servive {service}", type.Name);
+						m_Logger.LogInformation("Registering singleton service {service}", type.Name);
 						m_Subcontext.ChildServices.AddSingleton(serviceType: singleton.ServiceType ?? type, implementationType: type);
 					}
 					else if (transient != null)
@@ -68,8 +69,28 @@ namespace ChickenBot.Core.Services
 							continue;
 						}
 
-						m_Logger.LogInformation("Registering transient servive {service}", type.Name);
+						m_Logger.LogInformation("Registering transient service {service}", type.Name);
 						m_Subcontext.ChildServices.AddTransient(serviceType: transient.ServiceType ?? type, implementationType: type);
+					}
+
+					if (typeof(IServiceConfigurator).IsAssignableFrom(type))
+					{
+						try
+						{
+							var configurator = Activator.CreateInstance(type) as IServiceConfigurator;
+
+							if (configurator is null)
+							{
+								m_Logger.LogError("Couldn't activate configurator of type {type}", type.FullName);
+								continue;
+							}
+
+							configurator.ConfigureService(m_Subcontext.ChildServices);
+						}
+						catch (Exception ex)
+						{
+							m_Logger.LogError(ex, "Couldn't activator configurator of type {type}", type.FullName);
+						}
 					}
 				}
 			}

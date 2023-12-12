@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.ComponentModel.Design;
+using System.Text;
 using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
@@ -364,6 +366,7 @@ namespace ChickenBot.Core.SubServices
 				//		level = LogEventLevel.Debug;
 				//	}
 				//	break;
+				
 			}
 		}
 
