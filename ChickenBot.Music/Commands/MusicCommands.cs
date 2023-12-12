@@ -29,7 +29,28 @@ namespace ChickenBot.Music.Commands
 		}
 
 		[Command("Play"), Description("Plays music"), RequireVoiceOrBotSpam]
-		public async Task PlayAsync(CommandContext ctx, [RemainingText] string? query)
+		public Task PlayAsync(CommandContext ctx, [RemainingText] string? query)
+		{
+			_ = Task.Run(async () =>
+			{
+				m_Logger.LogInformation("Starting play lookup...");
+				try
+				{
+					await PlayInternal(ctx, query);
+				}
+				catch (Exception ex)
+				{
+					m_Logger.LogError(ex, "Error running play command");
+				}
+				finally
+				{
+					m_Logger.LogInformation("Play lookup terminated");
+				}
+			});
+			return Task.CompletedTask;
+		}
+
+		private async Task PlayInternal(CommandContext ctx, string? query)
 		{
 			var client = await m_ClientRegistry.GetOrOpenClient(ctx, join: !string.IsNullOrWhiteSpace(query));
 			if (client == null)
