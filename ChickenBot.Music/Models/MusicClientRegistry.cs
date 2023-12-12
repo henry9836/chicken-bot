@@ -37,12 +37,26 @@ namespace ChickenBot.Music.Models
 
 			if (TryGetClient(member.Guild.Id, out var existing))
 			{
-				if (existing.ConnectedChannelID != (member.VoiceState?.Channel?.Id ?? 1ul))
+				if (existing.ConnectedChannelID == (member.VoiceState?.Channel?.Id ?? 1ul))
 				{
+					return existing;
+				}
+
+				// Client already exists, and is indicating it is connected to another channel
+
+				var state = ctx.Guild.CurrentMember.VoiceState;
+
+				if (state is null)
+				{
+					// Bot is not connected, something is wrong.
+					m_Clients.TryRemove(member.Guild.Id, out _);
+				}
+				else if (state.Channel.Id != member.VoiceState?.Channel?.Id)
+				{
+					// Double check the bot is actually connected to a different channel
 					await ctx.RespondAsync("The bot is currently in a different channel");
 					return null;
 				}
-				return existing;
 			}
 
 			if (!join)
@@ -65,6 +79,7 @@ namespace ChickenBot.Music.Models
 			}
 
 			var connection = await node.ConnectAsync(member.VoiceState.Channel);
+			await connection.StopAsync();
 
 			await ctx.RespondAsync($"Joined {member.VoiceState.Channel.Name}");
 

@@ -46,7 +46,7 @@ namespace ChickenBot.Music.Interfaces.TrackProviders
 		public async Task HandlePlayRequest(CommandContext? ctx, string query)
 		{
 			var newTracks = new List<LavalinkTrack>();
-			await foreach (var track in m_Resolver.ResolveTracks(query, m_Node, m_Connection))
+			await foreach (var track in m_Resolver.ResolveTracks(query, m_Node, m_Connection, ctx))
 			{
 				m_Queue.Enqueue(track);
 				newTracks.Add(track);
@@ -64,21 +64,25 @@ namespace ChickenBot.Music.Interfaces.TrackProviders
 			{
 				if (!started)
 				{
-					await ctx.TryRespondAsync($"Queued {newTracks[0].Title}");
+					await ctx.TryRespondAsync(new DiscordEmbedBuilder()
+						.WithTitle("Queued Track")
+						.WithDescription($"Queued {FormatTrackName(newTracks[0])}")
+						.WithRequestedBy(ctx?.User));
 				}
 				return;
 			}
 
-			await ctx.TryRespondAsync($"Queued {newTracks.Count} tracks");
+			await ctx.TryRespondAsync(new DiscordEmbedBuilder()
+					.WithTitle("Queued Track")
+					.WithDescription($"Queued {newTracks.Count} new tracks")
+					.WithRequestedBy(ctx?.User));
 		}
 
 		private async Task<bool> EnsurePlayback()
 		{
 			if (m_Connection.CurrentState.CurrentTrack == null && m_Queue.Count > 0)
 			{
-				var track = m_Queue.Dequeue();
-				await m_Connection.PlayAsync(track);
-				return true;
+				return await m_Parent.StartPlaying();
 			}
 			return false;
 		}
@@ -117,14 +121,60 @@ namespace ChickenBot.Music.Interfaces.TrackProviders
 
 			if (track.Title.Contains(" - "))
 			{
-				return $"[{track.Title}](<{track.Uri.AbsoluteUri}>)";
+				return $"[{FormatTrackAuthor(track.Title)}](<{track.Uri.AbsoluteUri}>)";
 			}
-			return $"[{track.Author} - {track.Title}](<{track.Uri.AbsoluteUri}>)";
+			return $"[{FormatTrackAuthor(track.Author)} - {track.Title}](<{track.Uri.AbsoluteUri}>)";
+		}
+
+		private string FormatTrackAuthor(string author)
+		{
+			if (author.EndsWith(" - Topic"))
+			{
+				return author.Replace(" - Topic", string.Empty);
+			}
+			return author;
 		}
 
 		public async Task HandleTrackPlaying(LavalinkTrack track)
 		{
 			await m_Channel.SendMessageAsync($"Now playing: {FormatTrackName(track)}");
+		}
+
+		public async Task HandleShuffleRequest(CommandContext? ctx)
+		{
+			var currentQueue = m_Queue.ToList();
+			m_Queue.Clear();
+			var random = new Random();
+			var initial = currentQueue.Count;
+			while (currentQueue.Count > 0)
+			{
+				var index = random.Next(currentQueue.Count);
+
+				var track = currentQueue[index];
+				currentQueue.RemoveAt(index);
+
+				m_Queue.Enqueue(track);
+			}
+
+			await ctx.TryRespondAsync(new DiscordEmbedBuilder()
+					.WithTitle("Queue Shuffled")
+					.WithDescription($"Shuffled {initial} tracks")
+					.WithRequestedBy(ctx?.User));
+		}
+
+		public async Task HandleSkip(CommandContext? ctx)
+		{
+			var wasPlaying = m_Connection.CurrentState?.CurrentTrack;
+			if (wasPlaying is null)
+			{
+				return;
+			}
+
+			await m_Parent.SkipAsync();
+			await ctx.TryRespondAsync(new DiscordEmbedBuilder()
+					.WithTitle("Skipped")
+					.WithDescription($"Skipped {FormatTrackName(wasPlaying)}")
+					.WithRequestedBy(ctx?.User));
 		}
 	}
 }

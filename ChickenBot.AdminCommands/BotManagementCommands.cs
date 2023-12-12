@@ -28,7 +28,8 @@ namespace ChickenBot.AdminCommands
 			"petitions",
 			"bot-spam",
 			"bot-log",
-			"join-leave"
+			"join-leave",
+			"voice"
 		};
 		
 		private static readonly List<string> m_AssignableRoles = new List<string>()
