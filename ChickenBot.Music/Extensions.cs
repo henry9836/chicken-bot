@@ -1,4 +1,5 @@
-﻿using ChickenBot.Music.TrackResolve.Models;
+﻿using System.Text.RegularExpressions;
+using ChickenBot.Music.TrackResolve.Models;
 using DSharpPlus.Lavalink;
 
 namespace ChickenBot.Music
@@ -11,7 +12,7 @@ namespace ChickenBot.Music
 		/// <param name="node">Node to perform the lookup on</param>
 		/// <param name="uri">Trusted uri to the requested resource</param>
 		/// <returns>Loaded tracks</returns>
-		/// <exception cref="ResolveFailedException"></exception>
+		/// <exception cref="TrackResolveFailedException"></exception>
 		public static async Task<IEnumerable<LavalinkTrack>> BasicResolve(this LavalinkNodeConnection node, Uri uri)
 		{
 			var result = await node.Rest.GetTracksAsync(uri);
@@ -19,7 +20,7 @@ namespace ChickenBot.Music
 
 			if (result?.Tracks == null || firstTrack == null)
 			{
-				throw new ResolveFailedException();
+				throw new TrackResolveFailedException();
 			}
 
 			if (!string.IsNullOrEmpty(result.PlaylistInfo.Name))

@@ -1,12 +1,11 @@
-﻿using System.Data;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ChickenBot.API.Attributes
 {
-	public class RequireBotSpam : CheckBaseAttribute
+	public class RequireVoiceOrBotSpam : CheckBaseAttribute
 	{
 		private static int m_Count = 0;
 
@@ -15,21 +14,25 @@ namespace ChickenBot.API.Attributes
 			var configuration = ctx.Services.GetRequiredService<IConfiguration>();
 
 			var botSpamChannel = configuration.GetSection("Channels").GetValue("bot-spam", 0ul);
+			var voiceChannel = configuration.GetSection("Channels").GetValue("voice", 0ul);
 
-			var result = botSpamChannel == 0 || ctx.Channel.Id == botSpamChannel;
+			var isBotSpam = botSpamChannel == 0 || ctx.Channel.Id == botSpamChannel;
+			var isVoiceChannel = voiceChannel == 0 || ctx.Channel.Id == voiceChannel;
 
-			if (!result && !help)
+			if (!(isBotSpam || isVoiceChannel) && !help)
 			{
 				await ctx.TryReactAsync("toothless_no");
 				m_Count++;
-				m_Count %= 5;
-				if (m_Count == 4)
+				m_Count %= 4;
+
+				if (m_Count == 3)
 				{
-					await ctx.RespondAsync($"Head over to <#{botSpamChannel}>, you cannot use that command here");
+					await ctx.RespondAsync($"Head over to <#{botSpamChannel}> or <#{voiceChannel}>");
 				}
+
 			}
 
-			return result;
+			return isBotSpam || isVoiceChannel;
 		}
 	}
 }

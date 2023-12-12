@@ -1,5 +1,10 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using ChickenBot.API.Models;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,9 +12,12 @@ namespace ChickenBot.API
 {
 	public static class Extensions
 	{
-		public static DiscordEmbedBuilder WithRequestedBy(this DiscordEmbedBuilder builder, DiscordUser user)
+		public static DiscordEmbedBuilder WithRequestedBy(this DiscordEmbedBuilder builder, DiscordUser? user)
 		{
-			builder.WithFooter($"Requested by {user.Username}");
+			if (user is not null)
+			{
+				builder.WithFooter($"Requested by {user.Username}");
+			}
 			return builder;
 		}
 
@@ -24,6 +32,112 @@ namespace ChickenBot.API
 			}
 
 			return builder;
+		}
+
+		/// <summary>
+		/// Tries to react to a message
+		/// </summary>
+		/// <param name="emojiName">Emoji name</param>
+		/// <param name="ctx">The message to react to</param>
+		public static async Task TryReactAsync(this CommandContext ctx, string emojiName)
+		{
+			await TryReactAsync(ctx.Message, ctx.Client, emojiName);
+		}
+
+		/// <summary>
+		/// Tries to react to a message
+		/// </summary>
+		/// <param name="message">Message to react to</param>
+		/// <param name="emojiName">Emoji name</param>
+		/// <param name="client">Discord client</param>
+		public static async Task TryReactAsync(this DiscordMessage message, DiscordClient client, string emojiName)
+		{
+			if (!emojiName.StartsWith(":"))
+			{
+				emojiName = ':' + emojiName;
+			}
+			if (!emojiName.EndsWith(":"))
+			{
+				emojiName = emojiName + ':';
+			}
+
+			try
+			{
+				var emoji = DiscordEmoji.FromName(client, emojiName);
+
+				if (emoji is not null)
+				{
+					await message.CreateReactionAsync(emoji);
+				}
+			}
+			catch (UnauthorizedAccessException)
+			{
+			}
+			catch (NotFoundException)
+			{
+			}
+			catch (BadRequestException)
+			{
+			}
+			catch (ServerErrorException)
+			{
+			}
+			catch (ArgumentException)
+			{
+			}
+		}
+
+		/// <summary>
+		/// Tries to remove a reaction on a message, sent by the bot
+		/// </summary>
+		/// <param name="emojiName">Emoji name</param>
+		/// <param name="ctx">The message to react to</param>
+		public static async Task TryRemoveReactAsync(this CommandContext ctx, string emojiName)
+		{
+			await TryRemoveReactAsync(ctx.Message, ctx.Client, emojiName);
+		}
+
+		/// <summary>
+		/// Tries to remove a reaction on a message, sent by the bot
+		/// </summary>
+		/// <param name="emojiName">Emoji name</param>
+		/// <param name="emojiName">Emoji name</param>
+		/// <param name="client">Discord client</param>
+		public static async Task TryRemoveReactAsync(this DiscordMessage message, DiscordClient client, string emojiName)
+		{
+			if (!emojiName.StartsWith(":"))
+			{
+				emojiName = ':' + emojiName;
+			}
+			if (!emojiName.EndsWith(":"))
+			{
+				emojiName = emojiName + ':';
+			}
+
+			try
+			{
+				var emoji = DiscordEmoji.FromName(client, emojiName);
+
+				if (emoji is not null)
+				{
+					await message.DeleteOwnReactionAsync(emoji);
+				}
+			}
+			catch (UnauthorizedAccessException)
+			{
+			}
+			catch (NotFoundException)
+			{
+			}
+			catch (BadRequestException)
+			{
+			}
+			catch (ServerErrorException)
+			{
+			}
+			catch (ArgumentException)
+			{
+			}
 		}
 
 		/// <summary>
@@ -58,6 +172,14 @@ namespace ChickenBot.API
 		}
 
 		public static async Task TryRespondAsync(this CommandContext? ctx, string message)
+		{
+			if (ctx is not null)
+			{
+				await ctx.RespondAsync(message);
+			}
+		}
+
+		public static async Task TryRespondAsync(this CommandContext? ctx, DiscordEmbed message)
 		{
 			if (ctx is not null)
 			{
@@ -105,6 +227,147 @@ namespace ChickenBot.API
 		public static bool ContainsInvariant(this string str, string value)
 		{
 			return str.Contains(value, StringComparison.InvariantCultureIgnoreCase);
+		}
+
+		/// <summary>
+		/// Creates a basic regex expression from a pattern.
+		/// <para>
+		/// '*' matches 1+ instances of any character
+		/// </para>
+		/// <para>
+		/// '+' Matches 1+ instances of Alphanumeric characters, excluding punctuation characters.
+		/// </para>
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="anchor"></param>
+		/// <returns></returns>
+		public static string CreateRegexExpression(this string input, bool anchor)
+		{
+			var escaped = Regex.Escape(input
+					.Replace('*', '§')
+					.Replace('+', '¶'));
+
+			var modified = escaped
+				.Replace("§", ".+")
+				.Replace("¶", "[a-zA-Z0-9]+");
+
+			if (anchor)
+			{
+				return $"\\A{modified}\\z";
+			}
+			return modified;
+		}
+
+		/// <summary>
+		/// Extracts a string resource from a URI's path
+		/// Useful for extracting resource IDs from
+		/// </summary>
+		/// <param name="uri">The uri to extract the resource ID from</param>
+		/// <param name="pattern">The pattern to extract, where ':id' is the target resource</param>
+		/// <param name="targetParam">The target parameter, to extract, as present in the pattern</param>
+		/// <returns>The value of <paramref name="targetParam"/> in the uri, or <see langword="null"/> if it couldn't be found</returns>
+		/// <remarks>
+		/// E.g., using the pattern '/resource/:id', for https://test.com/resource/1234/home, will return 1234
+		/// </remarks>
+		public static string? ExtractUriResource(this Uri uri, string pattern, string targetParam = ":id")
+		{
+			var parts = pattern.Split(targetParam, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+			var sb = new StringBuilder();
+
+			if (parts.Length >= 1)
+			{
+				sb.Append($"(?<=\\A{parts[0].CreateRegexExpression(false)})");
+			}
+
+			sb.Append("[a-zA-Z0-9]+"); // ResourceID
+
+			if (parts.Length >= 2)
+			{
+				sb.Append($"(?={parts[1].CreateRegexExpression(false)})\\z");
+			}
+
+			var regex = new Regex(sb.ToString(), RegexOptions.IgnoreCase);
+
+			var match = regex.Match(uri.LocalPath);
+
+			if (!match.Success)
+			{
+				return null;
+			}
+
+			return match.Value;
+		}
+
+		/// <summary>
+		/// Extracts a string resource from a URI's path
+		/// Useful for extracting resource IDs from
+		/// </summary>
+		/// <param name="uri">The uri to extract the resource ID from</param>
+		/// <param name="pattern">The pattern to extract, where ':id' is the target resource</param>
+		/// <param name="targetParam">The target parameter, to extract, as present in the pattern</param>
+		/// <param name="result">The value of <paramref name="targetParam"/> in the uri, or an empty string if it couldn't be found</param>
+		/// <returns>
+		/// <see langword="true"/> if the specified resource could be extracted from the URI, <see langword="false"/> otherwise.
+		/// </returns>
+		/// <remarks>
+		/// E.g., using the pattern '/resource/:id', for https://test.com/resource/1234/home, will return 1234
+		/// </remarks>
+		public static bool TryExtractUriResource(this Uri uri, string pattern, out string result, string targetParam = ":id")
+		{
+			var value = uri.ExtractUriResource(pattern, targetParam);
+			if (value != null)
+			{
+				result = value;
+				return true;
+			}
+
+			result = string.Empty;
+			return false;
+		}
+
+		public static async Task<TemporalMessage> TryCreateTemporalAsync(this CommandContext? ctx, string message)
+		{
+			if (ctx is not null)
+			{
+				var msg = await ctx.RespondAsync(message);
+				return new TemporalMessage(msg);
+			}
+
+			return new TemporalMessage();
+		}
+
+		public static async Task<TemporalMessage> TryCreateTemporalAsync(this CommandContext? ctx, DiscordEmbed message)
+		{
+			if (ctx is not null)
+			{
+				var msg = await ctx.RespondAsync(message);
+				return new TemporalMessage(msg);
+			}
+
+			return new TemporalMessage();
+		}
+
+		public static async Task<TemporalMessage> TryCreateTemporalAsync(this Optional<CommandContext> ctx, string message)
+		{
+			if (ctx.HasValue)
+			{
+				var msg = await ctx.Value.RespondAsync(message);
+				return new TemporalMessage(msg);
+			}
+
+			return new TemporalMessage();
+		}
+
+		public static async Task<TemporalMessage> TryCreateTemporalAsync(this Optional<CommandContext> ctx, DiscordEmbed message)
+		{
+			if (ctx.HasValue)
+			{
+				var msg = await ctx.Value.RespondAsync(message);
+				return new TemporalMessage(msg);
+			}
+
+			return new TemporalMessage();
 		}
 	}
 }

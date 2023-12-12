@@ -1,4 +1,5 @@
-﻿using ChickenBot.API;
+﻿using System.ComponentModel.DataAnnotations;
+using ChickenBot.API;
 using ChickenBot.Music.Interfaces;
 using ChickenBot.Music.Interfaces.TrackProviders;
 using DSharpPlus;
@@ -13,6 +14,9 @@ namespace ChickenBot.Music.Models
 	public class ServerMusicClient
 	{
 		public bool IsDead { get; private set; } = false;
+
+		public bool IsPaused { get; private set; } = false;
+
 		public ulong ConnectedChannelID => m_Connection.Channel?.Id ?? 0ul;
 
 		public ITrackProvider TrackProvider { get; }
@@ -30,6 +34,8 @@ namespace ChickenBot.Music.Models
 		private readonly IServiceProvider m_Provider;
 
 		private readonly DiscordChannel m_Home;
+
+		private DiscordChannel m_VoiceChannel;
 
 		public ServerMusicClient(DiscordGuild guild, LavalinkNodeConnection node,
 			ILogger<ServerMusicClient> logger, LavalinkGuildConnection connection,
@@ -50,54 +56,82 @@ namespace ChickenBot.Music.Models
 			m_Connection.PlaybackFinished += OnPlaybackFinished;
 			m_Connection.PlaybackStarted += OnPlaybackStarted;
 			discord.VoiceStateUpdated += OnVoiceUpdate;
+
+			m_VoiceChannel = connection.Channel;
 		}
 
-		private Task OnVoiceUpdate(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
+		private async Task OnVoiceUpdate(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs args)
 		{
-			if (!m_Connection.IsConnected)
+			if (IsDead)
 			{
-				return Task.CompletedTask;
+				return;
 			}
 
-			if (args.Channel.Id != ConnectedChannelID)
+			if (args.Guild.Id != m_VoiceChannel.Guild.Id)
 			{
-				return Task.CompletedTask;
+				return;
 			}
 
-			var users = args.Channel.Users.Count(x => !x.IsBot);
+			if (args.User.IsCurrent)
+			{
+				if (args.Channel is null)
+				{
+					// chicken left the channel
+					await Destroy();
+					return;
+				}
+				m_Logger.LogDebug("Voice channel for playback was updated.");
+				if (args.Channel is not null)
+				{
+					m_VoiceChannel = args.Channel;
+				}
+			}
+
+			var users = m_VoiceChannel.Users.Count(x => !x.IsBot);
 			if (users == 0)
 			{
-				_ = Task.Run(async () => await StartChannelTimeout(args.Channel));
+				m_Logger.LogDebug("All users left the music playback channel, starting disconnect timeout.");
+				_ = Task.Run(StartChannelTimeout);
 			}
-			return Task.CompletedTask;
 		}
 
-		private async Task StartChannelTimeout(DiscordChannel source)
+		private async Task StartChannelTimeout()
 		{
 			await Task.Delay(10000);
 
-			var users = source.Users.Count(x => !x.IsBot);
+			var users = m_VoiceChannel.Users.Count(x => !x.IsBot);
 
 			if (users != 0 || IsDead)
 			{
 				return;
 			}
+			m_Logger.LogInformation("No users in music playback channel {channel} for 10 sec, disconnecting", m_VoiceChannel.Name);
+
 			await Destroy();
-			await m_Home.SendMessageAsync($"Left {source.Name}, since everyone left.");
+			await m_Home.SendMessageAsync($"Left {m_VoiceChannel.Name}, since everyone left.");
 		}
 
 		private async Task OnPlaybackStarted(LavalinkGuildConnection sender, TrackStartEventArgs args)
 		{
+			IsPaused = false;
 			await TrackProvider.HandleTrackPlaying(args.Track);
 		}
 
 		private async Task OnPlaybackFinished(LavalinkGuildConnection sender, TrackFinishEventArgs args)
 		{
-			await PlayNextTrackAsync();
+			if (args.Reason == TrackEndReason.Finished)
+			{
+				await PlayNextTrackAsync();
+			}
 		}
 
 		private async Task<LavalinkTrack?> PlayNextTrackAsync()
 		{
+			if (IsDead)
+			{
+				return null;
+			}
+
 			var next = await TrackProvider.GetNextTrack();
 
 			if (next == null)
@@ -105,18 +139,21 @@ namespace ChickenBot.Music.Models
 				return null;
 			}
 
-			//var messageTask = TrackProvider.HandleTrackPlaying(next);
+			if (IsDead)
+			{
+				return null;
+			}
 
 			await m_Connection.PlayAsync(next);
-			//await messageTask;
 
 			return next;
 		}
 
-		private async Task OnDisconnect(LavalinkGuildConnection sender, WebSocketCloseEventArgs args)
+		private Task OnDisconnect(LavalinkGuildConnection sender, WebSocketCloseEventArgs args)
 		{
-			m_Logger.LogDebug("Client disconnected from voice");
-			await Destroy();
+			//await Destroy();
+			m_Logger.LogDebug("Client disconnected from voice: {reason}", args.Reason);
+			return Task.CompletedTask;
 		}
 
 		public async Task PlayAsync(CommandContext? ctx, string prompt)
@@ -124,9 +161,18 @@ namespace ChickenBot.Music.Models
 			await TrackProvider.HandlePlayRequest(ctx, prompt);
 		}
 
-		public async Task SkipAsync(CommandContext? ctx)
+		public async Task RequestSkipAsync(CommandContext? ctx = null)
 		{
-			await m_Connection.StopAsync();
+			await TrackProvider.HandleSkip(ctx);
+		}
+
+		public async Task SkipAsync()
+		{
+			var next = await PlayNextTrackAsync();
+			if (next is null && !IsDead)
+			{
+				await m_Connection.StopAsync();
+			}
 		}
 
 		public async Task ShowQueue(CommandContext ctx)
@@ -134,15 +180,67 @@ namespace ChickenBot.Music.Models
 			await TrackProvider.HandleQueueRequest(ctx);
 		}
 
+		public async Task Shuffle(CommandContext? ctx = null)
+		{
+			await TrackProvider.HandleShuffleRequest(ctx);
+		}
+
+		public async Task PauseAsync()
+		{
+			IsPaused = true;
+			await m_Connection.PauseAsync();
+		}
+
+		public async Task ResumeAsync()
+		{
+			IsPaused = false;
+			await m_Connection.ResumeAsync();
+		}
+
+		public async Task<bool> StartPlaying()
+		{
+			if (IsDead || !m_Connection.IsConnected)
+			{
+				return false;
+			}
+
+			if (m_Connection.CurrentState is null || m_Connection.CurrentState.CurrentTrack is not null)
+			{
+				return false;
+			}
+
+			var nextTrack = await TrackProvider.GetNextTrack();
+
+			if (IsDead || nextTrack is null)
+			{
+				return false;
+			}
+			await m_Connection.PlayAsync(nextTrack);
+			return true;
+		}
+
 		public async Task Destroy()
 		{
+			m_Logger.LogInformation("Music client destroyed. Last channel: {channel}", m_VoiceChannel.Name);
 			IsDead = true;
+
+			m_Registry.RaiseClientDisconnected(Guild.Id);
+
 			m_Connection.DiscordWebSocketClosed -= OnDisconnect;
 			m_Connection.PlaybackFinished -= OnPlaybackFinished;
 			m_Connection.PlaybackStarted -= OnPlaybackStarted;
 
-			await m_Connection.DisconnectAsync(true);
-			m_Registry.RaiseClientDisconnected(Guild.Id);
+			try
+			{
+				await m_Connection.DisconnectAsync(true);
+			}
+			catch (NullReferenceException)
+			{
+				m_Logger.LogWarning("DisconnectAsync threw NullRef exception");
+			}
+			catch (InvalidOperationException)
+			{
+			}
 		}
 	}
 }

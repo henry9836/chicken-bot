@@ -27,6 +27,7 @@ namespace ChickenBot.Music.Services
 			m_Resolver.RegisterResolver<BandCampResolver>();
 			m_Resolver.RegisterResolver<VimeoResolver>();
 			m_Resolver.RegisterResolver<TwitchResolver>();
+			m_Resolver.RegisterResolver<SpotifyResolver>();
 
 			return Task.CompletedTask;
 		}

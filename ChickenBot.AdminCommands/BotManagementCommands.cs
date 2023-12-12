@@ -28,7 +28,8 @@ namespace ChickenBot.AdminCommands
 			"petitions",
 			"bot-spam",
 			"bot-log",
-			"join-leave"
+			"join-leave",
+			"voice"
 		};
 
 		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]

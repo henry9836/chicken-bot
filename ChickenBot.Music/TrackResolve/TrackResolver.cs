@@ -1,11 +1,12 @@
 ﻿using System.Data;
 using System.Net;
 using System.Reflection;
-using System.Transactions;
 using ChickenBot.API;
 using ChickenBot.API.Attributes;
 using ChickenBot.API.Models;
 using ChickenBot.Music.TrackResolve.Models;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using Microsoft.Extensions.Logging;
 
@@ -52,10 +53,19 @@ namespace ChickenBot.Music.TrackResolve
 			}
 		}
 
-		public IAsyncEnumerable<LavalinkTrack> ResolveTracks(string query, LavalinkNodeConnection node, LavalinkGuildConnection guild)
+		public IAsyncEnumerable<LavalinkTrack> ResolveTracks(string query, LavalinkNodeConnection node, LavalinkGuildConnection guild, CommandContext? ctx = null)
 		{
 			var container = new ArgumentContainer(m_Provider)
 				.WithUnnamedArguments(node, guild);
+
+			if (ctx is null)
+			{
+				container.WithUnnamedArguments(Optional.FromNoValue<CommandContext>());
+			}
+			else
+			{
+				container.WithUnnamedArguments(Optional.FromValue(ctx));
+			}
 
 			if (Uri.TryCreate(query, UriKind.Absolute, out var uri))
 			{
@@ -125,7 +135,7 @@ namespace ChickenBot.Music.TrackResolve
 				{
 					result = resolver.Method.Invoke(resolver.Instance, parameters: arguments);
 				}
-				catch (ResolveFailedException)
+				catch (TrackResolveFailedException)
 				{
 					// Handler couldn't fulfil the request
 					continue;

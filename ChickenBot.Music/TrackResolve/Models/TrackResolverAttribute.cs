@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using ChickenBot.API;
 
 namespace ChickenBot.Music.TrackResolve.Models
 {
@@ -21,17 +22,7 @@ namespace ChickenBot.Music.TrackResolve.Models
 		{
 			Hosts = hosts.Select(host =>
 			{
-				var escaped = Regex.Escape(host
-					.Replace('*', '§')
-					.Replace('+', '¶'));
-
-				var modified = escaped
-					.Replace("§", ".+")
-					.Replace("¶", "[a-zA-Z0-9]+");
-
-				var reformatted = $"\\A{modified}\\z";
-
-				return new Regex(reformatted, RegexOptions.IgnoreCase);
+				return new Regex(host.CreateRegexExpression(true), RegexOptions.IgnoreCase);
 			}).ToArray();
 		}
 	}

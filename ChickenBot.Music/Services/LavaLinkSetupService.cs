@@ -42,10 +42,10 @@ namespace ChickenBot.Music.Services
 
 			m_Logger.LogInformation("Setting up LavaLink...");
 
-			var password = m_Configuration.GetValue<string>("LavaLink:Password");
-			var host = m_Configuration.GetValue<string>("LavaLink:Host");
-			var port = m_Configuration.GetValue<int>("LavaLink:Port");
-			var secure = m_Configuration.GetValue<bool>("LavaLink:Secure");
+			var password = m_Configuration.GetValue<string>("Music:LavaLink:Password");
+			var host = m_Configuration.GetValue<string>("Music:LavaLink:Host");
+			var port = m_Configuration.GetValue<int>("Music:LavaLink:Port");
+			var secure = m_Configuration.GetValue<bool>("Music:LavaLink:Secure");
 
 			if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(host))
 			{

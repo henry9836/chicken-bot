@@ -12,5 +12,9 @@ namespace ChickenBot.Music.Interfaces
 		Task<LavalinkTrack?> GetNextTrack();
 
 		Task HandleTrackPlaying(LavalinkTrack track);
+
+		Task HandleShuffleRequest(CommandContext? ctx);
+
+		Task HandleSkip(CommandContext? ctx);
 	}
 }

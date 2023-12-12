@@ -34,14 +34,14 @@ namespace ChickenBot.Music.TrackResolve.Resolvers
 			if (list.Length < 24)
 			{
 				// List IDs shorter than this are temporal, and exist only for a specific account
-				throw new ResolveFailedException("Provided playlist is private");
+				throw new TrackResolveFailedException("Provided playlist is private");
 			}
 
 			var fullUrl = $"https://www.youtube.com/*/watch?v={WebUtility.UrlEncode(v)}&list={WebUtility.UrlEncode(list)}";
 
 			if (!Uri.TryCreate(fullUrl, UriKind.Absolute, out var uri))
 			{
-				throw new ResolveFailedException();
+				throw new TrackResolveFailedException();
 			}
 
 			return await ResolvePlaylist(node, uri);
@@ -53,14 +53,14 @@ namespace ChickenBot.Music.TrackResolve.Resolvers
 			if (list.Length < 24)
 			{
 				// List IDs shorter than this are temporal, and exist only for a specific account
-				throw new ResolveFailedException("Provided playlist is private");
+				throw new TrackResolveFailedException("Provided playlist is private");
 			}
 
 			var fullUrl = $"https://www.youtube.com/*/watch?list={WebUtility.UrlEncode(list)}";
 
 			if (!Uri.TryCreate(fullUrl, UriKind.Absolute, out var uri))
 			{
-				throw new ResolveFailedException();
+				throw new TrackResolveFailedException();
 			}
 
 			return await ResolvePlaylist(node, uri);
@@ -73,7 +73,7 @@ namespace ChickenBot.Music.TrackResolve.Resolvers
 
 			if (result?.Tracks == null)
 			{
-				throw new ResolveFailedException("Playlist contains no elements");
+				throw new TrackResolveFailedException("Playlist contains no elements");
 			}
 
 			return result.Tracks;
