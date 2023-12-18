@@ -86,7 +86,7 @@ namespace ChickenBot.VerificationSystem.Services
 
 			var message = format
 							.Replace("@user", args.Member.Mention)
-							.Replace("$user", args.Member.GlobalName);
+							.Replace("$user", args.Member.GlobalName ?? args.Member.Username);
 
 			var messageBuilder = new DiscordMessageBuilder()
 				.WithContent(message)
@@ -115,7 +115,7 @@ namespace ChickenBot.VerificationSystem.Services
 
 			var message = format
 							.Replace("@user", args.Member.Mention)
-							.Replace("$user", args.Member.GlobalName);
+							.Replace("$user", args.Member.GlobalName ?? args.Member.Username);
 
 			var messageBuilder = new DiscordMessageBuilder()
 				.WithContent(message)

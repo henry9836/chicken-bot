@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Commands
 {
-	[Group("leave-message"), RequireBotManagerOrAdmin, Category("Admin")]
+    [Group("leave-message"), RequireBotManagerOrAdmin, Category("Admin")]
 	public class LeaveMessageCommands : BaseCommandModule
 	{
 		private readonly IConfigEditor m_ConfigEditor;
