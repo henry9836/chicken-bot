@@ -1,15 +1,17 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.SweetDreams;
 
 public class SweetDreamsCommand : BaseCommandModule
 {
     private readonly ulong FuriousMemberId = 693042484619509760;
-    private readonly Random RandomGenerator;
-    private DateTime m_SweatDreamsTimeout;
-    private DiscordMember discordMember;
+    private Random RandomGenerator = new Random();
+    private DateTime m_SweatDreamsTimeout = DateTime.Now;
+    private DiscordMember? discordMember;
+    private readonly ILogger<SweetDreamsCommand> m_Logger;
     
     private readonly String[] SweetDreamMessages =
     {
@@ -17,7 +19,12 @@ public class SweetDreamsCommand : BaseCommandModule
         "GO TO BED! <@693042484619509760>", "Bedtime! <@693042484619509760> <:chicken_smile:236628343758389249>",
         "<:toothless_upright:955240038302613514> <@693042484619509760> *smothers you to sleep with wings*"
     };
-
+    
+    public SweetDreamsCommand(ILogger<SweetDreamsCommand> logger)
+    {
+        m_Logger = logger;
+    }
+    
     private bool bIsInsideBedtimeHours()
     {
         // Get the current time in UTC since furi is in there
@@ -36,7 +43,7 @@ public class SweetDreamsCommand : BaseCommandModule
         {
             return;
         }
-
+        
         // Only allow the command during when furi should be sleeping
         if (!bIsInsideBedtimeHours())
         {
@@ -44,7 +51,7 @@ public class SweetDreamsCommand : BaseCommandModule
         }
         
         // Assign the discord member if it is invalid
-        if (discordMember.Id == 0)
+        if (discordMember is null)
         {
             discordMember = await ctx.Guild.GetMemberAsync(FuriousMemberId, true);
             // If it failed return
@@ -54,6 +61,7 @@ public class SweetDreamsCommand : BaseCommandModule
             }
         }
 
+        m_Logger.LogWarning("4");
         // Only continue if furi is online
         if (!discordMember.Presence.Status.Equals(UserStatus.Online))
         {
