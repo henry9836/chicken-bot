@@ -17,6 +17,16 @@ public class SweetDreamsCommand : BaseCommandModule
         "GO TO BED! <@693042484619509760>", "Bedtime! <@693042484619509760> <:chicken_smile:236628343758389249>",
         "<:toothless_upright:955240038302613514> <@693042484619509760> *smothers you to sleep with wings*"
     };
+
+    private bool bIsInsideBedtimeHours()
+    {
+        // Get the current time in UTC since furi is in there
+        DateTime utcNow = DateTime.UtcNow;
+
+        // Check if the current time is between 10 PM and 6 AM
+        int currentHour = utcNow.Hour;
+        return (currentHour >= 22 || currentHour < 6);
+    }
     
     [Command("sweetdreams"), Description("bedtime")]
     public async Task SweetDreams(CommandContext ctx)
@@ -26,12 +36,22 @@ public class SweetDreamsCommand : BaseCommandModule
         {
             return;
         }
+
+        // Only allow the command during when furi should be sleeping
+        if (!bIsInsideBedtimeHours())
+        {
+            return;
+        }
         
-        // TODO: CHECK IF TIMEZONE IS VALID
-        
+        // Assign the discord member if it is invalid
         if (discordMember.Id == 0)
         {
             discordMember = await ctx.Guild.GetMemberAsync(FuriousMemberId, true);
+            // If it failed return
+            if (discordMember.Id == 0)
+            {
+                return;
+            }
         }
 
         // Only continue if furi is online
@@ -46,6 +66,7 @@ public class SweetDreamsCommand : BaseCommandModule
         // 15% chance of a vc dc
         if (Coin >= 75)
         {
+            // Assign the vc channel into null with causes a kick
             await discordMember.ModifyAsync(model => model.VoiceChannel = null);
         }
 
