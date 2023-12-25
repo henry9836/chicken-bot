@@ -7,6 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Reference Include="DSharpPlus">
+        <HintPath>..\..\..\.nuget\packages\dsharpplus\5.0.0-nightly-01907\lib\net8.0\DSharpPlus.dll</HintPath>
+      </Reference>
       <Reference Include="DSharpPlus.CommandsNext">
         <HintPath>..\..\..\.nuget\packages\dsharpplus.commandsnext\5.0.0-nightly-01907\lib\net8.0\DSharpPlus.CommandsNext.dll</HintPath>
       </Reference>
