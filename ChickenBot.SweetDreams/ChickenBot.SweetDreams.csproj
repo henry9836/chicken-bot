@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -7,16 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="DSharpPlus">
-        <HintPath>..\..\..\.nuget\packages\dsharpplus\5.0.0-nightly-01907\lib\net8.0\DSharpPlus.dll</HintPath>
-      </Reference>
-      <Reference Include="DSharpPlus.CommandsNext">
-        <HintPath>..\..\..\.nuget\packages\dsharpplus.commandsnext\5.0.0-nightly-01907\lib\net8.0\DSharpPlus.CommandsNext.dll</HintPath>
-      </Reference>
+        <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01907" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+        <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
     </ItemGroup>
 
 </Project>
