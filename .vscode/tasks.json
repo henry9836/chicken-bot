@@ -1,0 +1,58 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ChickenBot.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/ChickenBot.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/ChickenBot.sln"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "update",
+            "command": "/workspaces/chicken-bot/ChickenBot/bin/Debug/net8.0/plugins/update.sh",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "/workspaces/chicken-bot/ChickenBot/bin/Debug/net8.0/plugins/"
+            },
+        },
+        {
+            "label" : "ready",
+            "dependsOrder": "sequence",
+            "dependsOn" : [
+                "build",
+                "update"
+            ]
+        }
+    ]
+}
