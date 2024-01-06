@@ -66,6 +66,24 @@ namespace ChickenBot.Fun
 			await ctx.Channel.SendMessageAsync(message);
 		}
 
+		[Command("say"), Description("Echos a message as the bot"), RequireBotManager]
+		public async Task SayCommand(CommandContext ctx, DiscordChannel channel, [RemainingText] string message)
+		{
+			await channel.SendMessageAsync(message);
+		}
+
+		[Command("edit"), Description("Edits a message previously sent by teh chicken"), RequireBotManager]
+		public async Task EditCommand(CommandContext ctx, DiscordMessage message, [RemainingText] string newContent)
+		{
+			if (!message.Author.IsCurrent)
+			{
+				await ctx.RespondAsync($"That is not my message");
+				return;
+			}
+
+			await message.ModifyAsync((builder) => builder.WithContent(newContent));
+		}
+
 		[Command("pet"), Aliases("feed")]
 		public async Task PetCommand(CommandContext ctx)
 		{
@@ -73,7 +91,7 @@ namespace ChickenBot.Fun
 			{
 				"<:chicken_smile:236628343758389249>",
 				"*cuddles up into you*",
-				"*squawks, coughing up a half digested piece of corn. Looking up at you expectingly*"
+				"*squawks, coughing up a half digested piece of corn. Looking up at you expectantly*"
 			};
 
 			await ctx.RespondRandom(replies);
