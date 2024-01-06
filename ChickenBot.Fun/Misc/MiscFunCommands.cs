@@ -15,7 +15,7 @@ namespace ChickenBot.Fun.Misc
 			m_Reacts = reacts;
 		}
 
-		[Command("PregnantMan"), RequireDirectMessage, RequireBotManager, Hidden]
+		[Command("PregnantMan"), RequireBotManager, Hidden]
 		public async Task PregnantManCommand(CommandContext ctx, DiscordUser user)
 		{
 			if (m_Reacts.PregnantManReact.Contains(user.Id))
@@ -29,7 +29,7 @@ namespace ChickenBot.Fun.Misc
 			await ctx.RespondAsync($"Made {user.Username} pregnant.");
 		}
 
-		[Command("Abort"), RequireDirectMessage, RequireBotManager, Hidden]
+		[Command("Abort"), RequireBotManager, Hidden]
 		public async Task AbortCommand(CommandContext ctx, DiscordUser user)
 		{
 			if (!m_Reacts.PregnantManReact.Contains(user.Id))
