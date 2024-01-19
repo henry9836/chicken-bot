@@ -136,6 +136,58 @@ namespace ChickenBot.ChatAI.Models
 				m_Semaphore.Release();
 			}
 		}
+		
+		/// <summary>
+		/// Gets a response as the chicken to a custom message
+		/// </summary>
+		/// <returns>Message, or null if the AI decided to stay silent</returns>
+		public async Task<string?> GetManualResponseAsync(DiscordMember user, string message)
+		{
+			await m_Semaphore.WaitAsync();
+			try
+			{
+				List<ChatMessage> tmpMessages = new List<ChatMessage>();
+				var promptMessage = new ChatMessage(ChatMessageRole.System, m_Settings.Prompt);
+				var msg = new ChatMessage(ChatMessageRole.User, message)
+				{
+					Name = user.Id.ToString()
+				};
+				tmpMessages.Add(promptMessage);
+				tmpMessages.Add(msg);
+				
+				var request = new ChatRequest()
+				{
+					FrequencyPenalty = m_Settings.FrequencyPenalty,
+					LogitBias = m_Settings.LogitBiases,
+					MaxTokens = m_Settings.MaxResponseTokens,
+					Model = m_Settings.Model,
+					MultipleStopSequences = m_Settings.StopSequences,
+					NumChoicesPerMessage = 1,
+					PresencePenalty = m_Settings.PresencePenalty,
+					Temperature = m_Settings.Temerature ?? DetermineTemperature(),
+					TopP = m_Settings.TopP,
+					Messages = tmpMessages
+				};
+
+				var response = await m_Endpoint.CreateChatCompletionAsync(request);
+
+				if (response.Choices.Count == 0)
+				{
+					return null;
+				}
+
+				var rawResponse = response.Choices[0].Message.Content;
+				var responseMessage = PostProcessMessage(rawResponse);
+
+				var responseNode = new ChatMessage(ChatMessageRole.Assistant, responseMessage);
+
+				return responseMessage;
+			}
+			finally
+			{
+				m_Semaphore.Release();
+			}
+		}
 
 		/// <summary>
 		/// Performs some post-processing on the OpenAI responses

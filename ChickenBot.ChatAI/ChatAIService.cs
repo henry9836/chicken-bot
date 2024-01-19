@@ -19,6 +19,7 @@ public class ChatAiService : IHostedService
     private readonly DiscordClient m_Client;
     private readonly IConversationAIProvider m_AiProvider;
     private readonly Random m_Random = new Random();
+    private bool bDebugMessageSentOnNull = false;
     private ChatAISharedInfoService m_ChatInfoService;
     
     public ChatAiService(DiscordClient client, IConfiguration configuration, ILogger<ChatAiService> logger, IConversationAIProvider aiProvider, IConfigEditor configurationEditor, ChatAISharedInfoService infoService)
@@ -54,7 +55,20 @@ public class ChatAiService : IHostedService
         
         return Task.CompletedTask;
     }
-    
+
+    public async Task DebugQuestion(DiscordClient sender, MessageCreateEventArgs args)
+    {
+        if (m_ChatInfoService.m_ConversationAi == null)
+        {
+            bDebugMessageSentOnNull = true;
+            m_ChatInfoService.m_ConversationAi = await m_AiProvider.CreateConversation();
+            m_ChatInfoService.GeneralChannel = args.Channel;
+        }
+        
+        DiscordMember member = await args.Guild.GetMemberAsync(args.Author.Id);
+        _ = Task.Run(() => DebugPokeAIBrain(member, args.Message.Content));
+    }
+
     private async Task ClientOnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
     {
         // Filter out dms
@@ -62,12 +76,23 @@ public class ChatAiService : IHostedService
         {
             return;   
         }
+        
+        // Debug mode
+        if (args.Message.Content.Contains("!ask"))
+        {
+            if (IsBotDev(args.Author.Id))
+            {
+                await DebugQuestion(sender, args);
 
+                return;
+            }
+        }
+        
         // Check that our main cooldown isn't still active
         if (m_ChatInfoService.m_MainCooldownThreshold > DateTime.Now)
         {
             // If our conversation is still active then someone used the !shut command and we need to say goodbye
-            if (m_ChatInfoService.m_ConversationAi != null)
+            if (m_ChatInfoService.m_ConversationAi != null && !bDebugMessageSentOnNull)
             {
                 _ = Task.Run(() => SendGoodbyeMessage());
                 m_ChatInfoService.m_ConversationAi = null;
@@ -179,6 +204,43 @@ public class ChatAiService : IHostedService
             await SendGoodbyeMessage();
         }
     }
+    
+    private async Task DebugPokeAIBrain(DiscordMember user, string message)
+    {
+        if (m_ChatInfoService.m_ConversationAi == null)
+        {
+            m_Logger.LogWarning("Conversation object was null when trying to send a response from ai");
+            return;
+        }
+
+        if (m_ChatInfoService.GeneralChannel is null)
+        {
+            m_Logger.LogWarning("General Channel was null when trying to send a response from ai");
+            return;
+        }
+
+        try
+        {
+            var response = await m_ChatInfoService.m_ConversationAi.GetManualResponseAsync(user, message);
+            if (string.IsNullOrEmpty(response))
+            {
+                m_Logger.LogWarning("AI responded with null value!");
+                return;
+            }
+            await m_ChatInfoService.GeneralChannel.SendMessageAsync(response);
+        }
+        catch (Exception e)
+        {
+            m_Logger.LogError(e, "Couldn't get a response from OpenAI:");
+            throw;
+        }
+                
+        if (bDebugMessageSentOnNull)
+        {
+            m_ChatInfoService.m_ConversationAi = null;
+        }
+        bDebugMessageSentOnNull = false;
+    }
 
     private async Task SendGoodbyeMessage()
     {
@@ -205,5 +267,11 @@ public class ChatAiService : IHostedService
     private bool IsChatCooldownOver()
     {
         return true;
+    }
+
+    private bool IsBotDev(ulong id)
+    {
+        var botDevIds = new ulong[] { 102606498860896256, 764761783965319189 };
+        return botDevIds.Contains(id);
     }
 }

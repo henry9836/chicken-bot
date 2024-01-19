@@ -19,6 +19,12 @@ namespace ChickenBot.ChatAI.Interfaces
 		Task<string?> GetResponseAsync();
 
 		/// <summary>
+		/// Gets a response as the chicken to a custom message
+		/// </summary>
+		/// <returns>Message, or null if the AI decided to stay silent</returns>
+		Task<string?> GetManualResponseAsync(DiscordMember user, string message);
+
+		/// <summary>
 		/// Sets or replaces the prompt for this conversation
 		/// </summary>
 		void SetPrompt(string prompt);

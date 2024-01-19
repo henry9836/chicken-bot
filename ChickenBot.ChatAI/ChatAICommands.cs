@@ -26,6 +26,12 @@ public class ChatAiCommands : BaseCommandModule
         await ctx.Message.DeleteAsync();
     }
 
+    [Command("Ask"), Description("Overrides all cooldowns to ask a debug question to the AI"), RequireBotManager, Category("Developer")]
+    public async Task AskCommand(CommandContext ctx)
+    {
+        return;
+    }
+
     [Command("Shut"), Description("Stops an AI Session"), RequireBotManagerOrStaff, Category("Admin")]
     public Task ShutCommand(CommandContext ctx)
     {
