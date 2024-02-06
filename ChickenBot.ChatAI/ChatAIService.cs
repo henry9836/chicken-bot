@@ -270,12 +270,12 @@ public class ChatAiService : IHostedService
     
     private bool IsMainCooldownOver()
     {
-        return true;
+        return m_ChatInfoService.m_MainCooldownThreshold <= DateTime.Now;
     }
     
     private bool IsChatCooldownOver()
     {
-        return true;
+        return m_ChatInfoService.m_ChatCooldown <= DateTime.Now;
     }
 
     private bool IsBotDev(ulong id)
