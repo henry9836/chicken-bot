@@ -71,6 +71,15 @@ public class ChatAiService : IHostedService
 
     private async Task ClientOnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
     {
+        // TODO FIX THIS
+        // Disable AI for now while looking for solution to long chat replies
+        // Maybe we can check char count and then ask api to give another response with a blanket can you shorten this response please, /shrug
+        if (!IsMainCooldownOver() || !IsChatCooldownOver())
+        {
+            m_ChatInfoService.UpdateMainCooldown();
+            return;
+        }
+        
         // Filter out dms
         if (args.Author is not DiscordMember member)
         {
