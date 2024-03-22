@@ -29,14 +29,16 @@ namespace ChickenBot.AdminCommands
 			"bot-spam",
 			"bot-log",
 			"join-leave",
-			"voice"
-		};
+			"voice",
+            "moderation"
+        };
 		
 		private static readonly List<string> m_AssignableRoles = new List<string>()
 		{
 			"verified",
-			"bot-dev"
-		};
+			"bot-dev",
+            "staff"
+        };
 
 		[Command("set-channel"), RequireBotManagerOrAdmin, Description("Sets a channel in the config")]
 		public async Task SetChannelCommand(CommandContext ctx)

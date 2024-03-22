@@ -63,11 +63,11 @@ namespace ChickenBot.VerificationSystem.Services
 
 			if (created < TimeSpan.FromDays(1))
 			{
-				m_Logger.LogWarning("{type} joined: {global} ({handle}). Account created {time} ago (!)", args.Member.IsBot ? "Bot" : "User", args.Member.GlobalName ?? args.Member.Username, args.Member.Username, FormatTime(created));
+				m_Logger.LogWarning("{type} joined: {global} ({handle}). Account created {time} ago (!)", args.Member.IsBot ? "Bot" : "User", args.Member.GlobalName ?? args.Member.Username, args.Member.Username, created.FormatTime());
 			}
 			else
 			{
-				m_Logger.LogInformation("{type} joined: {global} ({handle}). Account created {time} ago", args.Member.IsBot ? "Bot" : "User", args.Member.GlobalName ?? args.Member.Username, args.Member.Username, FormatTime(created));
+				m_Logger.LogInformation("{type} joined: {global} ({handle}). Account created {time} ago", args.Member.IsBot ? "Bot" : "User", args.Member.GlobalName ?? args.Member.Username, args.Member.Username, created.FormatTime());
 			}
 
 			if (WelcomeChannel == 0 || WelcomeFormats == null || WelcomeFormats.Length == 0)
@@ -124,30 +124,6 @@ namespace ChickenBot.VerificationSystem.Services
 			await joinChannel.SendMessageAsync(messageBuilder);
 		}
 
-		private string FormatTime(TimeSpan time)
-		{
-			var years = Math.Floor(time.TotalDays / 365f);
-
-			if (years >= 1)
-			{
-				return $"{years} year{years.Pluralize()}";
-			}
-			else if (time.Days >= 1)
-			{
-				return $"{time.Days} day{time.Days.Pluralize()}";
-			}
-			else if (time.Hours >= 1)
-			{
-				return $"{time.Hours} hour{time.Hours.Pluralize()}";
-			}
-			else if (time.Minutes >= 1)
-			{
-				return $"{time.Minutes} minute{time.Minutes.Pluralize()}";
-			}
-			else
-			{
-				return $"{time.Seconds} second{time.Seconds.Pluralize()}";
-			}
-		}
+		
 	}
 }

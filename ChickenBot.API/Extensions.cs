@@ -369,5 +369,31 @@ namespace ChickenBot.API
 
 			return new TemporalMessage();
 		}
-	}
+
+        public static string FormatTime(this TimeSpan time)
+        {
+            var years = Math.Floor(time.TotalDays / 365f);
+
+            if (years >= 1)
+            {
+                return $"{years} year{years.Pluralize()}";
+            }
+            else if (time.Days >= 1)
+            {
+                return $"{time.Days} day{time.Days.Pluralize()}";
+            }
+            else if (time.Hours >= 1)
+            {
+                return $"{time.Hours} hour{time.Hours.Pluralize()}";
+            }
+            else if (time.Minutes >= 1)
+            {
+                return $"{time.Minutes} minute{time.Minutes.Pluralize()}";
+            }
+            else
+            {
+                return $"{time.Seconds} second{time.Seconds.Pluralize()}";
+            }
+        }
+    }
 }
