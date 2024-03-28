@@ -71,26 +71,28 @@ namespace ChickenBot.AdminCommands.Services
                 return true;
             }
 
-            var roles = member.Roles.ToArray();
+            return false;
 
-            if (roles.Length == 0)
-            {
-                return false;
-            }
+            //var roles = member.Roles.ToArray();
 
-            var userPosition = roles.Max(x => x.Position);
+            //if (roles.Length == 0)
+            //{
+            //    return false;
+            //}
 
-            var currentRoles = member.Guild.CurrentMember.Roles.ToArray();
+            //var userPosition = roles.Max(x => x.Position);
 
-            if (currentRoles.Length == 0)
-            {
-                // bot has no roles??
-                return false;
-            }
+            //var currentRoles = member.Guild.CurrentMember.Roles.ToArray();
 
-            var botPosition = currentRoles.Max(x => x.Position);
+            //if (currentRoles.Length == 0)
+            //{
+            //    // bot has no roles??
+            //    return false;
+            //}
 
-            return userPosition >= botPosition;
+            //var botPosition = currentRoles.Max(x => x.Position);
+
+            //return userPosition >= botPosition;
         }
 
         public async Task PushMessage(SuspiciousMessage message)
