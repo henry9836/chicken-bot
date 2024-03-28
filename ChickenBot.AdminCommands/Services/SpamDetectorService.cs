@@ -49,7 +49,7 @@ namespace ChickenBot.AdminCommands.Services
                 }
 
                 var sus = new SuspiciousMessage(DateTime.Now, member, args.Message, attemptedPing, match.Value);
-                Task.Run(async () =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {
@@ -61,7 +61,6 @@ namespace ChickenBot.AdminCommands.Services
                     }
                 });
             }
-
             return Task.CompletedTask;
         }
 
@@ -72,8 +71,24 @@ namespace ChickenBot.AdminCommands.Services
                 return true;
             }
 
-            var userPosition = member.Roles.Max(x => x.Position);
-            var botPosition = member.Guild.CurrentMember.Roles.Max(x => x.Position);
+            var roles = member.Roles.ToArray();
+
+            if (roles.Length == 0)
+            {
+                return false;
+            }
+
+            var userPosition = roles.Max(x => x.Position);
+
+            var currentRoles = member.Guild.CurrentMember.Roles.ToArray();
+
+            if (currentRoles.Length == 0)
+            {
+                // bot has no roles??
+                return false;
+            }
+
+            var botPosition = currentRoles.Max(x => x.Position);
 
             return userPosition >= botPosition;
         }
@@ -95,7 +110,7 @@ namespace ChickenBot.AdminCommands.Services
             if (enforcementActive)
             {
                 await ReportMessages([message], "Messaged Deleted", enforcementActive, false);
-                _ = Task.Run(async () => await message.Message.DeleteAsync());
+                _ = Task.Run(message.DeleteAsync);
                 return;
             }
 
@@ -275,15 +290,7 @@ namespace ChickenBot.AdminCommands.Services
                         }
                     }
 
-                    try
-                    {
-                        await message.Message.DeleteAsync($"Message was flagged as spam");
-                    }
-                    catch (Exception)
-                    {
-                        // Message deleted, ignore
-                        continue;
-                    }
+                    await message.DeleteAsync();
                 }
             });
         }
@@ -329,6 +336,23 @@ namespace ChickenBot.AdminCommands.Services
         public string InviteLink { get; }
 
         public string Content { get; }
+
+        public bool Deleted { get; private set; } = false;
+
+        public async Task DeleteAsync()
+        {
+            if (!Deleted)
+            {
+                Deleted = true;
+                try
+                {
+                    await Message.DeleteAsync($"Message was flagged as spam");
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
 
         public SuspiciousMessage(DateTime posted, DiscordMember author, DiscordMessage message, bool attemptedPing, string link)
         {
