@@ -1,3 +1,4 @@
+using ChickenBot.API.Interfaces;
 using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -18,15 +19,17 @@ namespace ChickenBot.VerificationSystem.Services
 		private readonly ILogger<VerificationMonitorService> m_Logger;
 		private readonly IVerificationCache m_Cache;
 		private readonly IUserVerifier m_Verifier;
+		private readonly IUserFlagProvider m_FlagProvider;
 
 		private readonly Timer m_Timer;
 
-		public VerificationMonitorService(DiscordClient discord, ILogger<VerificationMonitorService> logger, IVerificationCache cache, IUserVerifier verifier)
+		public VerificationMonitorService(DiscordClient discord, ILogger<VerificationMonitorService> logger, IVerificationCache cache, IUserVerifier verifier, IUserFlagProvider flagProvider)
 		{
 			m_Discord = discord;
 			m_Logger = logger;
 			m_Cache = cache;
 			m_Verifier = verifier;
+			m_FlagProvider = flagProvider;
 
 			m_Timer = new Timer(60000);
 			m_Timer.AutoReset = true;
@@ -83,8 +86,14 @@ namespace ChickenBot.VerificationSystem.Services
 				return;
 			}
 
-			// User is meant to be verified, but isn't
+			if (await m_FlagProvider.IsFlagSet(args.Author.Id, "NoVerify"))
+			{
+				// User isn't allowed to be verified
+				return;
+			}
 
+
+			// User is meant to be verified, but isn't
 			await m_Verifier.VerifyUserAsync(member);
 			await m_Verifier.AnnounceUserVerification(member);
 		}

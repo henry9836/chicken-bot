@@ -1,4 +1,6 @@
-﻿using ChickenBot.VerificationSystem.Interfaces;
+﻿using ChickenBot.API.Attributes;
+using ChickenBot.API.Interfaces;
+using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -7,90 +9,114 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.VerificationSystem.Commands
 {
-	[Category("Admin")]
-	public class VerifyCommand : BaseCommandModule
-	{
-		private readonly IVerificationCache m_Cache;
-		private readonly IUserVerifier m_Verifier;
-		private readonly ILogger<VerifyCommand> m_Logger;
+    [Group("Verify"), RequireBotManagerOrStaff, Category("Admin")]
+    public class VerifyCommand : BaseCommandModule
+    {
+        private readonly IVerificationCache m_Cache;
+        private readonly IUserVerifier m_Verifier;
+        private readonly ILogger<VerifyCommand> m_Logger;
+        private readonly IUserFlagProvider m_FlagProvider;
 
-		public VerifyCommand(IVerificationCache cache, IUserVerifier verifier, ILogger<VerifyCommand> logger)
-		{
-			m_Cache = cache;
-			m_Verifier = verifier;
-			m_Logger = logger;
-		}
+        public VerifyCommand(IVerificationCache cache, IUserVerifier verifier, ILogger<VerifyCommand> logger, IUserFlagProvider flagProvider)
+        {
+            m_Cache = cache;
+            m_Verifier = verifier;
+            m_Logger = logger;
+            m_FlagProvider = flagProvider;
+        }
 
-		[Command("Verify"), RequirePermissions(Permissions.ManageMessages)]
-		public async Task VerifyUserCommand(CommandContext ctx)
-		{
-			if (ctx.Member is null)
-			{
-				await ctx.RespondAsync("This command cannot be used in DMs");
-				return;
-			}
+        [GroupCommand, RequirePermissions(Permissions.ManageMessages)]
+        public async Task VerifyUserCommand(CommandContext ctx)
+        {
+            if (ctx.Member is null)
+            {
+                await ctx.RespondAsync("This command cannot be used in DMs");
+                return;
+            }
 
-			var embed = new DiscordEmbedBuilder()
-				.WithTitle("Verify User")
-				.WithDescription("Usage: `Verify [User Name/ID] {Announce Verification: True/False}`")
-				.WithFooter($"Requested by {ctx.Message.Author.Username}");
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle("Verify User")
+                .WithDescription("`Verify user [User Name/ID] {Announce Verification: True/False}`\n" +
+                "> Instantly verifies a user\n\n" +
+                                 "`Verify allow [User Name/ID]`\n" +
+                                 "> Reenables a users ability to be automatically verified\n\n" +
+                                 "`Verify deny [User Name/ID]`\n" +
+                                 "> Disables a users ability to be automatically verified")
 
-			await ctx.RespondAsync(embed);
-		}
+                .WithFooter($"Requested by {ctx.Message.Author.Username}");
 
-		[Command("Verify"), RequirePermissions(Permissions.ManageMessages)]
-		public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member)
-		{
-			await VerifyUserCommand(ctx, member, false);
-		}
+            await ctx.RespondAsync(embed);
+        }
 
-		[Command("Verify"), RequirePermissions(Permissions.ManageMessages)]
-		public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member, bool announce)
-		{
-			if (ctx.Member is null)
-			{
-				await ctx.RespondAsync("This command cannot be used in DMs");
-				return;
-			}
+        [Command("allow")]
+        public async Task AllowCommand(CommandContext ctx, DiscordMember member)
+        {
+            await m_FlagProvider.ClearFlagValue(member.Id, "NoVerify");
 
-			DiscordEmbedBuilder embed;
+            await ctx.RespondAsync($"Auto verified enabled for user <@{member.Id}>");
+        }
 
-			if (m_Verifier.CheckUserVerified(member))
-			{
-				embed = new DiscordEmbedBuilder()
-					.WithTitle("Couldn't verify user")
-					.WithDescription("User already has the verified role")
-					.WithColor(DiscordColor.Red);
+        [Command("deny")]
+        public async Task DenyCommand(CommandContext ctx, DiscordMember member)
+        {
+            await m_FlagProvider.SetFlagValue(member.Id, "NoVerify", null);
 
-				await ctx.RespondAsync(embed);
-				return;
-			}
+            await ctx.RespondAsync($"Auto verified disabled for user <@{member.Id}>");
+        }
 
-			m_Logger.LogInformation("Moderator {username} ({id}) requested verification on user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+        [Command("user"), RequirePermissions(Permissions.ManageMessages)]   
+        public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member)
+        {
+            await VerifyUserCommand(ctx, member, false);
+        }
 
-			if (!await m_Verifier.VerifyUserAsync(member))
-			{
-				embed = new DiscordEmbedBuilder()
-					.WithTitle("Couldn't verify user")
-					.WithDescription("Failed to assign the verified role")
-					.WithColor(DiscordColor.Red);
-				await ctx.RespondAsync(embed);
-				return;
-			}
+        [Command("user"), RequirePermissions(Permissions.ManageMessages)]
+        public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member, bool announce)
+        {
+            if (ctx.Member is null)
+            {
+                await ctx.RespondAsync("This command cannot be used in DMs");
+                return;
+            }
 
-			await m_Cache.ForceVerifyUser(member.Id);
+            DiscordEmbedBuilder embed;
 
-			if (announce)
-			{
-				await m_Verifier.AnnounceUserVerification(member);
-			}
+            if (m_Verifier.CheckUserVerified(member))
+            {
+                embed = new DiscordEmbedBuilder()
+                    .WithTitle("Couldn't verify user")
+                    .WithDescription("User already has the verified role")
+                    .WithColor(DiscordColor.Red);
 
-			embed = new DiscordEmbedBuilder()
-				.WithTitle("User Verified")
-				.WithDescription($"Verified {member.Mention}")
-				.WithFooter($"Requested by {ctx.Message.Author.Username}");
+                await ctx.RespondAsync(embed);
+                return;
+            }
 
-			await ctx.RespondAsync(embed);
-		}
-	}
+            m_Logger.LogInformation("Moderator {username} ({id}) requested verification on user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+
+            if (!await m_Verifier.VerifyUserAsync(member))
+            {
+                embed = new DiscordEmbedBuilder()
+                    .WithTitle("Couldn't verify user")
+                    .WithDescription("Failed to assign the verified role")
+                    .WithColor(DiscordColor.Red);
+                await ctx.RespondAsync(embed);
+                return;
+            }
+
+            await m_Cache.ForceVerifyUser(member.Id);
+
+            if (announce)
+            {
+                await m_Verifier.AnnounceUserVerification(member);
+            }
+
+            embed = new DiscordEmbedBuilder()
+                .WithTitle("User Verified")
+                .WithDescription($"Verified {member.Mention}")
+                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+
+            await ctx.RespondAsync(embed);
+        }
+    }
 }

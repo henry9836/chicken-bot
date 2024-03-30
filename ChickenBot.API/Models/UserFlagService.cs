@@ -1,8 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
 using ChickenBot.API.Interfaces;
 using ChickenBot.Core.Models;
 using Microsoft.Extensions.Logging;
+
+using Timer = System.Timers.Timer;
 
 namespace ChickenBot.API.Models
 {
@@ -11,11 +12,16 @@ namespace ChickenBot.API.Models
         private readonly DatabaseContext m_Context;
         private readonly ILogger<UserFlagService> m_Logger;
         private readonly ConcurrentDictionary<ulong, UserFlagCache> m_Cache = new();
+        private readonly Timer m_Timer;
 
         public UserFlagService(DatabaseContext context, ILogger<UserFlagService> logger)
         {
             m_Context = context;
             m_Logger = logger;
+
+            m_Timer = new Timer(TimeSpan.FromHours(1));
+            m_Timer.Elapsed += (_, _) => PurgeCache();
+            m_Timer.Start();
         }
 
         public async Task ClearFlagValue(ulong userID, string flag)
@@ -59,6 +65,26 @@ namespace ChickenBot.API.Models
                 m_Logger.LogError(ex, "Error setting flag value for ({user}, {flag}) = {value}", userID, flag, value);
             }
         }
+
+        public async Task<bool> IsFlagSet(ulong userID, string flag)
+        {
+            if (TryGetCache(userID, flag, out var cached))
+            {
+                return cached.IsSet;
+            }
+
+            try
+            {
+                return await IsFlagSetInternal(userID, flag);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error setting flag set for ({user}, {flag})", userID, flag);
+                return false;
+            }
+        }
+
+        #region "Database Operations"
 
         private async Task<bool> ClearFlagValueInternal(ulong userID, string flag)
         {
@@ -141,27 +167,10 @@ namespace ChickenBot.API.Models
             {
                 m_Logger.LogInformation("Automatically created user flags table");
             }
-
-            _ = Task.Run(() => ClearLoop(token));
         }
 
-        private async Task ClearLoop(CancellationToken token)
+        private async Task<bool> IsFlagSetInternal(ulong userID, string flag)
         {
-            var delay = TimeSpan.FromHours(1);
-            while (!token.IsCancellationRequested)
-            {
-                await Task.Delay(delay);
-                PurgeCache();
-            }
-        }
-
-        public async Task<bool> IsFlagSet(ulong userID, string flag)
-        {
-            if (TryGetCache(userID, flag, out var cached))
-            {
-                return cached.IsSet;
-            }
-
             using var connection = await m_Context.GetConnectionAsync();
 
             using var command = connection.CreateCommand();
@@ -184,6 +193,10 @@ namespace ChickenBot.API.Models
 
             return true;
         }
+
+        #endregion
+
+        #region "Cache"
 
         private void CacheFlagClear(ulong userID, string flag)
         {
@@ -246,4 +259,6 @@ namespace ChickenBot.API.Models
             }
         }
     }
+
+    #endregion
 }
