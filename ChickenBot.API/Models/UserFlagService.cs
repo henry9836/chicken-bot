@@ -91,7 +91,7 @@ namespace ChickenBot.API.Models
             using var connection = await m_Context.GetConnectionAsync();
 
             using var command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM `UserFlags` WHERE `UserID`=@user AND `Flag` = @flag;";
+            command.CommandText = "DELETE FROM `user_flags` WHERE `UserID`=@user AND `Flag` = @flag;";
 
             command.Parameters.AddWithValue("@user", userID);
             command.Parameters.AddWithValue("@flag", flag);
@@ -108,7 +108,7 @@ namespace ChickenBot.API.Models
             using var connection = await m_Context.GetConnectionAsync();
 
             using var command = connection.CreateCommand();
-            command.CommandText = "SELECT `Value` FROM `UserFlags` WHERE `UserID`=@user AND `Flag` = @flag;";
+            command.CommandText = "SELECT `Value` FROM `user_flags` WHERE `UserID`=@user AND `Flag` = @flag;";
 
             command.Parameters.AddWithValue("@user", userID);
             command.Parameters.AddWithValue("@flag", flag);
@@ -132,7 +132,7 @@ namespace ChickenBot.API.Models
 
             using var command = connection.CreateCommand();
 
-            command.CommandText = (@"INSERT INTO `UserFlags` (UserID, Flag, Value, Updated) VALUES (@user, @flag, @value, @now)"
+            command.CommandText = (@"INSERT INTO `user_flags` (UserID, Flag, Value, Updated) VALUES (@user, @flag, @value, @now)"
                                    + " ON DUPLICATE KEY UPDATE `Value`=@value, `Updated`=@now;");
 
             command.Parameters.AddWithValue("@user", userID);
@@ -153,7 +153,7 @@ namespace ChickenBot.API.Models
 
             using var command = connection.CreateCommand();
             command.CommandText =
-                @"CREATE TABLE IF NOT EXISTS `UserFlags` (
+                @"CREATE TABLE IF NOT EXISTS `user_flags` (
                     `UserID` BIGINT UNSIGNED NOT NULL,
                     `Flag` VarChar(64) NOT NULL,
                     `Value` VarChar(512) NULL,
@@ -174,7 +174,7 @@ namespace ChickenBot.API.Models
             using var connection = await m_Context.GetConnectionAsync();
 
             using var command = connection.CreateCommand();
-            command.CommandText = @"SELECT `Value` FROM `UserFlags` WHERE `UserID`=@user AND `Flag` = @flag;";
+            command.CommandText = @"SELECT `Value` FROM `user_flags` WHERE `UserID`=@user AND `Flag` = @flag;";
 
             command.Parameters.AddWithValue("@user", userID);
             command.Parameters.AddWithValue("@flag", flag);
