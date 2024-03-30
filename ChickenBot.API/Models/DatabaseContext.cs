@@ -16,7 +16,7 @@ namespace ChickenBot.Core.Models
 		}
 
 		/// <summary>
-		/// Creates a new conenction to the database
+		/// Creates a new connection to the database
 		/// </summary>
 		/// <remarks>
 		/// Ensure you dispose the <seealso cref="MySqlConnection"/> after use

@@ -8,278 +8,278 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.VerificationSystem.Models
 {
-	/// <summary>
-	/// Manages the user verification cache, providing access to check and increment user message counts
-	/// </summary>
-	[Singleton(typeof(IVerificationCache))]
-	public class VerificationCache : IVerificationCache
-	{
-		/// <summary>
-		/// The minimum verification threshold
-		/// </summary>
-		/// <remarks>
-		/// Configurable in VerifyThreshold:Min, defaults to 100 when not set
-		/// </remarks>
-		public int VerifyThresholdMin => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Min", 100);
+    /// <summary>
+    /// Manages the user verification cache, providing access to check and increment user message counts
+    /// </summary>
+    [Singleton(typeof(IVerificationCache))]
+    public class VerificationCache : IVerificationCache
+    {
+        /// <summary>
+        /// The minimum verification threshold
+        /// </summary>
+        /// <remarks>
+        /// Configurable in VerifyThreshold:Min, defaults to 100 when not set
+        /// </remarks>
+        public int VerifyThresholdMin => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Min", 100);
 
-		/// <summary>
-		/// The maximum verification threshold
-		/// </summary>
-		/// <remarks>
-		/// Configurable in VerifyThreshold:Max, defaults to 150 when not set
-		/// </remarks>
-		public int VerifyThresholdMax => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Max", 150);
+        /// <summary>
+        /// The maximum verification threshold
+        /// </summary>
+        /// <remarks>
+        /// Configurable in VerifyThreshold:Max, defaults to 150 when not set
+        /// </remarks>
+        public int VerifyThresholdMax => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Max", 150);
 
-		/// <summary>
-		/// The number of seconds after the user sends their first message before they can be verified
-		/// </summary>
-		/// <remarks>
-		/// Configurable in VerifyThreshold:Seconds, defaults to 86400 (1 day)
-		/// </remarks>
-		public int VerifyEligibleSeconds => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Seconds", 86400);
+        /// <summary>
+        /// The number of seconds after the user sends their first message before they can be verified
+        /// </summary>
+        /// <remarks>
+        /// Configurable in VerifyThreshold:Seconds, defaults to 86400 (1 day)
+        /// </remarks>
+        public int VerifyEligibleSeconds => m_Configuration.GetSection("VerifyThreshold").GetValue<int>("Seconds", 86400);
 
-		private readonly ILogger<VerificationCache> m_Logger;
-		private readonly DatabaseContext m_Context;
-		private readonly Random m_Random = new Random();
-		private readonly IConfiguration m_Configuration;
+        private readonly ILogger<VerificationCache> m_Logger;
+        private readonly DatabaseContext m_Context;
+        private readonly Random m_Random = new Random();
+        private readonly IConfiguration m_Configuration;
 
-		private readonly ConcurrentDictionary<ulong, UserInformation> m_Cache = new();
+        private readonly ConcurrentDictionary<ulong, UserInformation> m_Cache = new();
 
-		public VerificationCache(ILogger<VerificationCache> logger, DatabaseContext context, IConfiguration configuration)
-		{
-			m_Logger = logger;
-			m_Context = context;
-			m_Configuration = configuration;
-		}
+        public VerificationCache(ILogger<VerificationCache> logger, DatabaseContext context, IConfiguration configuration)
+        {
+            m_Logger = logger;
+            m_Context = context;
+            m_Configuration = configuration;
+        }
 
-		/// <summary>
-		/// Adds a user to the cache
-		/// </summary>
-		/// <param name="userID">The Discord account ID of the user</param>
-		/// <param name="information">Verification info for the user</param>
-		public void AddUser(ulong userID, UserInformation information)
-		{
-			m_Cache[userID] = information;
-		}
+        /// <summary>
+        /// Adds a user to the cache
+        /// </summary>
+        /// <param name="userID">The Discord account ID of the user</param>
+        /// <param name="information">Verification info for the user</param>
+        public void AddUser(ulong userID, UserInformation information)
+        {
+            m_Cache[userID] = information;
+        }
 
-		/// <summary>
-		/// Tries to remove a user from the cache
-		/// </summary>
-		/// <param name="userID">The Discord account ID of the user</param>
-		/// <param name="user">The output user information of the removed user</param>
-		/// <returns><see langword="true"/> if the user existed in the cache, and was removed.</returns>
-		public bool TryRemoveUser(ulong userID, out UserInformation? user)
-		{
-			return m_Cache.Remove(userID, out user);
-		}
+        /// <summary>
+        /// Tries to remove a user from the cache
+        /// </summary>
+        /// <param name="userID">The Discord account ID of the user</param>
+        /// <param name="user">The output user information of the removed user</param>
+        /// <returns><see langword="true"/> if the user existed in the cache, and was removed.</returns>
+        public bool TryRemoveUser(ulong userID, out UserInformation? user)
+        {
+            return m_Cache.Remove(userID, out user);
+        }
 
-		/// <summary>
-		/// Tries to get a user from the cache, without touching the database
-		/// </summary>
-		/// <param name="userID">The Discord account ID of the user</param>
-		/// <param name="information">Resulting user information</param>
-		/// <returns><see langword="true"/> if the user was present in the cache</returns>
-		public bool TryGetUser(ulong userID, out UserInformation? information)
-		{
-			return m_Cache.TryGetValue(userID, out information);
-		}
+        /// <summary>
+        /// Tries to get a user from the cache, without touching the database
+        /// </summary>
+        /// <param name="userID">The Discord account ID of the user</param>
+        /// <param name="information">Resulting user information</param>
+        /// <returns><see langword="true"/> if the user was present in the cache</returns>
+        public bool TryGetUser(ulong userID, out UserInformation? information)
+        {
+            return m_Cache.TryGetValue(userID, out information);
+        }
 
-		/// <summary>
-		/// Flushes the verified user cache to the database, and trims the cache
-		/// </summary>
-		public async Task FlushCacheAsync()
-		{
-			m_Logger.LogDebug("Flushing cache...");
-			try
-			{
-				// Create a shallow copy of all current user IDs in the cache
-				var userIDs = m_Cache.Keys.ToImmutableArray();
+        /// <summary>
+        /// Flushes the verified user cache to the database, and trims the cache
+        /// </summary>
+        public async Task FlushCacheAsync()
+        {
+            m_Logger.LogDebug("Flushing cache...");
+            try
+            {
+                // Create a shallow copy of all current user IDs in the cache
+                var userIDs = m_Cache.Keys.ToImmutableArray();
 
-				foreach (var userID in userIDs)
-				{
-					if (!TryGetUser(userID, out var cachedUserInfo) || cachedUserInfo == null)
-					{
-						continue;
-					}
+                foreach (var userID in userIDs)
+                {
+                    if (!TryGetUser(userID, out var cachedUserInfo) || cachedUserInfo == null)
+                    {
+                        continue;
+                    }
 
-					// Update DB
-					await UpdateUserValues(cachedUserInfo.UserID, cachedUserInfo.MessageCount, cachedUserInfo.Threshold, cachedUserInfo.Eligible);
+                    // Update DB
+                    await UpdateUserValues(cachedUserInfo.UserID, cachedUserInfo.MessageCount, cachedUserInfo.Threshold, cachedUserInfo.Eligible);
 
-					// Iterate our user tick
-					cachedUserInfo.CycleLevel -= 1;
+                    // Iterate our user tick
+                    cachedUserInfo.CycleLevel -= 1;
 
-					if (cachedUserInfo.IsOutOfCycles())
-					{
-						TryRemoveUser(userID, out _);
-						m_Logger.LogDebug("cachedUser out of cycles.");
-					}
-				}
-				m_Logger.LogDebug("Database Upload Done.");
-			}
-			catch (Exception ex)
-			{
-				m_Logger.LogError(ex, "Error flushing cache");
-			}
-		}
+                    if (cachedUserInfo.IsOutOfCycles())
+                    {
+                        TryRemoveUser(userID, out _);
+                        m_Logger.LogDebug("cachedUser out of cycles.");
+                    }
+                }
+                m_Logger.LogDebug("Database Upload Done.");
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error flushing cache");
+            }
+        }
 
-		/// <summary>
-		/// Lazy method to increment a user's message count by 1
-		/// </summary>
-		/// <param name="userID">The Discord account ID of the user</param>
-		/// <returns><see langword="true"/> if the user has reached or passed their verification threshold</returns>
-		public bool IncrementUserMessages(ulong userID)
-		{
-			if (TryGetUser(userID, out var info) && info != null)
-			{
-				info.MessageCount++;
-				m_Logger.LogDebug("new message count: {c}", info.MessageCount);
+        /// <summary>
+        /// Lazy method to increment a user's message count by 1
+        /// </summary>
+        /// <param name="userID">The Discord account ID of the user</param>
+        /// <returns><see langword="true"/> if the user has reached or passed their verification threshold</returns>
+        public bool IncrementUserMessages(ulong userID)
+        {
+            if (TryGetUser(userID, out var info) && info != null)
+            {
+                info.MessageCount++;
+                m_Logger.LogDebug("new message count: {c}", info.MessageCount);
 
-				var messageEligible = (info.MessageCount >= info.Threshold);
-				var timeEligible = info.Eligible <= DateTime.UtcNow;
+                var messageEligible = (info.MessageCount >= info.Threshold);
+                var timeEligible = info.Eligible <= DateTime.UtcNow;
 
-				return messageEligible && timeEligible;
-			}
+                return messageEligible && timeEligible;
+            }
 
-			// User is not in the cache, fetch them from the db, or create a new profile
+            // User is not in the cache, fetch them from the db, or create a new profile
 
-			// Don't bother blocking the caller, just ignore any messages from the user until the cache is populated
-			// This either works and takes < ~100ms, or doesn't work at all. So not much point worrying about a single message
+            // Don't bother blocking the caller, just ignore any messages from the user until the cache is populated
+            // This either works and takes < ~100ms, or doesn't work at all. So not much point worrying about a single message
 
-			Task.Run(() => PopulateUserCache(userID));
+            Task.Run(() => PopulateUserCache(userID));
 
-			return false;
-		}
+            return false;
+        }
 
-		private async Task PopulateUserCache(ulong userID)
-		{
-			var info = await GetUserFromDatabase(userID)
-				?? new UserInformation(userID, 1, DetermineThreshold(), DetermineEligible());
+        private async Task PopulateUserCache(ulong userID)
+        {
+            var info = await GetUserFromDatabase(userID)
+                ?? new UserInformation(userID, 1, DetermineThreshold(), DetermineEligible());
 
-			AddUser(userID, info);
-		}
+            AddUser(userID, info);
+        }
 
-		private int DetermineThreshold(float multiplier = 1)
-		{
-			return (int)(m_Random.Next(VerifyThresholdMin, VerifyThresholdMax) * multiplier);
-		}
+        private int DetermineThreshold(float multiplier = 1)
+        {
+            return (int)(m_Random.Next(VerifyThresholdMin, VerifyThresholdMax) * multiplier);
+        }
 
-		private DateTime DetermineEligible(float multiplier = 1)
-		{
-			return DateTime.UtcNow.AddSeconds((int)(VerifyEligibleSeconds * multiplier));
-		}
+        private DateTime DetermineEligible(float multiplier = 1)
+        {
+            return DateTime.UtcNow.AddSeconds((int)(VerifyEligibleSeconds * multiplier));
+        }
 
-		private async Task<UserInformation?> GetUserFromDatabase(ulong authorId)
-		{
+        private async Task<UserInformation?> GetUserFromDatabase(ulong authorId)
+        {
 
-			using var dbConnection = await m_Context.GetConnectionAsync();
+            using var dbConnection = await m_Context.GetConnectionAsync();
 
-			try
-			{
-				using var command = dbConnection.CreateCommand();
+            try
+            {
+                using var command = dbConnection.CreateCommand();
 
-				command.CommandText = (@"SELECT * FROM `users` WHERE UserID=@ID");
-				command.Parameters.AddWithValue("@ID", authorId);
+                command.CommandText = (@"SELECT * FROM `users` WHERE UserID=@ID");
+                command.Parameters.AddWithValue("@ID", authorId);
 
-				var reader = await command.ExecuteReaderAsync();
+                var reader = await command.ExecuteReaderAsync();
 
-				if (!reader.HasRows)
-				{
-					return null;
-				}
+                if (!reader.HasRows)
+                {
+                    return null;
+                }
 
-				await reader.ReadAsync();
+                await reader.ReadAsync();
 
-				var id = reader.GetUInt64("UserID");
-				var messageCount = reader.GetUInt32("MessageCount") + 1; // User sent a message to trigger this action
-				var verificationThreshold = reader.GetInt32("VerificationThreshold");
-				var eligible = reader.GetDateTime("Eligible");
+                var id = reader.GetUInt64("UserID");
+                var messageCount = reader.GetUInt32("MessageCount") + 1; // User sent a message to trigger this action
+                var verificationThreshold = reader.GetInt32("VerificationThreshold");
+                var eligible = reader.GetDateTime("Eligible");
 
-				return new UserInformation(id, messageCount, verificationThreshold, eligible);
-			}
-			catch (Exception ex)
-			{
-				m_Logger.LogError(ex, "Error while attempting to read user from cache");
-				return null;
-			}
-		}
+                return new UserInformation(id, messageCount, verificationThreshold, eligible);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error while attempting to read user from cache");
+                return null;
+            }
+        }
 
-		private async Task<bool> UpdateUserValues(ulong authorId, uint messageCount, int threshold, DateTime eligible)
-		{
-			using var dbConnection = await m_Context.GetConnectionAsync();
+        private async Task<bool> UpdateUserValues(ulong authorId, uint messageCount, int threshold, DateTime eligible)
+        {
+            using var dbConnection = await m_Context.GetConnectionAsync();
 
-			try
-			{
-				using var command = dbConnection.CreateCommand();
-				// This will attempt to add a new user into the table if they already exist it will update their message count
-				command.CommandText = (@"INSERT INTO `users` (UserID, MessageCount, VerificationThreshold, Eligible) VALUES (@UserID, @count, @threshold, @eligible)"
-										+ " ON DUPLICATE KEY UPDATE `MessageCount`=@count, `VerificationThreshold`=@threshold, `Eligible`=@eligible;");
+            try
+            {
+                using var command = dbConnection.CreateCommand();
+                // This will attempt to add a new user into the table if they already exist it will update their message count
+                command.CommandText = (@"INSERT INTO `users` (UserID, MessageCount, VerificationThreshold, Eligible) VALUES (@UserID, @count, @threshold, @eligible)"
+                                        + " ON DUPLICATE KEY UPDATE `MessageCount`=@count, `VerificationThreshold`=@threshold, `Eligible`=@eligible;");
 
-				command.Parameters.AddWithValue("@UserID", authorId);
-				command.Parameters.AddWithValue("@count", messageCount);
-				command.Parameters.AddWithValue("@threshold", threshold);
-				command.Parameters.AddWithValue("@eligible", eligible);
-				await command.ExecuteNonQueryAsync();
+                command.Parameters.AddWithValue("@UserID", authorId);
+                command.Parameters.AddWithValue("@count", messageCount);
+                command.Parameters.AddWithValue("@threshold", threshold);
+                command.Parameters.AddWithValue("@eligible", eligible);
+                await command.ExecuteNonQueryAsync();
 
-				return true;
-			}
-			catch (Exception ex)
-			{
-				m_Logger.LogError(ex, "Error while attempting to update user verification info: ");
-				return false;
-			}
-		}
+                return true;
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error while attempting to update user verification info: ");
+                return false;
+            }
+        }
 
-		/// <summary>
-		/// Modifies a user's verification threshold to immediately verify them
-		/// </summary>
-		/// <param name="userId">Discord account ID</param>
-		public async Task ForceVerifyUser(ulong userId)
-		{
-			if (!m_Cache.TryGetValue(userId, out var information))
-			{
-				var info = await GetUserFromDatabase(userId);
+        /// <summary>
+        /// Modifies a user's verification threshold to immediately verify them
+        /// </summary>
+        /// <param name="userId">Discord account ID</param>
+        public async Task ForceVerifyUser(ulong userId)
+        {
+            if (!m_Cache.TryGetValue(userId, out var information))
+            {
+                var info = await GetUserFromDatabase(userId);
 
-				information = info != null ? info : new UserInformation(userId, 0, 0, DateTime.UtcNow);
+                information = info != null ? info : new UserInformation(userId, 0, 0, DateTime.UtcNow);
 
-				AddUser(userId, information);
-			}
+                AddUser(userId, information);
+            }
 
-			information.Threshold = (int)Math.Min(information.MessageCount, int.MaxValue);
-			information.Eligible = DateTime.UtcNow;
-		}
+            information.Threshold = (int)Math.Min(information.MessageCount, int.MaxValue);
+            information.Eligible = DateTime.UtcNow;
+        }
 
-		/// <summary>
-		/// Modifies a user's verification threshold to immediately de-verify them
-		/// </summary>
-		/// <param name="userID">Discord account ID</param>
-		public async Task<UserInformation> ForceRemoveUserVerification(ulong userID, float multiplier)
-		{
-			UserInformation? information;
-			if (!m_Cache.TryGetValue(userID, out information))
-			{
-				var info = await GetUserFromDatabase(userID);
+        /// <summary>
+        /// Modifies a user's verification threshold to immediately de-verify them
+        /// </summary>
+        /// <param name="userID">Discord account ID</param>
+        public async Task<UserInformation> ForceRemoveUserVerification(ulong userID, float multiplier)
+        {
+            UserInformation? information;
+            if (!m_Cache.TryGetValue(userID, out information))
+            {
+                var info = await GetUserFromDatabase(userID);
 
-				information = info ?? new UserInformation(userID, 0, 0, DateTime.UtcNow);
+                information = info ?? new UserInformation(userID, 0, 0, DateTime.UtcNow);
 
-				AddUser(userID, information);
-			}
+                AddUser(userID, information);
+            }
 
-			information.Threshold = (int)information.MessageCount + DetermineThreshold(multiplier);
-			information.Eligible = DetermineEligible(multiplier);
+            information.Threshold = (int)information.MessageCount + DetermineThreshold(multiplier);
+            information.Eligible = DetermineEligible(multiplier);
 
-			return information;
-		}
+            return information;
+        }
 
-		/// <summary>
-		/// Initializes the verification cache, and runs first-run setup
-		/// </summary>
-		public async Task Init()
-		{
-			using var connection = await m_Context.GetConnectionAsync();
+        /// <summary>
+        /// Initializes the verification cache, and runs first-run setup
+        /// </summary>
+        public async Task Init()
+        {
+            using var connection = await m_Context.GetConnectionAsync();
 
-			using var command = connection.CreateCommand();
-			command.CommandText =
-				@"CREATE TABLE IF NOT EXISTS `users` (
+            using var command = connection.CreateCommand();
+            command.CommandText =
+                @"CREATE TABLE IF NOT EXISTS `users` (
 						`UserID` BIGINT UNSIGNED NOT NULL,
 						`MessageCount` INT UNSIGNED NOT NULL,
 						`VerificationThreshold` INT UNSIGNED NOT NULL,
@@ -287,12 +287,12 @@ namespace ChickenBot.VerificationSystem.Models
 						PRIMARY KEY (`UserID`)
 					)";
 
-			var modified = await command.ExecuteNonQueryAsync();
+            var modified = await command.ExecuteNonQueryAsync();
 
-			if (modified > 0)
-			{
-				m_Logger.LogInformation("Automatically created verification table");
-			}
-		}
-	}
+            if (modified > 0)
+            {
+                m_Logger.LogInformation("Automatically created verification table");
+            }
+        }
+    }
 }
