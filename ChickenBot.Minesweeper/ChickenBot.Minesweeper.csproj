@@ -5,7 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
+    
+    <ItemGroup>
+        <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
+    </ItemGroup>
+    
     <ItemGroup>
       <Reference Include="DSharpPlus">
         <HintPath>..\..\..\.nuget\packages\dsharpplus\5.0.0-nightly-01907\lib\net8.0\DSharpPlus.dll</HintPath>
