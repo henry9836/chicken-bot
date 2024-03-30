@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChickenBot.Music", "Chicken
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.SweetDreams", "ChickenBot.SweetDreams\ChickenBot.SweetDreams.csproj", "{17900AFE-F402-4438-B971-5851BFBA6998}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.Minesweeper", "ChickenBot.Minesweeper\ChickenBot.Minesweeper.csproj", "{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,10 @@ Global
 		{17900AFE-F402-4438-B971-5851BFBA6998}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17900AFE-F402-4438-B971-5851BFBA6998}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17900AFE-F402-4438-B971-5851BFBA6998}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -131,6 +137,7 @@ Global
 		{F78B9EBF-C5B1-434A-863D-75DF967E76C2} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{C77D06B4-0BDF-46DA-A0FA-1CC8440E7767} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{17900AFE-F402-4438-B971-5851BFBA6998} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
+		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C2CB5B5-36FD-4598-A136-C127AA4B9EBE}
