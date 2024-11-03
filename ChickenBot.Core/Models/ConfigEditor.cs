@@ -4,237 +4,252 @@ using ChickenBot.API.Interfaces;
 
 namespace ChickenBot.Core.Models
 {
-	/// <summary>
-	/// Service to modify the bot config file during runtime
-	/// </summary>
-	public class ConfigEditor : IConfigEditor
-	{
-		/// <summary>
-		/// The path to the json config file
-		/// </summary>
-		public string Config { get; }
+    /// <summary>
+    /// Service to modify the bot config file during runtime
+    /// </summary>
+    public class ConfigEditor : IConfigEditor
+    {
+        /// <summary>
+        /// The path to the json config file
+        /// </summary>
+        public string Config { get; }
 
-		/// <summary>
-		/// Serializer settings to modify the format of the resulting updated config file
-		/// </summary>
-		public JsonSerializerOptions SerializerOptions { get; }
+        /// <summary>
+        /// Serializer settings to modify the format of the resulting updated config file
+        /// </summary>
+        public JsonSerializerOptions SerializerOptions { get; }
 
-		/// <summary>
-		/// Creates a new json config editor for the specified file, with default serializer settings
-		/// </summary>
-		/// <param name="path">Path to the config file</param>
-		public ConfigEditor(string path)
-		{
-			Config = path;
-			SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General)
-			{
-				WriteIndented = true
-			};
-		}
+        /// <summary>
+        /// Creates a new json config editor for the specified file, with default serializer settings
+        /// </summary>
+        /// <param name="path">Path to the config file</param>
+        public ConfigEditor(string path)
+        {
+            Config = path;
+            SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General)
+            {
+                WriteIndented = true
+            };
+        }
 
-		/// <summary>
-		/// Creates a new json config editor for the specified file, with the specified serializer settings
-		/// </summary>
-		/// <param name="path">Path to the json config file</param>
-		/// <param name="serializerOptions">Json serializer settings used when modifying the config file</param>
-		public ConfigEditor(string path, JsonSerializerOptions serializerOptions)
-		{
-			Config = path;
-			SerializerOptions = serializerOptions;
-		}
+        /// <summary>
+        /// Creates a new json config editor for the specified file, with the specified serializer settings
+        /// </summary>
+        /// <param name="path">Path to the json config file</param>
+        /// <param name="serializerOptions">Json serializer settings used when modifying the config file</param>
+        public ConfigEditor(string path, JsonSerializerOptions serializerOptions)
+        {
+            Config = path;
+            SerializerOptions = serializerOptions;
+        }
 
-		/// <summary>
-		/// Inserts/Updates a custom JsonValue, useful for modifying multiple properties or inserting complex types
-		/// </summary>
-		/// <param name="path">Path to the Json property, separated by colons (:)</param>
-		/// <param name="nodeValue">The new value for the property</param>
-		/// <returns><see langword="true"/> if it could update the config value</returns>
-		public async Task<bool> ModifyConfigAsync(string path, JsonValue nodeValue)
-		{
-			var jsonText = await File.ReadAllTextAsync(Config);
+        /// <summary>
+        /// Inserts/Updates a custom JsonValue, useful for modifying multiple properties or inserting complex types
+        /// </summary>
+        /// <param name="path">Path to the Json property, separated by colons (:)</param>
+        /// <param name="nodeValue">The new value for the property</param>
+        /// <returns><see langword="true"/> if it could update the config value</returns>
+        public async Task<bool> ModifyConfigAsync(string path, JsonValue nodeValue)
+        {
+            var jsonText = await File.ReadAllTextAsync(Config);
 
-			var root = JsonNode.Parse(jsonText);
+            var root = JsonNode.Parse(jsonText);
 
-			if (root == null)
-			{
-				return false;
-			}
+            if (root == null)
+            {
+                return false;
+            }
 
-			if (SetConfigKey(root, path, nodeValue))
-			{
-				jsonText = root.ToString();
+            if (SetConfigKey(root, path, nodeValue))
+            {
+                jsonText = root.ToString();
 
-				await File.WriteAllTextAsync(Config, jsonText);
+                if (string.IsNullOrWhiteSpace(jsonText))
+                {
+                    throw new InvalidDataException("Config editor produced a blank file! This shouldn't be able to happen, for some reason it rarely does. Try that again.");
+                }
 
-				return true;
-			}
-			return false;
-		}
+                await File.WriteAllTextAsync(Config, jsonText);
 
-		/// <summary>
-		/// Inserts/Updates a property of the config. If nodes in the path don't exist, they will be created
-		/// </summary>
-		/// <typeparam name="T">The type of the new value</typeparam>
-		/// <param name="path">Path to the Json property, separated by colons (:)</param>
-		/// <param name="value">The new value to set the target property to</param>
-		/// <returns><see langword="true"/> if it could update the config value</returns>
-		public async Task<bool> UpdateValueAsync<T>(string path, T value)
-		{
-			var jsonText = await File.ReadAllTextAsync(Config);
+                return true;
+            }
+            return false;
+        }
 
-			var root = JsonNode.Parse(jsonText);
+        /// <summary>
+        /// Inserts/Updates a property of the config. If nodes in the path don't exist, they will be created
+        /// </summary>
+        /// <typeparam name="T">The type of the new value</typeparam>
+        /// <param name="path">Path to the Json property, separated by colons (:)</param>
+        /// <param name="value">The new value to set the target property to</param>
+        /// <returns><see langword="true"/> if it could update the config value</returns>
+        public async Task<bool> UpdateValueAsync<T>(string path, T value)
+        {
+            var jsonText = await File.ReadAllTextAsync(Config);
 
-			if (root == null)
-			{
-				return false;
-			}
+            var root = JsonNode.Parse(jsonText);
 
-			var newValue = JsonValue.Create(value);
+            if (root == null)
+            {
+                return false;
+            }
 
-			if (newValue == null)
-			{
-				return false;
-			}
+            var newValue = JsonValue.Create(value);
 
-			if (SetConfigKey(root, path, newValue))
-			{
-				jsonText = root.ToString();
+            if (newValue == null)
+            {
+                return false;
+            }
 
-				await File.WriteAllTextAsync(Config, jsonText);
+            if (SetConfigKey(root, path, newValue))
+            {
+                jsonText = root.ToString();
 
-				return true;
-			}
-			return false;
-		}
+                await File.WriteAllTextAsync(Config, jsonText);
 
-		/// <summary>
-		/// Append an object to an array, creating the array property if needed
-		/// </summary>
-		/// <typeparam name="T">Type of the object to append</typeparam>
-		/// <param name="path">Path to the Json array property</param>
-		/// <param name="value">Value to append to the array</param>
-		/// <returns><see langword="true"/> if it could update the config value</returns>
-		public async Task<bool> AppendValueAsync<T>(string path, T value)
-		{
-			var jsonText = await File.ReadAllTextAsync(Config);
+                if (string.IsNullOrWhiteSpace(jsonText))
+                {
+                    throw new InvalidDataException("Config editor produced a blank file! This shouldn't be able to happen, for some reason it rarely does. Try that again.");
+                }
 
-			var root = JsonNode.Parse(jsonText);
+                return true;
+            }
+            return false;
+        }
 
-			if (root == null)
-			{
-				return false;
-			}
+        /// <summary>
+        /// Append an object to an array, creating the array property if needed
+        /// </summary>
+        /// <typeparam name="T">Type of the object to append</typeparam>
+        /// <param name="path">Path to the Json array property</param>
+        /// <param name="value">Value to append to the array</param>
+        /// <returns><see langword="true"/> if it could update the config value</returns>
+        public async Task<bool> AppendValueAsync<T>(string path, T value)
+        {
+            var jsonText = await File.ReadAllTextAsync(Config);
 
-			if (AppendValue(root, path, value))
-			{
-				jsonText = root.ToString();
+            var root = JsonNode.Parse(jsonText);
 
-				await File.WriteAllTextAsync(Config, jsonText);
+            if (root == null)
+            {
+                return false;
+            }
 
-				return true;
-			}
-			return false;
-		}
+            if (AppendValue(root, path, value))
+            {
+                jsonText = root.ToString();
 
-		/// <summary>
-		/// Modifies a JsonNode, iterating down the json tree to the specified parent node, to then add/update a target property
-		/// </summary>
-		/// <typeparam name="T">Type of the json property</typeparam>
-		/// <param name="root">Json root/context node</param>
-		/// <param name="path">Path to the target property</param>
-		/// <param name="value">Value to set the target property to</param>
-		/// <returns<see langword="true"/> if it could modify the json object</returns>
-		private bool SetConfigKey(JsonNode root, string path, JsonValue value)
-		{
-			var pathSplit = path.Split(':');
+                await File.WriteAllTextAsync(Config, jsonText);
 
-			var targetNode = pathSplit.Last();
+                if (string.IsNullOrWhiteSpace(jsonText))
+                {
+                    throw new InvalidDataException("Config editor produced a blank file! This shouldn't be able to happen, for some reason it rarely does. Try that again.");
+                }
 
-			// Iterate to target node, creating nodes as needed
+                return true;
+            }
+            return false;
+        }
 
-			JsonNode target = IterateToTarget(root, pathSplit.Take(pathSplit.Length - 1));
+        /// <summary>
+        /// Modifies a JsonNode, iterating down the json tree to the specified parent node, to then add/update a target property
+        /// </summary>
+        /// <typeparam name="T">Type of the json property</typeparam>
+        /// <param name="root">Json root/context node</param>
+        /// <param name="path">Path to the target property</param>
+        /// <param name="value">Value to set the target property to</param>
+        /// <returns<see langword="true"/> if it could modify the json object</returns>
+        private bool SetConfigKey(JsonNode root, string path, JsonValue value)
+        {
+            var pathSplit = path.Split(':');
 
-			// Set/Update target property
+            var targetNode = pathSplit.Last();
 
-			var targetObj = target.AsObject();
+            // Iterate to target node, creating nodes as needed
 
-			if (targetObj.ContainsKey(targetNode))
-			{
-				targetObj.Remove(targetNode);
-			}
+            JsonNode target = IterateToTarget(root, pathSplit.Take(pathSplit.Length - 1));
 
-			return targetObj.TryAdd(targetNode, value);
-		}
+            // Set/Update target property
 
-		/// <summary>
-		/// Appends a value to a JSON array
-		/// </summary>
-		/// <typeparam name="T">Type to append to the array</typeparam>
-		/// <param name="root">Root/context json node</param>
-		/// <param name="path">Path to the json array property</param>
-		/// <param name="value">Value to append to the array</param>
-		/// <returns><see langword="true"/> if the value could be appended</returns>
-		private bool AppendValue<T>(JsonNode root, string path, T value)
-		{
-			var pathSplit = path.Split(':');
+            var targetObj = target.AsObject();
 
-			var targetNode = pathSplit.Last();
+            if (targetObj.ContainsKey(targetNode))
+            {
+                targetObj.Remove(targetNode);
+            }
 
-			// Iterate to target node, creating nodes as needed
+            return targetObj.TryAdd(targetNode, value);
+        }
 
-			JsonNode target = IterateToTarget(root, pathSplit.Take(pathSplit.Length - 1));
+        /// <summary>
+        /// Appends a value to a JSON array
+        /// </summary>
+        /// <typeparam name="T">Type to append to the array</typeparam>
+        /// <param name="root">Root/context json node</param>
+        /// <param name="path">Path to the json array property</param>
+        /// <param name="value">Value to append to the array</param>
+        /// <returns><see langword="true"/> if the value could be appended</returns>
+        private bool AppendValue<T>(JsonNode root, string path, T value)
+        {
+            var pathSplit = path.Split(':');
 
-			// Check/Create array property
+            var targetNode = pathSplit.Last();
 
-			var property = target[targetNode];
+            // Iterate to target node, creating nodes as needed
 
-			if (property == null)
-			{
-				property = new JsonArray();
-				target[targetNode] = property;
-			}
+            JsonNode target = IterateToTarget(root, pathSplit.Take(pathSplit.Length - 1));
 
-			// Append value to array
+            // Check/Create array property
 
-			try
-			{
-				var array = property.AsArray();
+            var property = target[targetNode];
 
-				array.Add(value);
-			}
-			catch (InvalidOperationException)
-			{
-				return false;
-			}
+            if (property == null)
+            {
+                property = new JsonArray();
+                target[targetNode] = property;
+            }
 
-			return true;
-		}
+            // Append value to array
 
-		/// <summary>
-		/// Iterates down the Json tree looking for the target node, creating missing parent nodes
-		/// </summary>
-		/// <param name="root">The root/context node</param>
-		/// <param name="path">The path to the json node</param>
-		/// <returns>The specified existing or newly created json node</returns>
-		private JsonNode IterateToTarget(JsonNode root, IEnumerable<string> path)
-		{
-			JsonNode target = root;
+            try
+            {
+                var array = property.AsArray();
 
-			foreach (var node in path)
-			{
-				var newTarget = target[node];
+                array.Add(value);
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
 
-				if (newTarget == null)
-				{
-					newTarget = new JsonObject();
+            return true;
+        }
 
-					target[node] = newTarget;
-				}
+        /// <summary>
+        /// Iterates down the Json tree looking for the target node, creating missing parent nodes
+        /// </summary>
+        /// <param name="root">The root/context node</param>
+        /// <param name="path">The path to the json node</param>
+        /// <returns>The specified existing or newly created json node</returns>
+        private JsonNode IterateToTarget(JsonNode root, IEnumerable<string> path)
+        {
+            JsonNode target = root;
 
-				target = newTarget;
-			}
+            foreach (var node in path)
+            {
+                var newTarget = target[node];
 
-			return target;
-		}
-	}
+                if (newTarget == null)
+                {
+                    newTarget = new JsonObject();
+
+                    target[node] = newTarget;
+                }
+
+                target = newTarget;
+            }
+
+            return target;
+        }
+    }
 }

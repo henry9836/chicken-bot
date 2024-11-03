@@ -23,7 +23,7 @@ namespace ChickenBot.API.Attributes
                 await ctx.TryReactAsync("toothless_no");
                 m_Count++;
                 m_Count %= 3;
-                if (m_Count == 4)
+                if (m_Count == 2)
                 {
                     await ctx.RespondAsync($"-# Hint: Head over to <#{botSpamChannel}>, you cannot use that command here");
                 }
