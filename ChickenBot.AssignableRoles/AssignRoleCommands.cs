@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using ChickenBot.API;
+using ChickenBot.API.Attributes;
 using ChickenBot.AssignableRoles.Interfaces;
 using ChickenBot.AssignableRoles.Models;
 using DSharpPlus;
@@ -24,7 +25,7 @@ namespace ChickenBot.AssignableRoles
 
 		private DiscordEmbed CreateRolesEmbed(AssignableRole[] roles, DiscordUser user)
 		{
-			var roletext = string.Join(", ", roles.Select(x => $"`{x.RoleName}`"));
+			var roleText = string.Join(", ", roles.Select(x => $"`{x.RoleName}`"));
 
 			return new DiscordEmbedBuilder()
 				.WithTitle("Assignable Roles")
@@ -34,7 +35,7 @@ namespace ChickenBot.AssignableRoles
 				.Build();
 		}
 
-		[Command("add-role")]
+		[Command("add-role"), RequireBotSpam]
 		public async Task AddRoleCommand(CommandContext ctx)
 		{
 			var roles = m_Roles.GetAssignableRoles();
@@ -42,7 +43,7 @@ namespace ChickenBot.AssignableRoles
 			await ctx.RespondAsync(CreateRolesEmbed(roles, ctx.User));
 		}
 
-		[Command("role-list"), Description("Returns a list of assignable roles"), Aliases("list-role", "roles", "list-roles")]
+		[Command("role-list"), Description("Returns a list of assignable roles"), Aliases("list-role", "roles", "list-roles"), RequireBotSpam]
 		public async Task RoleListCommand(CommandContext ctx)
 		{
 			if (ctx.User is not DiscordMember member)
@@ -61,7 +62,7 @@ namespace ChickenBot.AssignableRoles
 			await ctx.RespondAsync(roleEmbed);
 		}
 
-		[Command("add-role"), Description("Gives you a self-assignable role")]
+		[Command("add-role"), Description("Gives you a self-assignable role"), RequireBotSpam]
 		[RequireBotPermissions(Permissions.ManageRoles)]
 		public async Task AddRoleCommand(CommandContext ctx, [RemainingText] string role)
 		{
@@ -108,7 +109,7 @@ namespace ChickenBot.AssignableRoles
 			}
 		}
 
-		[Command("remove-role"), Description("Removes a self-assignable role")]
+		[Command("remove-role"), Description("Removes a self-assignable role"), RequireBotSpam]
 		[RequireBotPermissions(Permissions.ManageRoles)]
 		public async Task RemoveRoleCommand(CommandContext ctx, [RemainingText] string role)
 		{

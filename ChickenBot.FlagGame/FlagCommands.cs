@@ -1,4 +1,5 @@
 ﻿using ChickenBot.API;
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Models;
 using ChickenBot.FlagGame.Models;
 using DSharpPlus.CommandsNext;
@@ -33,7 +34,7 @@ namespace ChickenBot.FlagGame
 			m_Logger.LogInformation("Loaded {count} flags.", m_Flags.Length);
 		}
 
-		[Command("flag"), Description("Plays a flag game")]
+		[Command("flag"), Description("Plays a flag game"), RequireBotSpam]
 		public async Task FlagCommand(CommandContext ctx)
 		{
 			if (BotChannelID == 0)
