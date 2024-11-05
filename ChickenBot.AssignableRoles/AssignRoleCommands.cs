@@ -76,6 +76,8 @@ namespace ChickenBot.AssignableRoles
 
             var matchingRoles = roles.Where(x => x.RoleName.Contains(role, StringComparison.InvariantCultureIgnoreCase)).ToArray();
 
+            AssignableRole targetRole;
+
             if (matchingRoles.Length == 0)
             {
                 var message = new DiscordMessageBuilder()
@@ -86,22 +88,30 @@ namespace ChickenBot.AssignableRoles
             }
             else if (matchingRoles.Length > 1)
             {
-                var message = new DiscordMessageBuilder()
-                .WithContent($"Multiple matching role names: {string.Join(", ", matchingRoles.Select(x => x.ToString()))}")
-                .WithEmbed(CreateRolesEmbed(roles, ctx.User));
-                await ctx.RespondAsync(message);
-                return;
+                var exactRole = roles.Where(x => x.RoleName.Equals(role, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+                if (exactRole == null)
+                {
+                    var message = new DiscordMessageBuilder()
+                        .WithContent($"Multiple matching role names: {string.Join(", ", matchingRoles.Select(x => x.RoleName))}")
+                        .WithEmbed(CreateRolesEmbed(roles, ctx.User));
+                    await ctx.RespondAsync(message);
+                    return;
+                }
+                targetRole = exactRole;
+            }
+            else
+            {
+                targetRole = matchingRoles.First();
             }
 
-            var requestedRole = matchingRoles.First();
-
-            if (member.Roles.Any(x => x.Id == requestedRole.RoleID))
+            if (member.Roles.Any(x => x.Id == targetRole.RoleID))
             {
                 await ctx.RespondAsync("You already have that role.");
                 return;
             }
 
-            if (!await m_Roles.AddUserRole(member, requestedRole))
+            if (!await m_Roles.AddUserRole(member, targetRole))
             {
                 await ctx.RespondAsync("I can't seem to find that role right now :(");
                 return;
@@ -115,7 +125,7 @@ namespace ChickenBot.AssignableRoles
             }
             else
             {
-                await ctx.RespondAsync($"Granted you the role {requestedRole.RoleName}");
+                await ctx.RespondAsync($"Granted you the role {targetRole.RoleName}");
             }
         }
 
