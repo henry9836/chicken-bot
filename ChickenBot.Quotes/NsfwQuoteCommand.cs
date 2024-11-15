@@ -24,7 +24,7 @@ namespace ChickenBot.Quotes
 			m_Configuration = configuration;
 		}
 
-		[Command("nsfw-quote"), Aliases("quote-nsfw"), Description("Quote a funny screenshot from an nsfw channel"), RequireVerified]
+		[Command("nsfw-quote"), Aliases("quote-nsfw"), Description("Quote a funny screenshot from an nsfw channel"), RequireVerified, HelpNSFWOnly]
 		public async Task AddQuoteCommand(CommandContext ctx, [RemainingText] string? text)
 		{
 			// If we are in a sfw channel then delete the message
