@@ -6,7 +6,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.AuditLogs;
 
 namespace ChickenBot.AdminCommands.Commands
 {
@@ -35,7 +34,13 @@ Cannot delete more than 400 messages without specifying a user.
 > `!PurgePeriod [Time period] {User/UserID}`
 Deletes messages based on how old they are
 Example time period: '`2h`', '`20min`', '`5days`'
-Cannot delete more than 6h of messages without specifying a user")
+Cannot delete more than 6h of messages without specifying a user
+
+> `!PurgeTo {User/UserID}`
+Requires you to reply to a message.
+Deletes messages up until the message you replied to.
+Optionally only deletes messages from the specified user.
+Cannot purge up to messages that are more than 24h old")
                 .WithColor(DiscordColor.Red);
             await ctx.RespondAsync(embed);
         }
@@ -161,6 +166,144 @@ Cannot delete more than 6h of messages without specifying a user")
 
             await ctx.Message.TryDeleteAsync();
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from User ID: {userID}");
+        }
+
+        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        public async Task PurgeToCommand(CommandContext ctx)
+        {
+            if (ctx.Message.ReferencedMessage is null)
+            {
+                await PurgeCommand(ctx);
+                return;
+            }
+
+            if (ctx.Member is null)
+            {
+                return;
+            }
+
+            if ((DateTimeOffset.UtcNow - ctx.Message.ReferencedMessage.CreationTimestamp).TotalDays > 1)
+            {
+                await ctx.RespondAsync("That message is more than a day old");
+                return;
+            }
+
+            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, 0, ctx.Message.Id);
+            var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
+
+            await ctx.Message.TryDeleteAsync();
+            await SendEphemeral(ctx.Channel, $"Purged {deleted} messages");
+        }
+
+        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        public async Task PurgeToCommand(CommandContext ctx, DiscordUser user)
+        {
+            if (ctx.Message.ReferencedMessage is null)
+            {
+                await PurgeCommand(ctx);
+                return;
+            }
+
+            if (ctx.Member is null)
+            {
+                return;
+            }
+
+            if ((DateTimeOffset.UtcNow - ctx.Message.ReferencedMessage.CreationTimestamp).TotalDays > 1)
+            {
+                await ctx.RespondAsync("That message is more than a day old");
+                return;
+            }
+
+            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, user.Id, ctx.Message.Id);
+            var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
+
+            await ctx.Message.TryDeleteAsync();
+            await SendEphemeral(ctx.Channel, $"Purged {deleted} messages by {user.GlobalName}");
+        }
+
+        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        public async Task PurgeToCommand(CommandContext ctx, ulong userID)
+        {
+            if (ctx.Message.ReferencedMessage is null)
+            {
+                await PurgeCommand(ctx);
+                return;
+            }
+
+            if (ctx.Member is null)
+            {
+                return;
+            }
+
+            if ((DateTimeOffset.UtcNow - ctx.Message.ReferencedMessage.CreationTimestamp).TotalDays > 1)
+            {
+                await ctx.RespondAsync("That message is more than a day old");
+                return;
+            }
+
+            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, userID, ctx.Message.Id);
+            var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
+
+            await ctx.Message.TryDeleteAsync();
+            await SendEphemeral(ctx.Channel, $"Purged {deleted} messages by user ID: {userID}");
+        }
+
+        private async IAsyncEnumerable<DiscordMessage> AggregateMessagesTo(DiscordChannel channel, DiscordMessage aggregateTo, ulong targetUser = 0, ulong exemptMessage = 0)
+        {
+            var returned = 0;
+
+            ulong targetMessage = 0;
+
+            var exceededPeriod = false;
+
+            DateTimeOffset purgeBefore = aggregateTo.CreationTimestamp;
+
+            if ((DateTimeOffset.UtcNow - purgeBefore).TotalDays > 14)
+            {
+                purgeBefore = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14));
+            }
+
+            while (!exceededPeriod)
+            {
+                IAsyncEnumerable<DiscordMessage> messages;
+
+                if (targetMessage == 0)
+                {
+                    messages = channel.GetMessagesAsync(100);
+                }
+                else
+                {
+                    messages = channel.GetMessagesBeforeAsync(targetMessage, 100);
+                }
+
+                await foreach (var message in messages)
+                {
+                    if (targetUser != 0 && message.Author.Id != targetUser)
+                    {
+                        continue;
+                    }
+
+                    if (message.Pinned)
+                    {
+                        continue;
+                    }
+
+                    if (message.Id == exemptMessage)
+                    {
+                        continue;
+                    }
+
+                    if (message.CreationTimestamp >= purgeBefore)
+                    {
+                        exceededPeriod = true;
+                        continue;
+                    }
+
+                    yield return message;
+                    returned++;
+                }
+            }
         }
 
         private async IAsyncEnumerable<DiscordMessage> AggregateMessagesByTime(DiscordChannel channel, TimeSpan maxAge, ulong targetUser = 0, int maxMessages = 400, ulong exemptMessage = 0)
