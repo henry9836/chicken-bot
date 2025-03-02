@@ -19,6 +19,9 @@ namespace ChickenBot.Music.Services
 
 		public Task StartAsync(CancellationToken cancellationToken)
 		{
+			// Music module is disabled
+			return Task.CompletedTask;
+
 			m_Logger.LogInformation("Setting up track resolvers...");
 
 			// Register Resolvers here

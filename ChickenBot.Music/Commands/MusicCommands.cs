@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Music.Commands
 {
-    [Category("Music")]
+    [Category("Music"), DisabledCommand]
     public class MusicCommands : BaseCommandModule
     {
         private readonly IConfiguration m_Configuration;

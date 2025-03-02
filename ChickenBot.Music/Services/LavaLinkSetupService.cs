@@ -40,6 +40,10 @@ namespace ChickenBot.Music.Services
 				return;
 			}
 
+			m_Logger.LogInformation("The music module has been discontinued, and will not work.");
+			return;
+
+
 			m_Logger.LogInformation("Setting up LavaLink...");
 
 			var password = m_Configuration.GetValue<string>("Music:LavaLink:Password");
