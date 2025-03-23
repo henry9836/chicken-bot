@@ -80,5 +80,15 @@ namespace ChickenBot.AdminCommands
 
             return true;
         }
+
+        public static async Task<List<T>> CollectListAsync<T>(this IAsyncEnumerator<T> enumerator)
+        {
+            var list = new List<T>();
+            while (await enumerator.MoveNextAsync())
+            {
+                list.Add(enumerator.Current);
+            }
+            return list;
+        }
     }
 }

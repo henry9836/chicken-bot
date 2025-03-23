@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+    <ProjectReference Include="..\ChickenBot.Music\ChickenBot.Music.csproj" />
   </ItemGroup>
 
 </Project>
