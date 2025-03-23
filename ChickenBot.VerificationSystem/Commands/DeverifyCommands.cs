@@ -118,7 +118,7 @@ namespace ChickenBot.VerificationSystem.Commands
 
             var message = new DiscordMessageBuilder();
 
-            if (!m_Verifier.CheckUserVerified(member))
+            if (m_Verifier.CheckUserVerified(member))
             {
                 if (!await m_Verifier.RemoveUserVerificationAsync(member))
                 {
