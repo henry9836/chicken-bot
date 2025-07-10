@@ -61,7 +61,7 @@ namespace ChickenBot.Core.Services
                     .Where(x => typeof(IEventHandler).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
 
                 var singletonEvents = eventHandlerTypes
-                    .Where(x => x.GetCustomAttribute<SingletonAttribute>() != null)
+                    .Where(x => x.GetCustomAttribute<TransientAttribute>() == null) // Default to singleton, as existing events were built on a singleton model
                     .ToList();
 
                 var transientEvents = eventHandlerTypes
@@ -117,52 +117,6 @@ namespace ChickenBot.Core.Services
                 return serviceProvider.GetRequiredService(serviceType);
             }, lifetime);
         }
-
-        //private static DiscordClient DiscordClientFactory(IServiceProvider provider)
-        //{
-        //    var configuration = provider.GetService<IConfiguration>();
-        //    var loggerFactory = provider.GetService<ILoggerFactory>();
-
-        //    if (configuration == null)
-        //    {
-        //        throw new InvalidOperationException("Failed to fetch IConfiguration from container");
-        //    }
-
-        //    var token = configuration["Token"];
-
-        //    var discordConfig = new DiscordConfiguration()
-        //    {
-        //        Token = token!,
-        //        TokenType = TokenType.Bot,
-        //        Intents = DiscordIntents.All,
-        //        LoggerFactory = loggerFactory!
-        //    };
-
-        //    return new DiscordClient(discordConfig);
-        //}
-
-        //private static CommandsNextExtension CommandsNextFactory(IServiceProvider provider)
-        //{
-        //    var discord = provider.GetRequiredService<DiscordClient>();
-        //    var configuration = provider.GetRequiredService<IConfiguration>();
-
-        //    var existing = discord.GetCommandsNext();
-
-        //    if (existing != null)
-        //    {
-        //        return existing;
-        //    }
-
-        //    var commandsNextConfig = new CommandsNextConfiguration()
-        //    {
-        //        Services = provider,
-        //        CaseSensitive = false,
-        //        EnableMentionPrefix = true,
-        //        StringPrefixes = configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
-        //    };
-
-        //    return discord.UseCommandsNext(commandsNextConfig);
-        //}
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

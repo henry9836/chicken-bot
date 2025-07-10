@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using ChickenBot.API;
+using ChickenBot.API.Attributes;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Services
 {
+    [Singleton]
     public class SpamDetectorService : IEventHandler<MessageCreatedEventArgs>
     {
         private readonly DiscordClient m_Discord;

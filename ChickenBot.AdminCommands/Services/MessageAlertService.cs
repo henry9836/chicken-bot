@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ChickenBot.AdminCommands.Models;
 using ChickenBot.AdminCommands.Models.Data;
+using ChickenBot.API.Attributes;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Services
 {
+    [Singleton]
     public class MessageAlertService : IEventHandler<MessageCreatedEventArgs>
     {
         private readonly DiscordClient m_Client;

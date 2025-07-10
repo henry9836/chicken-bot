@@ -1,3 +1,4 @@
+using ChickenBot.API.Attributes;
 using ChickenBot.FlagGame.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -9,6 +10,7 @@ namespace ChickenBot.FlagGame
     /// <summary>
     /// Handles answers to the flag game, serves responses, and finalizes games
     /// </summary>
+    [Singleton]
     public class FlagService : IEventHandler<MessageCreatedEventArgs>
     {
         private readonly FlagGameRegistry m_GameRegistry;

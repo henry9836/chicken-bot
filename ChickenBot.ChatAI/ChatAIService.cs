@@ -1,3 +1,4 @@
+using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using ChickenBot.ChatAI.Interfaces;
 using DSharpPlus;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.ChatAI;
 
+[Singleton]
 public class ChatAiService : IEventHandler<MessageCreatedEventArgs>
 {
     private readonly IConfiguration m_Configuration;
