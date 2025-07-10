@@ -36,7 +36,7 @@ do
         mv ../../../../../ChickenBot.Fun/bin/Debug/net9.0/ChickenBot.Fun.dll ./
         mv ../../../../../ChickenBot.Info/bin/Debug/net9.0/ChickenBot.Info.dll ./
 mv ../../../../../ChickenBot.Minesweeper/bin/Debug/net9.0/ChickenBot.Minesweeper.dll ./
-mv ../../../../../ChickenBot.Music/bin/Debug/net9.0/ChickenBot.Music.dll ./
+# mv ../../../../../ChickenBot.Music/bin/Debug/net9.0/ChickenBot.Music.dll ./
 mv ../../../../../ChickenBot.Petitions/bin/Debug/net9.0/ChickenBot.Petitions.dll ./
 mv ../../../../../ChickenBot.SweetDreams/bin/Debug/net9.0/ChickenBot.SweetDreams.dll ./
 mv ../../../../../ChickenBot.Quotes/bin/Debug/net9.0/ChickenBot.Quotes.dll ./
