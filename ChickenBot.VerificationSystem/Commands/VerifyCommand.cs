@@ -43,7 +43,7 @@ namespace ChickenBot.VerificationSystem.Commands
                                  "`Verify deny [User Name/ID]`\n" +
                                  "> Disables a users ability to be automatically verified")
 
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }
@@ -92,7 +92,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 return;
             }
 
-            m_Logger.LogInformation("Moderator {username} ({id}) requested verification on user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+            m_Logger.LogInformation("Moderator {username} ({id}) requested verification on user {target} ({targetID})", ctx.Message.Author?.Username ?? "Unknown Moderator", ctx.Message.Author?.Id, member.Username, member.Id);
 
             if (!await m_Verifier.VerifyUserAsync(member))
             {
@@ -114,7 +114,7 @@ namespace ChickenBot.VerificationSystem.Commands
             embed = new DiscordEmbedBuilder()
                 .WithTitle("User Verified")
                 .WithDescription($"Verified {member.Mention}")
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }

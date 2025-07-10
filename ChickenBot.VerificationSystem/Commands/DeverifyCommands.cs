@@ -34,7 +34,7 @@ namespace ChickenBot.VerificationSystem.Commands
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("Deverify User")
                 .WithDescription("Usage: `Deverify [User Name/ID] {Threshold Multiplier}`")
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }
@@ -67,7 +67,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 return;
             }
 
-            m_Logger.LogInformation("Moderator {username} ({id}) requested de-verification of user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+            m_Logger.LogInformation("Moderator {username} ({id}) requested de-verification of user {target} ({targetID})", ctx.Message.Author?.Username ?? "Unknown Moderator", ctx.Message.Author?.Id, member.Username, member.Id);
 
             if (!await m_Verifier.RemoveUserVerificationAsync(member))
             {
@@ -90,7 +90,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 .WithDescription($"De-verified {member.Mention}")
                 .AddField("Message Threshold", $"{newThreshold}", true)
                 .AddField("Verify Eligible: ", $"<t:{eligibleTimestamp}:R>", true)
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }
@@ -141,7 +141,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 .WithDescription($"User: {member.Mention}")
                 .AddField("Message Threshold", $"{newThreshold}", true)
                 .AddField("Verify Eligible: ", $"<t:{eligibleTimestamp}:R>", true)
-                .WithFooter($"Requested by {ctx.Message.Author.Username}")
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}")
                 .WithColor(DiscordColor.Red);
 
             message.AddEmbed(embed);

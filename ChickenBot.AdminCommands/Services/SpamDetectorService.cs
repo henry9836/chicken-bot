@@ -77,7 +77,7 @@ namespace ChickenBot.AdminCommands.Services
                 m_Messages.Add(message);
 
                 authorMessages = m_Messages.Where(x => x.Author.Id == message.Author.Id).ToArray(); // copy
-                channels = new HashSet<ulong>(authorMessages.Select(x => x.Channel.Id));
+                channels = new HashSet<ulong>(authorMessages.Select(x => x.Channel?.Id).Where(x => x != null).Select(x => x!.Value));
                 invites = new HashSet<string>(authorMessages.Select(x => x.InviteLink));
                 attemptedPing = authorMessages.Count(x => x.AttemptedPing);
             }
@@ -185,7 +185,7 @@ namespace ChickenBot.AdminCommands.Services
                         content = content.Substring(0, 200) + "...";
                     }
 
-                    sb.AppendLine($"[#{message.Channel.Name}] {content}");
+                    sb.AppendLine($"[#{message.Channel?.Name ?? "Unknown Channel"}] {content}");
                 }
 
                 var author = messages.First().Author;
@@ -298,7 +298,7 @@ namespace ChickenBot.AdminCommands.Services
 
         public bool AttemptedPing { get; }
 
-        public DiscordChannel Channel { get; }
+        public DiscordChannel? Channel { get; }
 
         public string InviteLink { get; }
 

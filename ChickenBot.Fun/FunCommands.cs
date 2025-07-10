@@ -72,10 +72,10 @@ namespace ChickenBot.Fun
 			await channel.SendMessageAsync(message);
 		}
 
-		[Command("edit"), Description("Edits a message previously sent by teh chicken"), RequireBotManager]
+		[Command("edit"), Description("Edits a message previously sent by the chicken"), RequireBotManager]
 		public async Task EditCommand(CommandContext ctx, DiscordMessage message, [RemainingText] string newContent)
 		{
-			if (!message.Author.IsCurrent)
+			if (message.Author != null && message.Author.IsCurrent)
 			{
 				await ctx.RespondAsync($"That is not my message");
 				return;
@@ -132,7 +132,7 @@ namespace ChickenBot.Fun
 
 			if (member.Id == 102606498860896256)
 			{
-				await ctx.RespondAsync($"*pecks and chases* {ctx.Message.Author.Username}`");
+				await ctx.RespondAsync($"*pecks and chases* {ctx.Message.Author?.Username}`");
 				return;
 			}
 

@@ -58,11 +58,6 @@ public class ChatAiService : IEventHandler<MessageCreatedEventArgs>
         _ = Task.Run(() => DebugPokeAIBrain(member, args.Message.Content));
     }
 
-    private async Task ClientOnMessageCreated(DiscordClient sender, MessageCreatedEventArgs args)
-    {
-
-    }
-
     private async Task PokeAIBrain(bool shouldShutdownAfterResponse)
     {
         if (m_ChatInfoService.m_ConversationAi == null)

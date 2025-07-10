@@ -26,36 +26,34 @@ namespace ChickenBot.FlagGame
             m_Random = new Random();
         }
 
-
-
         /// <summary>
-        /// Congradulate users on getting the flag correct
+        /// Congratulate users on getting the flag correct
         /// </summary>
         private async Task SendCongratulatoryMessage(DiscordMessage message, GameInstance instance)
         {
             var responses = new string[]
             {
-                $"{message.Author.Mention}, happy squawk That's the flag of {instance.Answer}",
-                $"*does a small dance*, that's right {message.Author.Mention}, that's the flag of {instance.Answer}"
+                $"{message.Author?.Mention}, happy squawk That's the flag of {instance.Answer}",
+                $"*does a small dance*, that's right {message.Author?.Mention}, that's the flag of {instance.Answer}"
             };
 
             var response = responses[m_Random.Next(0, responses.Length)];
 
             await message.RespondAsync(response);
 
-            m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", message.Author.Username, instance.Answer);
+            m_Logger.LogInformation("User {user} guessed the flag correctly: {flag}", message.Author?.Username, instance.Answer);
 
-            await instance.UpdateMessage($"Winner: {message.Author.Username}");
+            await instance.UpdateMessage($"Winner: {message.Author?.Username}");
         }
 
         /// <summary>
         /// This user sucks, laugh at them
         /// </summary>
-        private async Task SendFailiureMessage(DiscordMessage message, GameInstance game, string input)
+        private async Task SendFailureMessage(DiscordMessage message, GameInstance game, string input)
         {
             var responses = new string[]
             {
-                $"{message.Author.Mention}, pecks your foot dejectedly That's the flag of {game.Answer}",
+                $"{message.Author ?.Mention}, pecks your foot dejectedly That's the flag of {game.Answer}",
                 $"*stares at you disappointedly*, that's the flag of {game.Answer}."
             };
 
@@ -79,7 +77,7 @@ namespace ChickenBot.FlagGame
 
             var comment = logComments[m_Random.Next(logComments.Length)];
 
-            m_Logger.LogInformation("User {user} guessed the flag incorrectly: '{answer}', Correct: '{flag}'. {comment}", message.Author.Username, input, game.Answer, comment);
+            m_Logger.LogInformation("User {user} guessed the flag incorrectly: '{answer}', Correct: '{flag}'. {comment}", message.Author?.Username, input, game.Answer, comment);
 
             await game.UpdateMessage($"Game Over; Answer: {game.Answer}");
         }
@@ -120,7 +118,7 @@ namespace ChickenBot.FlagGame
                 else
                 {
                     // Failure
-                    await SendFailiureMessage(args.Message, game, inputAnswer);
+                    await SendFailureMessage(args.Message, game, inputAnswer);
                 }
 
                 m_GameRegistry.TryFinalizeGame(game);
@@ -154,7 +152,7 @@ namespace ChickenBot.FlagGame
             else if (IsCountryName(inputAnswer))
             {
                 // Failure
-                await SendFailiureMessage(args.Message, lastGame, inputAnswer);
+                await SendFailureMessage(args.Message, lastGame, inputAnswer);
                 m_GameRegistry.TryFinalizeGame(lastGame);
             }
         }

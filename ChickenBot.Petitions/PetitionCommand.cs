@@ -54,6 +54,11 @@ namespace ChickenBot.Petitions
 
 			foreach (var file in ctx.Message.Attachments)
 			{
+				if (file.Url == null)
+				{
+					continue;
+				}
+
 				attachments.Add(file.Url);
 			}
 
@@ -77,7 +82,7 @@ namespace ChickenBot.Petitions
 
 			// Create petition embed
 			var embed = new DiscordEmbedBuilder()
-				.WithTitle($"Petition by {ctx.Message.Author.Username}")
+				.WithTitle($"Petition by {ctx.Message.Author?.Username ?? "Member"}")
 				.WithDescription(petitionText)
 				.WithImageUrl(onlyImageUrl!)
 				.Build();
@@ -107,7 +112,7 @@ namespace ChickenBot.Petitions
 				await petition.CreateReactionAsync(thumbsDown);
 			}
 
-			m_Logger.LogInformation("Created petition, as requested by {user}", ctx.Message.Author.Username);
+			m_Logger.LogInformation("Created petition, as requested by {user}", ctx.Message.Author?.Username ?? "Unknown User");
 		}
 	}
 }
