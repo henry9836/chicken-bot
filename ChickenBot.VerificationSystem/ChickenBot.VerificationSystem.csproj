@@ -7,24 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="DSharpPlus">
-        <HintPath>..\..\..\.nuget\packages\dsharpplus\4.4.3\lib\netstandard2.0\DSharpPlus.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
-        <HintPath>..\..\..\.nuget\packages\microsoft.extensions.hosting.abstractions\8.0.0\lib\net7.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-        <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging.abstractions\8.0.0\lib\net7.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\ChickenBot.API\ChickenBot.API.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01907" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
       <PackageReference Include="MySqlConnector" Version="2.3.1" />
     </ItemGroup>
 
