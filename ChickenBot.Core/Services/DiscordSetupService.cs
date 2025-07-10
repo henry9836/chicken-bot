@@ -4,87 +4,100 @@ using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Core.Services
 {
-	[RootService]
-	public class DiscordSetupService : IHostedService
-	{
-		private readonly SubcontextBuilder m_Subcontext;
+    [RootService]
+    public class DiscordSetupService : IHostedService
+    {
+        private readonly SubcontextBuilder m_Subcontext;
 
-		private readonly PluginRegistry m_Registry;
+        private readonly PluginRegistry m_Registry;
 
-		private readonly ILogger<DiscordSetupService> m_Logger;
+        private readonly ILogger<DiscordSetupService> m_Logger;
 
-		private readonly IConfiguration m_Configuration;
+        private readonly IConfiguration m_Configuration;
 
-		public DiscordSetupService(SubcontextBuilder subcontext, PluginRegistry registry, ILogger<DiscordSetupService> logger, IConfiguration configuration)
-		{
-			m_Subcontext = subcontext;
-			m_Registry = registry;
-			m_Logger = logger;
-			m_Configuration = configuration;
-		}
+        public DiscordSetupService(SubcontextBuilder subcontext, PluginRegistry registry, ILogger<DiscordSetupService> logger, IConfiguration configuration)
+        {
+            m_Subcontext = subcontext;
+            m_Registry = registry;
+            m_Logger = logger;
+            m_Configuration = configuration;
+        }
 
-		public Task StartAsync(CancellationToken cancellationToken)
-		{
-			m_Subcontext.ChildServices.AddSingleton(DiscordClientFactory);
-			m_Subcontext.ChildServices.AddSingleton(CommandsNextFactory);
-			return Task.CompletedTask;
-		}
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            //m_Subcontext.ChildServices.AddSingleton(DiscordClientFactory);
+            //m_Subcontext.ChildServices.AddSingleton(CommandsNextFactory);
 
-		private static DiscordClient DiscordClientFactory(IServiceProvider provider)
-		{
-			var configuration = provider.GetService<IConfiguration>();
-			var loggerFactory = provider.GetService<ILoggerFactory>();
+            var token = m_Configuration["Token"] ?? throw new Exception("Bot token not set in config!");
 
-			if (configuration == null)
-			{
-				throw new InvalidOperationException("Failed to fetch IConfiguration from container");
-			}
+            var builder = DiscordClientBuilder.CreateDefault(token, DiscordIntents.All, m_Subcontext.ChildServices);
 
-			var token = configuration["Token"];
+            builder.UseCommandsNext((cmdNext) =>
+            {
+            }, new CommandsNextConfiguration()
+            {
+                CaseSensitive = false,
+                EnableMentionPrefix = true,
+                StringPrefixes = m_Configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
+            });
 
-			var discordConfig = new DiscordConfiguration()
-			{
-				Token = token!,
-				TokenType = TokenType.Bot,
-				Intents = DiscordIntents.All,
-				LoggerFactory = loggerFactory!
-			};
+            return Task.CompletedTask;
+        }
 
-			return new DiscordClient(discordConfig);
-		}
+        //private static DiscordClient DiscordClientFactory(IServiceProvider provider)
+        //{
+        //    var configuration = provider.GetService<IConfiguration>();
+        //    var loggerFactory = provider.GetService<ILoggerFactory>();
 
-		private static CommandsNextExtension CommandsNextFactory(IServiceProvider provider)
-		{
-			var discord = provider.GetRequiredService<DiscordClient>();
-			var configuration = provider.GetRequiredService<IConfiguration>();
+        //    if (configuration == null)
+        //    {
+        //        throw new InvalidOperationException("Failed to fetch IConfiguration from container");
+        //    }
 
-			var existing = discord.GetCommandsNext();
+        //    var token = configuration["Token"];
 
-			if (existing != null)
-			{
-				return existing;
-			}
+        //    var discordConfig = new DiscordConfiguration()
+        //    {
+        //        Token = token!,
+        //        TokenType = TokenType.Bot,
+        //        Intents = DiscordIntents.All,
+        //        LoggerFactory = loggerFactory!
+        //    };
 
-			var commandsNextConfig = new CommandsNextConfiguration()
-			{
-				Services = provider,
-				CaseSensitive = false,
-				EnableMentionPrefix = true,
-				StringPrefixes = configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
-			};
+        //    return new DiscordClient(discordConfig);
+        //}
 
-			return discord.UseCommandsNext(commandsNextConfig);
-		}
+        //private static CommandsNextExtension CommandsNextFactory(IServiceProvider provider)
+        //{
+        //    var discord = provider.GetRequiredService<DiscordClient>();
+        //    var configuration = provider.GetRequiredService<IConfiguration>();
 
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			return Task.CompletedTask;
-		}
-	}
+        //    var existing = discord.GetCommandsNext();
+
+        //    if (existing != null)
+        //    {
+        //        return existing;
+        //    }
+
+        //    var commandsNextConfig = new CommandsNextConfiguration()
+        //    {
+        //        Services = provider,
+        //        CaseSensitive = false,
+        //        EnableMentionPrefix = true,
+        //        StringPrefixes = configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
+        //    };
+
+        //    return discord.UseCommandsNext(commandsNextConfig);
+        //}
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
 }
