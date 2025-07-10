@@ -63,7 +63,7 @@ namespace ChickenBot.Quotes
 
 			if (m_NsfwChannel is null)
 			{
-				m_NsfwChannel = ctx.Guild.GetChannel(NsfwQuotesChannelId);
+				m_NsfwChannel = await ctx.Guild.GetChannelAsync(NsfwQuotesChannelId);
 				if (m_NsfwChannel is null)
 				{
 					await ctx.RespondAsync("Begawk! I can't seem to find the nsfw-quotes channel");
@@ -73,14 +73,14 @@ namespace ChickenBot.Quotes
 
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
-				.WithTitle($"Quote by {ctx.Message.Author.Username}")
+				.WithTitle($"Quote by {ctx.Message.Author?.Username ?? "Unknown"}")
 				.WithTimestamp(DateTime.Now)
 				.WithDescription($"{text}\n<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>".Trim())
 				.WithColor(new DiscordColor("#c4160a"));
 
 			await m_NsfwChannel.SendMessageAsync(embed);
 
-			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author.Username, attachmentUrl, text);
+			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author?.Username ?? "Unknown User", attachmentUrl, text);
 
 			var emoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", false);
 

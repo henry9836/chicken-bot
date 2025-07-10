@@ -25,7 +25,7 @@ namespace ChickenBot.VerificationSystem.Commands
             m_FlagProvider = flagProvider;
         }
 
-        [GroupCommand, RequirePermissions(Permissions.ManageMessages)]
+        [GroupCommand, RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task VerifyUserCommand(CommandContext ctx)
         {
             if (ctx.Member is null)
@@ -64,13 +64,13 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync($"Auto verified disabled for user <@{member.Id}>");
         }
 
-        [Command("user"), RequirePermissions(Permissions.ManageMessages)]   
+        [Command("user"), RequirePermissions(false, DiscordPermission.ManageMessages)]   
         public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member)
         {
             await VerifyUserCommand(ctx, member, false);
         }
 
-        [Command("user"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("user"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member, bool announce)
         {
             if (ctx.Member is null)

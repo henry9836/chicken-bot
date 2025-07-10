@@ -22,7 +22,7 @@ namespace ChickenBot.VerificationSystem.Commands
             m_Logger = logger;
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx)
         {
             if (ctx.Member is null)
@@ -39,13 +39,13 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx, DiscordMember member)
         {
             await DeverifyUserCommand(ctx, member, 3);
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx, DiscordMember member, float multiplier)
         {
             if (ctx.Member is null)
@@ -95,7 +95,7 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync(embed);
         }
 
-        [Command("SetVerificationMultiplier"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("SetVerificationMultiplier"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task SetVerificationRequirements(CommandContext ctx)
         {
             var message = new DiscordEmbedBuilder()
@@ -107,7 +107,7 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync(message);
         }
 
-        [Command("SetVerificationMultiplier"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("SetVerificationMultiplier"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task SetVerificationRequirements(CommandContext ctx, DiscordMember member, float multiplier)
         {
             if (ctx.Member is null)

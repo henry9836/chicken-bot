@@ -12,13 +12,13 @@ namespace ChickenBot.AdminCommands.Commands
     [Category("Admin")]
     public class MessageManagementCommands : BaseCommandModule
     {
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"), RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgePeriodCommand(CommandContext ctx)
         {
             await PurgeCommand(ctx);
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
@@ -45,7 +45,7 @@ Cannot purge up to messages that are more than 24h old")
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max)
         {
             if (ctx.Member is null)
@@ -66,7 +66,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {max} messages.");
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max, DiscordUser user)
         {
             if (ctx.Member is null)
@@ -79,7 +79,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from {user.GlobalName}");
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max, ulong userID)
         {
             if (ctx.Member is null)
@@ -92,7 +92,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from User ID: {userID}");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time)
         {
             if (ctx.Member is null)
@@ -117,7 +117,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time, DiscordUser user)
         {
             if (ctx.Member is null)
@@ -142,7 +142,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from {user.GlobalName}");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time, ulong userID)
         {
             if (ctx.Member is null)
@@ -168,7 +168,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from User ID: {userID}");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx)
         {
             if (ctx.Message.ReferencedMessage is null)
@@ -195,7 +195,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx, DiscordUser user)
         {
             if (ctx.Message.ReferencedMessage is null)
@@ -222,7 +222,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages by {user.GlobalName}");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"),RequireBotPermissions(false, DiscordPermission.ManageRoles), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx, ulong userID)
         {
             if (ctx.Message.ReferencedMessage is null)

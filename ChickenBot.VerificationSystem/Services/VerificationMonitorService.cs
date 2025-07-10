@@ -1,101 +1,58 @@
+﻿using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-using Timer = System.Timers.Timer;
 
 namespace ChickenBot.VerificationSystem.Services
 {
-	/// <summary>
-	/// Monitors the user verification system, assigning user roles, and flushing the cache when needed
-	/// </summary>
-	public class VerificationMonitorService : IHostedService
-	{
-		private readonly DiscordClient m_Discord;
-		private readonly ILogger<VerificationMonitorService> m_Logger;
-		private readonly IVerificationCache m_Cache;
-		private readonly IUserVerifier m_Verifier;
-		private readonly IUserFlagProvider m_FlagProvider;
+    /// <summary>
+    /// Monitors incoming messages to update the verification system, and apply verifications
+    /// </summary>
+    [Singleton]
+    public class VerificationMonitorService : IEventHandler<MessageCreatedEventArgs>
+    {
+        private readonly IVerificationCache m_Cache;
+        private readonly IUserVerifier m_Verifier;
+        private readonly IUserFlagProvider m_FlagProvider;
 
-		private readonly Timer m_Timer;
+        public VerificationMonitorService(IVerificationCache cache, IUserVerifier verifier, IUserFlagProvider flagProvider)
+        {
+            m_Cache = cache;
+            m_Verifier = verifier;
+            m_FlagProvider = flagProvider;
+        }
 
-		public VerificationMonitorService(DiscordClient discord, ILogger<VerificationMonitorService> logger, IVerificationCache cache, IUserVerifier verifier, IUserFlagProvider flagProvider)
-		{
-			m_Discord = discord;
-			m_Logger = logger;
-			m_Cache = cache;
-			m_Verifier = verifier;
-			m_FlagProvider = flagProvider;
+        public async Task HandleEventAsync(DiscordClient sender, MessageCreatedEventArgs args)
+        {
+            if (args.Author is not DiscordMember member)
+            {
+                // Do not increment messages from DMs to the bot
+                return;
+            }
 
-			m_Timer = new Timer(60000);
-			m_Timer.AutoReset = true;
-		}
+            if (!m_Cache.IncrementUserMessages(args.Author.Id))
+            {
+                // User is not meant to be verified rn
+                return;
+            }
 
-		public async Task StartAsync(CancellationToken cancellationToken)
-		{
-			// Ensure database table exists
-			await m_Cache.Init();
+            if (m_Verifier.CheckUserVerified(member))
+            {
+                // User is already verified
+                return;
+            }
 
-			// Start Timer to flush cache
-			m_Timer.Start();
-			m_Timer.Elapsed += RunDatabaseSync;
+            if (await m_FlagProvider.IsFlagSet(args.Author.Id, "NoVerify"))
+            {
+                // User isn't allowed to be verified
+                return;
+            }
 
-			// Hook onto message created
-			m_Discord.MessageCreated += OnMessageCreated;
-
-			m_Logger.LogInformation("Verification Module Ready.");
-		}
-
-		public async Task StopAsync(CancellationToken cancellationToken)
-		{
-			// We need to stop the timer, or else it will continue to raise events
-			m_Timer.Stop();
-
-			m_Logger.LogDebug("Flushing cache to database...");
-			await m_Cache.FlushCacheAsync();
-
-			m_Logger.LogDebug("Verification Module Stopped.");
-		}
-
-		private void RunDatabaseSync(object? sender, System.Timers.ElapsedEventArgs e)
-		{
-			Task.Run(() => m_Cache.FlushCacheAsync());
-		}
-
-		private async Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
-		{
-			if (args.Author is not DiscordMember member)
-			{
-				// Do not increment messages from DMs to the bot
-				return;
-			}
-
-			if (!m_Cache.IncrementUserMessages(args.Author.Id))
-			{
-				// User is not meant to be verified rn
-				return;
-			}
-
-			if (m_Verifier.CheckUserVerified(member))
-			{
-				// User is already verified
-				return;
-			}
-
-			if (await m_FlagProvider.IsFlagSet(args.Author.Id, "NoVerify"))
-			{
-				// User isn't allowed to be verified
-				return;
-			}
-
-
-			// User is meant to be verified, but isn't
-			await m_Verifier.VerifyUserAsync(member);
-			await m_Verifier.AnnounceUserVerification(member);
-		}
-	}
+            // User is meant to be verified, but isn't
+            await m_Verifier.VerifyUserAsync(member);
+            await m_Verifier.AnnounceUserVerification(member);
+        }
+    }
 }

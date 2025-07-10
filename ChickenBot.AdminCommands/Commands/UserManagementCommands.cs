@@ -9,7 +9,7 @@ namespace ChickenBot.AdminCommands.Commands
     [Category("Admin")]
     public class UserManagementCommands : BaseCommandModule
     {
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
@@ -20,13 +20,13 @@ namespace ChickenBot.AdminCommands.Commands
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx, DiscordUser user, [RemainingText] string reason)
         {
             await BanCommand(ctx, user.Id, reason);
         }
 
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx, ulong userID, [RemainingText] string reason)
         {
             var guild = ctx.Guild;

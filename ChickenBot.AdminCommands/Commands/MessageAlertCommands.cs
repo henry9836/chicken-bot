@@ -134,7 +134,7 @@ namespace ChickenBot.AdminCommands.Commands
             if (alert.AlertRoles.Count == 1)
             {
                 sb.AppendLine();
-                sb.AppendLine($"\\# {GetRoleName(alert.AlertRoles[0], ctx)}");
+                sb.AppendLine($"\\# {await GetRoleName(alert.AlertRoles[0], ctx)}");
                 sb.AppendLine($"AlertRoles = {alert.AlertRoles[0]}");
             }
             else if (alert.AlertRoles.Count > 1)
@@ -143,7 +143,7 @@ namespace ChickenBot.AdminCommands.Commands
 
                 foreach (var role in alert.AlertRoles)
                 {
-                    extended.AppendLine($"\\# {GetRoleName(role, ctx)}");
+                    extended.AppendLine($"\\# {await GetRoleName(role, ctx)}");
                     extended.AppendLine(role.ToString());
                     extended.AppendLine();
                 }
@@ -156,7 +156,7 @@ namespace ChickenBot.AdminCommands.Commands
             if (alert.MatchUsers.Count == 1)
             {
                 sb.AppendLine();
-                sb.AppendLine($"\\# {GetRoleName(alert.MatchUsers[0], ctx)}");
+                sb.AppendLine($"\\# {await GetRoleName(alert.MatchUsers[0], ctx)}");
                 sb.AppendLine($"MatchUsers = {alert.MatchUsers[0]}");
             }
             else if (alert.MatchUsers.Count > 1)
@@ -216,7 +216,7 @@ namespace ChickenBot.AdminCommands.Commands
             }
         }
 
-        private string GetRoleName(ulong roleID, CommandContext ctx)
+        private async Task<string> GetRoleName(ulong roleID, CommandContext ctx)
         {
             try
             {
@@ -225,7 +225,7 @@ namespace ChickenBot.AdminCommands.Commands
                     return "Unknown Role";
                 }
 
-                var role = ctx.Guild.GetRole(roleID);
+                var role = await ctx.Guild.GetRoleAsync(roleID);
 
                 return role.Name;
 

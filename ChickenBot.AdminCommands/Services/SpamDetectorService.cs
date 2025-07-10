@@ -3,13 +3,13 @@ using System.Text.RegularExpressions;
 using ChickenBot.API;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Services
 {
-    public class SpamDetectorService : IHostedService
+    public class SpamDetectorService : IEventHandler<MessageCreatedEventArgs>
     {
         private readonly DiscordClient m_Discord;
         private readonly ILogger<SpamDetectorService> m_Logger;
@@ -29,70 +29,14 @@ namespace ChickenBot.AdminCommands.Services
             m_Configuration = configuration;
         }
 
-        private Task OnMessage(DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs args)
-        {
-            if (args.Author.IsBot || args.Author is not DiscordMember member)
-            {
-                return Task.CompletedTask;
-            }
-
-            var content = args.Message.Content;
-            var match = m_DiscordInvite.Match(content);
-
-            var attemptedPing = content.Contains("@everyone") || content.Contains("@here");
-
-            if (match.Success)
-            {
-                if (CheckExcluded(member))
-                {
-                    return Task.CompletedTask;
-                }
-
-                var sus = new SuspiciousMessage(DateTime.Now, member, args.Message, attemptedPing, match.Value);
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await PushMessage(sus);
-                    }
-                    catch (Exception ex)
-                    {
-                        m_Logger.LogError(ex, "Error while trying to log auto-mod action");
-                    }
-                });
-            }
-            return Task.CompletedTask;
-        }
-
         private bool CheckExcluded(DiscordMember member)
         {
-            if (member.IsBot || (member.Permissions & Permissions.Administrator) != 0)
+            if (member.IsBot || member.Permissions.HasPermission(DiscordPermission.ManageMessages))
             {
                 return true;
             }
 
             return false;
-
-            //var roles = member.Roles.ToArray();
-
-            //if (roles.Length == 0)
-            //{
-            //    return false;
-            //}
-
-            //var userPosition = roles.Max(x => x.Position);
-
-            //var currentRoles = member.Guild.CurrentMember.Roles.ToArray();
-
-            //if (currentRoles.Length == 0)
-            //{
-            //    // bot has no roles??
-            //    return false;
-            //}
-
-            //var botPosition = currentRoles.Max(x => x.Position);
-
-            //return userPosition >= botPosition;
         }
 
         public async Task PushMessage(SuspiciousMessage message)
@@ -248,7 +192,7 @@ namespace ChickenBot.AdminCommands.Services
 
                 var embedBuilder = new DiscordEmbedBuilder()
                     .WithTitle("Suspicious Messages Deleted")
-                    .WithAuthor(author.Username, iconUrl: author.GetAvatarUrl(ImageFormat.WebP))
+                    .WithAuthor(author.Username, iconUrl: author.GetAvatarUrl(MediaFormat.WebP))
                     .WithDescription(sb.ToString())
                     .AddField("Action Taken", actionTaken, false)
                     .AddField("Username", author.Username, true)
@@ -305,21 +249,40 @@ namespace ChickenBot.AdminCommands.Services
 
             var guild = await m_Discord.GetGuildAsync(m_GuildID);
 
-            var channel = guild.GetChannel(m_ModeratorChannel);
+            var channel = await guild.GetChannelAsync(m_ModeratorChannel);
 
             return channel;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task HandleEventAsync(DiscordClient sender, MessageCreatedEventArgs args)
         {
-            m_Discord.MessageCreated += OnMessage;
-            return Task.CompletedTask;
-        }
+            if (args.Author.IsBot || args.Author is not DiscordMember member)
+            {
+                return;
+            }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            m_Discord.MessageCreated -= OnMessage;
-            return Task.CompletedTask;
+            var content = args.Message.Content;
+            var match = m_DiscordInvite.Match(content);
+
+            var attemptedPing = content.Contains("@everyone") || content.Contains("@here");
+
+            if (match.Success)
+            {
+                if (CheckExcluded(member))
+                {
+                    return;
+                }
+
+                var sus = new SuspiciousMessage(DateTime.Now, member, args.Message, attemptedPing, match.Value);
+                try
+                {
+                    await PushMessage(sus);
+                }
+                catch (Exception ex)
+                {
+                    m_Logger.LogError(ex, "Error while trying to log auto-mod action");
+                }
+            }
         }
     }
 
