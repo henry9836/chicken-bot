@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus.Lavalink" Version="5.0.0-nightly-01907" />
+    <PackageReference Include="DSharpPlus.Lavalink" Version="5.0.0-nightly-02496" />
     <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.0.2" />
   </ItemGroup>
 
