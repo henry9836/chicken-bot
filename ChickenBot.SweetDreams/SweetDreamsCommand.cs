@@ -64,7 +64,7 @@ namespace ChickenBot.SweetDreams
 
             m_Logger.LogWarning("4");
             // Only continue if furi is online
-            if (!discordMember.Presence.Status.Equals(UserStatus.Online))
+            if (!discordMember.Presence.Status.Equals(DiscordUserStatus.Online))
             {
                 return;
             }

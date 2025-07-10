@@ -60,7 +60,7 @@ namespace ChickenBot.Quotes
 
 			if (m_QuotesChannel is null)
 			{
-				m_QuotesChannel = ctx.Guild.GetChannel(QuotesChannelID);
+				m_QuotesChannel = await ctx.Guild.GetChannelAsync(QuotesChannelID);
 				if (m_QuotesChannel is null)
 				{
 					await ctx.RespondAsync("Begawk! I can't seem to find the quotes channel");
@@ -70,14 +70,14 @@ namespace ChickenBot.Quotes
 
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
-				.WithTitle($"Quote by {ctx.Message.Author.Username}")
+				.WithTitle($"Quote by {ctx.Message.Author?.Username ?? "Unknown"}")
 				.WithTimestamp(DateTime.Now)
 				.WithDescription($"{text}\n<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>".Trim())
 				.WithColor(new DiscordColor("#19b017"));
 
 			await m_QuotesChannel.SendMessageAsync(embed);
 
-			m_Logger.LogInformation("Posted quote from user {user}: {url} '{text}'", ctx.Message.Author.Username, attachmentUrl, text);
+			m_Logger.LogInformation("Posted quote from user {user}: {url} '{text}'", ctx.Message.Author?.Username ?? "Unknown User", attachmentUrl, text);
 
 
 			var emoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", false);

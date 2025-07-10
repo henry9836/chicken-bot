@@ -63,7 +63,7 @@ namespace ChickenBot.Core.SubServices
 
 				if (guild is not null)
 				{
-					m_LogChannel = guild.GetChannel(BotLogChannelID);
+					m_LogChannel = await guild.GetChannelAsync(BotLogChannelID);
 					m_LogTimer.Start();
 				}
 				else
@@ -188,7 +188,7 @@ namespace ChickenBot.Core.SubServices
 			}
 
 			var message = new DiscordMessageBuilder()
-				.WithEmbed(embed)
+				.AddEmbed(embed)
 				.WithContent($"<@&{BotDevRoleID}>")
 				.WithAllowedMention(new RoleMention(BotDevRoleID));
 

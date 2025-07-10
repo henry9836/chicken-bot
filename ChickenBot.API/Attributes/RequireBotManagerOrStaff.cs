@@ -1,6 +1,7 @@
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 
 namespace ChickenBot.API.Attributes
 {
@@ -13,7 +14,7 @@ namespace ChickenBot.API.Attributes
 
             if (ctx.Member is not null)
             {
-                if ((ctx.Member.Permissions & Permissions.KickMembers) != 0)
+                if (ctx.Member.Permissions.HasPermission(DiscordPermission.KickMembers))
                 {
                     moderator = true;
                 }

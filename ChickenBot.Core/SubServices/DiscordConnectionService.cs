@@ -29,7 +29,7 @@ namespace ChickenBot.Core.SubServices
 			await m_Discord.InitializeAsync();
 
 			//m_Logger.LogInformation("Updating status...");
-			await m_Discord.UpdateStatusAsync(new DSharpPlus.Entities.DiscordActivity("Clucking With Excitement", DSharpPlus.Entities.ActivityType.Playing));
+			await m_Discord.UpdateStatusAsync(new DSharpPlus.Entities.DiscordActivity("Clucking With Excitement", DSharpPlus.Entities.DiscordActivityType.Custom));
 			m_Logger.LogInformation("Done");
 		}
 

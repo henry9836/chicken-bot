@@ -39,7 +39,7 @@ namespace ChickenBot.Petitions
 		public async Task CreatePetitionCommand(CommandContext ctx, [RemainingText] string petitionText)
 		{
 			// Get petitions channel
-			var channel = ctx.Guild.GetChannel(PetitionsChannelID);
+			var channel = await ctx.Guild.GetChannelAsync(PetitionsChannelID);
 
 			if (channel is null)
 			{
@@ -84,7 +84,7 @@ namespace ChickenBot.Petitions
 
 			// Create parent message to also include additional attachments
 			var message = new DiscordMessageBuilder()
-				.WithEmbed(embed)
+				.AddEmbed(embed)
 				.WithContent(string.Join('\n', attachments));
 
 			var petition = await channel.SendMessageAsync(message);

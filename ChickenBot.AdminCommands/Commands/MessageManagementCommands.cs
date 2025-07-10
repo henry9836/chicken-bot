@@ -284,7 +284,7 @@ Cannot purge up to messages that are more than 24h old")
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }
@@ -335,7 +335,7 @@ Cannot purge up to messages that are more than 24h old")
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }
@@ -395,7 +395,7 @@ Cannot purge up to messages that are more than 24h old")
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }

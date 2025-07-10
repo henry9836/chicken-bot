@@ -57,7 +57,7 @@ namespace ChickenBot.VerificationSystem.Models
 				return false;
 			}
 
-			var role = member.Guild.GetRole(VerifiedRoleID);
+			var role = await member.Guild.GetRoleAsync(VerifiedRoleID);
 
 			if (role is null)
 			{
