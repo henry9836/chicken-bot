@@ -107,6 +107,21 @@ namespace ChickenBot.Core.Services
                 }
             });
 
+            // Fix for the default error handler having multiple satisfiable constructors
+
+            var errorHandlerType = typeof(DefaultClientErrorHandler);
+            var errorHandlerDescriptor = m_Subcontext.ChildServices.Where(x => x.ImplementationType == errorHandlerType || x.ServiceType == errorHandlerType).FirstOrDefault();
+
+            if (errorHandlerDescriptor != null)
+            {
+                m_Subcontext.ChildServices.Remove(errorHandlerDescriptor);
+                m_Subcontext.ChildServices.Add(ServiceDescriptor.Describe(typeof(IClientErrorHandler), (serviceProvider) =>
+                {
+                    var logger = serviceProvider.GetRequiredService<ILogger<IClientErrorHandler>>();
+                    return new DefaultClientErrorHandler(logger);
+                }, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
+            }
+
             return Task.CompletedTask;
         }
 
