@@ -172,15 +172,18 @@ namespace ChickenBot.Core.Services
                     continue;
                 }
 
-                // This will either return an already loaded assembly,
-                // load it from the core ChickenBot project, or the GAC
-
-                // We want to prefer libraries to be loaded from the core project or GAC, over those included as build outputs
-                var assembly = Assembly.Load(name);
-
-                if (assembly != null)
+                try
                 {
+                    // This will either return an already loaded assembly,
+                    // load it from the core ChickenBot project, or the GAC
+
+                    // We want to prefer libraries to be loaded from the core project or GAC, over those included as build outputs
+                    Assembly.Load(name);
                     continue;
+                }
+                catch (Exception)
+                {
+                    // Failed to load resolve assembly, so it should be loaded
                 }
 
                 yield return file;
