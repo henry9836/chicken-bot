@@ -17,12 +17,27 @@ namespace ChickenBot.VerificationSystem.Services
         private readonly IVerificationCache m_Cache;
         private readonly IUserVerifier m_Verifier;
         private readonly IUserFlagProvider m_FlagProvider;
+        private readonly IConfiguration m_Configuration;
 
-        public VerificationMonitorService(IVerificationCache cache, IUserVerifier verifier, IUserFlagProvider flagProvider)
+        private ulong m_BotChannel = 0;
+        private ulong BotChannel
+        {
+            get
+            {
+                if (m_BotChannel == 0)
+                {
+                    m_BotChannel = m_Configuration.GetValue<ulong>("Channels:bot-spam", 0);
+                }
+                return m_BotChannel;
+            }
+        }
+
+        public VerificationMonitorService(IVerificationCache cache, IUserVerifier verifier, IUserFlagProvider flagProvider, IConfiguration configuration)
         {
             m_Cache = cache;
             m_Verifier = verifier;
             m_FlagProvider = flagProvider;
+            m_Configuration = configuration;
         }
 
         public async Task HandleEventAsync(DiscordClient sender, MessageCreatedEventArgs args)
@@ -30,6 +45,12 @@ namespace ChickenBot.VerificationSystem.Services
             if (args.Author is not DiscordMember member)
             {
                 // Do not increment messages from DMs to the bot
+                return;
+            }
+
+            if (args.Channel.Id == BotChannel)
+            {
+                // Do not count messages from bot spam
                 return;
             }
 
