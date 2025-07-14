@@ -68,11 +68,11 @@ namespace ChickenBot.Core.Services
                     .Where(x => x.GetCustomAttribute<TransientAttribute>() != null)
                     .ToList();
 
-                m_Logger.LogInformation("Registering {count} singleton event handlers...", singletonEvents.Count);
                 events.AddEventHandlers(singletonEvents, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton);
+                m_Logger.LogDebug("Registered {count} singleton event handlers: {handlers}", singletonEvents.Count, string.Join(", ", singletonEvents.Select(x => x.Name)));
 
-                m_Logger.LogInformation("Registering {count} transient event handlers...", transientEvents.Count);
                 events.AddEventHandlers(transientEvents, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient);
+                m_Logger.LogDebug("Registered {count} transient event handlers: {handlers}", transientEvents.Count, string.Join(", ", transientEvents.Select(x => x.Name)));
 
                 foreach (var singletonType in singletonEvents)
                 {

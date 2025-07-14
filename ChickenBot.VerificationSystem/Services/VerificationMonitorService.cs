@@ -4,6 +4,7 @@ using ChickenBot.VerificationSystem.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.Configuration;
 
 namespace ChickenBot.VerificationSystem.Services
 {

@@ -11,7 +11,7 @@ namespace ChickenBot.Quotes
 	[Category("Fun")]
 	public class NsfwQuoteCommand : BaseCommandModule
 	{
-		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);
+		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("nsfw-quotes", 0ul);
 		private DiscordChannel? m_NsfwChannel;
 
 		private readonly ILogger<NsfwQuoteCommand> m_Logger;
@@ -24,7 +24,7 @@ namespace ChickenBot.Quotes
 			m_Configuration = configuration;
 		}
 
-		[Command("nsfw-quote"), Aliases("quote-nsfw"), Description("Quote a funny screenshot from an nsfw channel"), RequireVerified, HelpNSFWOnly]
+		[Command("tavern-quote"), Aliases("tavern-nsfw"), Description("Quote a funny screenshot from the adult's tavern"), RequireVerified, HelpNSFWOnly]
 		public async Task AddQuoteCommand(CommandContext ctx, [RemainingText] string? text)
 		{
 			// If we are in a sfw channel then delete the message

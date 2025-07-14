@@ -153,7 +153,7 @@ namespace ChickenBot.Core.Services
 
             foreach (var assembly in filtered)
             {
-                m_Logger.LogDebug("Loading dependency for plugin {plugin}: {assembly}", pluginName, assembly);
+                m_Logger.LogDebug("Loading dependency for plugin {plugin}: {assembly}", pluginName, Path.GetFileName(assembly));
                 await m_Registry.LoadLibrary(assembly);
             }
         }
