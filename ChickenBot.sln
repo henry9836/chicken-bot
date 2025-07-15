@@ -46,6 +46,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChickenBot.TicketingSystem", "ChickenBot.TicketingSystem\ChickenBot.TicketingSystem.csproj", "{51FB11B4-6EC8-45D7-AD80-30E35B626C1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,10 @@ Global
 		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51FB11B4-6EC8-45D7-AD80-30E35B626C1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51FB11B4-6EC8-45D7-AD80-30E35B626C1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51FB11B4-6EC8-45D7-AD80-30E35B626C1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51FB11B4-6EC8-45D7-AD80-30E35B626C1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{C77D06B4-0BDF-46DA-A0FA-1CC8440E7767} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{17900AFE-F402-4438-B971-5851BFBA6998} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 		{0C7DB7F5-419E-45BA-8F9E-09AB5FB26F62} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
+		{51FB11B4-6EC8-45D7-AD80-30E35B626C1F} = {37795C39-33AF-4121-8670-1269B1BDC6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C2CB5B5-36FD-4598-A136-C127AA4B9EBE}
