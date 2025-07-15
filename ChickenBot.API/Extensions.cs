@@ -445,5 +445,26 @@ namespace ChickenBot.API
                 return $"{time.Seconds} second{time.Seconds.Pluralize()}";
             }
         }
+
+        public static async Task<List<T>> CollectAsync<T>(this IAsyncEnumerable<T> items)
+        {
+            var list = new List<T>();
+
+            await foreach (var item in items)
+            {
+                list.Add(item);
+            }
+
+            return list;
+        }
+
+        public static async Task<T?> FirstOrDefault<T>(this IAsyncEnumerable<T> items)
+        {
+            await foreach (var item in items)
+            {
+                return item;
+            }
+            return default;
+        }
     }
 }
