@@ -30,7 +30,8 @@ namespace ChickenBot.AdminCommands
 			"bot-log",
 			"join-leave",
 			"voice",
-            "moderation"
+            "moderation",
+            "tickets"
         };
 		
 		private static readonly List<string> m_AssignableRoles = new List<string>()

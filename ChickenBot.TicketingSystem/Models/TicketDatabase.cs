@@ -42,6 +42,32 @@ namespace ChickenBot.TicketingSystem.Models
             await command.ExecuteNonQueryAsync();
         }
 
+        public async Task<Ticket?> GetActiveTicketByUser(ulong userID)
+        {
+            using var connection = await m_Context.GetConnectionAsync();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = "SELECT * FROM `tickets` WHERE `UserID`=@UserID AND `Closed` is NULL;";
+            command.Parameters.AddWithValue("@UserID", userID);
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            return await ReadTickets(reader).FirstOrDefault();
+        }
+
+        public async Task<Ticket?> GetTicketByThread(ulong threadID)
+        {
+            using var connection = await m_Context.GetConnectionAsync();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = "SELECT * FROM `tickets` WHERE `ThreadID`=@ThreadID;";
+            command.Parameters.AddWithValue("@ThreadID", threadID);
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            return await ReadTickets(reader).FirstOrDefault();
+        }
+
         public async Task<Ticket?> GetTicketAsync(int ID)
         {
             using var connection = await m_Context.GetConnectionAsync();
@@ -84,6 +110,19 @@ namespace ChickenBot.TicketingSystem.Models
             await command.ExecuteNonQueryAsync();
         }
 
+        public async Task SetTicketThread(int ID, ulong threadID)
+        {
+            using var connection = await m_Context.GetConnectionAsync();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = "UPDATE `tickets` SET ThreadID=@ThreadID WHERE ID = @ID;";
+
+            command.Parameters.AddWithValue("@ID", ID);
+            command.Parameters.AddWithValue("@ThreadID", threadID);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
         public async Task CreateTicket(Ticket ticket)
         {
             await InsertUpdate(ticket, true);
@@ -119,7 +158,7 @@ namespace ChickenBot.TicketingSystem.Models
         #region "Internal APIs"
         private async IAsyncEnumerable<Ticket> ReadTickets(MySqlDataReader dataReader)
         {
-            while (await dataReader.NextResultAsync())
+            while (await dataReader.ReadAsync())
             {
                 yield return new Ticket()
                 {
@@ -156,7 +195,6 @@ namespace ChickenBot.TicketingSystem.Models
             {
                 command.Parameters.AddWithValue("@Closed", null);
             }
-
 
             await command.ExecuteNonQueryAsync();
 
