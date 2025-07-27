@@ -1,4 +1,8 @@
 #!/bin/bash
+export HOME=/opt/chickenbot/tmpdotnethome
+mkdir -p $HOME
+dotnet restore ./ChickenBot.sln
+
 while true
 do
         # Update from git
@@ -19,14 +23,17 @@ do
         dotnet clean ./ChickenBot.sln
         dotnet build ./ChickenBot.sln
 
+        # Setup as sometimes this isn't done on first boot
+        mkdir ./ChickenBot/bin/Debug/net8.0/plugins
+
         # Move modules into runtime folder
         echo
         echo
         echo Moving modules...
         echo
         echo
-        pushd ChickenBot/bin/Debug/net8.0/plugins
-        cp ~/config.json.runtime.bak ../config.json
+        pushd ./ChickenBot/bin/Debug/net8.0/plugins
+        cp ../../../../../../config.json.runtime.bak ../config.json
         mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net8.0/ChickenBot.AdminCommands.dll ./
         mv ../../../../../ChickenBot.API/bin/Debug/net8.0/ChickenBot.API.dll ./
         mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net8.0/ChickenBot.AssignableRoles.dll ./
@@ -52,8 +59,8 @@ do
         ./ChickenBot
 
         # Backup to tmp
-        cp config.json ~/config.json.runtime.bak
+        cp config.json ../../../../../config.json.runtime.bak
 
-        # Reset
+        #Reset
         popd
 done
