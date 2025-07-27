@@ -3,7 +3,6 @@ export HOME=/opt/chickenbot/tmpdotnethome
 export chicken_plugin_config=plugins.cfg
 
 mkdir -p $HOME
-dotnet restore ./ChickenBot.sln
 
 # Update from git
 echo
@@ -21,6 +20,7 @@ echo Compiling Bot...
 echo
 echo
 dotnet clean ./ChickenBot.sln
+dotnet restore ./ChickenBot.sln
 dotnet build ./ChickenBot.sln
 
 # Start the bot
