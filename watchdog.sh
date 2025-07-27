@@ -1,5 +1,7 @@
 #!/bin/bash
 export HOME=/opt/chickenbot/tmpdotnethome
+export chicken_plugin_config=plugins.cfg
+
 mkdir -p $HOME
 dotnet restore ./ChickenBot.sln
 
@@ -23,39 +25,13 @@ do
         dotnet clean ./ChickenBot.sln
         dotnet build ./ChickenBot.sln
 
-        # Setup as sometimes this isn't done on first boot
-        mkdir ./ChickenBot/bin/Debug/net8.0/plugins
-
-        # Move modules into runtime folder
-        echo
-        echo
-        echo Moving modules...
-        echo
-        echo
-        pushd ./ChickenBot/bin/Debug/net8.0/plugins
-        cp ../../../../../../config.json.runtime.bak ../config.json
-        mv ../../../../../ChickenBot.AdminCommands/bin/Debug/net8.0/ChickenBot.AdminCommands.dll ./
-        mv ../../../../../ChickenBot.API/bin/Debug/net8.0/ChickenBot.API.dll ./
-        mv ../../../../../ChickenBot.AssignableRoles/bin/Debug/net8.0/ChickenBot.AssignableRoles.dll ./
-        mv ../../../../../ChickenBot.ChatAI/bin/Debug/net8.0/ChickenBot.ChatAI.dll ./
-        mv ../../../../../ChickenBot.FlagGame/bin/Debug/net8.0/ChickenBot.FlagGame.dll ./
-        mv ../../../../../ChickenBot.Fun/bin/Debug/net8.0/ChickenBot.Fun.dll ./
-        mv ../../../../../ChickenBot.Info/bin/Debug/net8.0/ChickenBot.Info.dll ./
-        mv ../../../../../ChickenBot.Minesweeper/bin/Debug/net8.0/ChickenBot.Minesweeper.dll ./
-        mv ../../../../../ChickenBot.Music/bin/Debug/net8.0/ChickenBot.Music.dll ./
-        mv ../../../../../ChickenBot.Petitions/bin/Debug/net8.0/ChickenBot.Petitions.dll ./
-        mv ../../../../../ChickenBot.SweetDreams/bin/Debug/net8.0/ChickenBot.SweetDreams.dll ./
-        mv ../../../../../ChickenBot.Quotes/bin/Debug/net8.0/ChickenBot.Quotes.dll ./
-        mv ../../../../../ChickenBot.ReverseSearch/bin/Debug/net8.0/ChickenBot.ReverseSearch.dll ./
-        mv ../../../../../ChickenBot.VerificationSystem/bin/Debug/net8.0/ChickenBot.VerificationSystem.dll ./
-        popd
-
+        # Start the bot
         echo
         echo
         echo Starting bot...
         echo
         echo
-        pushd ChickenBot/bin/Debug/net8.0/
+        pushd ChickenBot/bin/Debug/net9.0/
         ./ChickenBot
 
         # Backup to tmp
