@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01907" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01907" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="MySqlConnector" Version="2.3.1" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02531" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-02531" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
+    <PackageReference Include="MySqlConnector" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>

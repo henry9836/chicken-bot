@@ -45,7 +45,7 @@ namespace ChickenBot.AssignableRoles.Models
         
 		public async Task<bool> AddUserRole(DiscordMember member, AssignableRole role)
 		{
-			var guildRole = member.Guild.GetRole(role.RoleID);
+			var guildRole = await member.Guild.GetRoleAsync(role.RoleID);
 
 			if (guildRole is null)
 			{
@@ -60,7 +60,7 @@ namespace ChickenBot.AssignableRoles.Models
 
 		public async Task<bool> RemoveUserRole(DiscordMember member, AssignableRole role)
 		{
-			var guildRole = member.Guild.GetRole(role.RoleID);
+			var guildRole = await member.Guild.GetRoleAsync(role.RoleID);
 
 			if (guildRole is null)
 			{

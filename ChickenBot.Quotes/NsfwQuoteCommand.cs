@@ -11,7 +11,7 @@ namespace ChickenBot.Quotes
 	[Category("Fun")]
 	public class NsfwQuoteCommand : BaseCommandModule
 	{
-		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("NsfwQuotes", 0ul);
+		private ulong NsfwQuotesChannelId => m_Configuration.GetSection("Channels").GetValue("nsfw-quotes", 0ul);
 		private DiscordChannel? m_NsfwChannel;
 
 		private readonly ILogger<NsfwQuoteCommand> m_Logger;
@@ -24,7 +24,7 @@ namespace ChickenBot.Quotes
 			m_Configuration = configuration;
 		}
 
-		[Command("nsfw-quote"), Aliases("quote-nsfw"), Description("Quote a funny screenshot from an nsfw channel"), RequireVerified, HelpNSFWOnly]
+		[Command("tavern-quote"), Aliases("tavern-nsfw"), Description("Quote a funny screenshot from the adult's tavern"), RequireVerified, HelpNSFWOnly]
 		public async Task AddQuoteCommand(CommandContext ctx, [RemainingText] string? text)
 		{
 			// If we are in a sfw channel then delete the message
@@ -63,7 +63,7 @@ namespace ChickenBot.Quotes
 
 			if (m_NsfwChannel is null)
 			{
-				m_NsfwChannel = ctx.Guild.GetChannel(NsfwQuotesChannelId);
+				m_NsfwChannel = await ctx.Guild.GetChannelAsync(NsfwQuotesChannelId);
 				if (m_NsfwChannel is null)
 				{
 					await ctx.RespondAsync("Begawk! I can't seem to find the nsfw-quotes channel");
@@ -73,14 +73,14 @@ namespace ChickenBot.Quotes
 
 			var embed = new DiscordEmbedBuilder()
 				.WithImageUrl(attachmentUrl)
-				.WithTitle($"Quote by {ctx.Message.Author.Username}")
+				.WithTitle($"Quote by {ctx.Message.Author?.Username ?? "Unknown"}")
 				.WithTimestamp(DateTime.Now)
 				.WithDescription($"{text}\n<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>".Trim())
 				.WithColor(new DiscordColor("#c4160a"));
 
 			await m_NsfwChannel.SendMessageAsync(embed);
 
-			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author.Username, attachmentUrl, text);
+			m_Logger.LogInformation("Posted nsfw quote from user {user}: {url} '{message}'", ctx.Message.Author?.Username ?? "Unknown User", attachmentUrl, text);
 
 			var emoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:", false);
 

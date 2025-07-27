@@ -9,7 +9,7 @@ namespace ChickenBot.AdminCommands.Commands
     [Category("Admin")]
     public class UserManagementCommands : BaseCommandModule
     {
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
@@ -20,13 +20,13 @@ namespace ChickenBot.AdminCommands.Commands
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx, DiscordUser user, [RemainingText] string reason)
         {
             await BanCommand(ctx, user.Id, reason);
         }
 
-        [Command("Ban"), RequireBotPermissions(Permissions.BanMembers), RequireUserPermissions(Permissions.BanMembers)]
+        [Command("Ban"), RequireBotPermissions(false, DiscordPermission.BanMembers), RequireUserPermissions(false, DiscordPermission.BanMembers)]
         public async Task BanCommand(CommandContext ctx, ulong userID, [RemainingText] string reason)
         {
             var guild = ctx.Guild;
@@ -41,11 +41,11 @@ namespace ChickenBot.AdminCommands.Commands
                 return;
             }
 
-            await ctx.Guild.BanMemberAsync(userID, delete_message_days: 0, reason: reason);
+            await ctx.Guild.BanMemberAsync(userID, reason: reason, messageDeleteDuration: TimeSpan.Zero);
             await ctx.RespondAsync("User banned.");
         }
 
-        [Command("Kick"), RequireBotPermissions(Permissions.KickMembers), RequireUserPermissions(Permissions.KickMembers)]
+        [Command("Kick"), RequireBotPermissions(false, DiscordPermission.KickMembers), RequireUserPermissions(false, DiscordPermission.KickMembers)]
         public async Task KickCommand(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
@@ -56,7 +56,7 @@ namespace ChickenBot.AdminCommands.Commands
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Kick"), RequireBotPermissions(Permissions.KickMembers), RequireUserPermissions(Permissions.KickMembers)]
+        [Command("Kick"), RequireBotPermissions(false, DiscordPermission.KickMembers), RequireUserPermissions(false, DiscordPermission.KickMembers)]
         public async Task KickCommand(CommandContext ctx, ulong userID, [RemainingText] string reason)
         {
             if (ctx.Member is null)
@@ -79,7 +79,7 @@ namespace ChickenBot.AdminCommands.Commands
             await KickCommand(ctx, member, reason);
         }
 
-        [Command("Kick"), RequireBotPermissions(Permissions.KickMembers), RequireUserPermissions(Permissions.KickMembers)]
+        [Command("Kick"), RequireBotPermissions(false, DiscordPermission.KickMembers), RequireUserPermissions(false, DiscordPermission.KickMembers)]
         public async Task KickCommand(CommandContext ctx, DiscordMember member, [RemainingText] string reason)
         {
             var guild = ctx.Guild;

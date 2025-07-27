@@ -12,13 +12,13 @@ namespace ChickenBot.AdminCommands.Commands
     [Category("Admin")]
     public class MessageManagementCommands : BaseCommandModule
     {
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgePeriodCommand(CommandContext ctx)
         {
             await PurgeCommand(ctx);
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
@@ -36,7 +36,7 @@ Deletes messages based on how old they are
 Example time period: '`2h`', '`20min`', '`5days`'
 Cannot delete more than 6h of messages without specifying a user
 
-> `!PurgeTo {User/UserID}`
+> `!PurgeTo`
 Requires you to reply to a message.
 Deletes messages up until the message you replied to.
 Optionally only deletes messages from the specified user.
@@ -45,7 +45,7 @@ Cannot purge up to messages that are more than 24h old")
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max)
         {
             if (ctx.Member is null)
@@ -66,7 +66,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {max} messages.");
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max, DiscordUser user)
         {
             if (ctx.Member is null)
@@ -79,7 +79,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from {user.GlobalName}");
         }
 
-        [Command("Purge"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("Purge"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, int max, ulong userID)
         {
             if (ctx.Member is null)
@@ -92,7 +92,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from User ID: {userID}");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time)
         {
             if (ctx.Member is null)
@@ -117,7 +117,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time, DiscordUser user)
         {
             if (ctx.Member is null)
@@ -142,7 +142,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from {user.GlobalName}");
         }
 
-        [Command("PurgePeriod"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgePeriod"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeCommand(CommandContext ctx, string time, ulong userID)
         {
             if (ctx.Member is null)
@@ -168,7 +168,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages from User ID: {userID}");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx)
         {
             if (ctx.Message.ReferencedMessage is null)
@@ -188,14 +188,14 @@ Cannot purge up to messages that are more than 24h old")
                 return;
             }
 
-            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, 0, ctx.Message.Id);
+            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage, 0, ctx.Message.Id);
             var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
 
             await ctx.Message.TryDeleteAsync();
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx, DiscordUser user)
         {
             if (ctx.Message.ReferencedMessage is null)
@@ -215,6 +215,12 @@ Cannot purge up to messages that are more than 24h old")
                 return;
             }
 
+            if (ctx.Message.ReferencedMessage.ReferencedMessage is null)
+            {
+                await ctx.RespondAsync("Referenced message does not reference another message");
+                return;
+            }
+
             var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, user.Id, ctx.Message.Id);
             var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
 
@@ -222,7 +228,7 @@ Cannot purge up to messages that are more than 24h old")
             await SendEphemeral(ctx.Channel, $"Purged {deleted} messages by {user.GlobalName}");
         }
 
-        [Command("PurgeTo"), RequireBotPermissions(Permissions.ManageMessages), RequireUserPermissions(Permissions.ManageMessages)]
+        [Command("PurgeTo"), RequireBotPermissions(false, DiscordPermission.ManageMessages), RequireUserPermissions(false, DiscordPermission.ManageMessages)]
         public async Task PurgeToCommand(CommandContext ctx, ulong userID)
         {
             if (ctx.Message.ReferencedMessage is null)
@@ -242,7 +248,7 @@ Cannot purge up to messages that are more than 24h old")
                 return;
             }
 
-            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage.ReferencedMessage, userID, ctx.Message.Id);
+            var messages = AggregateMessagesTo(ctx.Channel, ctx.Message.ReferencedMessage, userID, ctx.Message.Id);
             var deleted = await DeleteMessagesAsync(messages, ctx.Channel, ctx.Member);
 
             await ctx.Message.TryDeleteAsync();
@@ -279,12 +285,12 @@ Cannot purge up to messages that are more than 24h old")
 
                 await foreach (var message in messages)
                 {
-                    if (targetUser != 0 && message.Author.Id != targetUser)
+                    if (targetUser != 0 && message.Author != null && message.Author.Id != targetUser)
                     {
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }
@@ -294,7 +300,7 @@ Cannot purge up to messages that are more than 24h old")
                         continue;
                     }
 
-                    if (message.CreationTimestamp >= purgeBefore)
+                    if (message.CreationTimestamp.UtcTicks < purgeBefore.UtcTicks)
                     {
                         exceededPeriod = true;
                         continue;
@@ -330,12 +336,12 @@ Cannot purge up to messages that are more than 24h old")
 
                 await foreach (var message in messages)
                 {
-                    if (targetUser != 0 && message.Author.Id != targetUser)
+                    if (targetUser != 0 && message.Author != null && message.Author.Id != targetUser)
                     {
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }
@@ -385,7 +391,7 @@ Cannot purge up to messages that are more than 24h old")
 
                 await foreach (var message in messages)
                 {
-                    if (user != 0 && message.Author.Id != user)
+                    if (user != 0 && message.Author != null && message.Author.Id != user)
                     {
                         continue;
                     }
@@ -395,7 +401,7 @@ Cannot purge up to messages that are more than 24h old")
                         continue;
                     }
 
-                    if (message.Pinned)
+                    if (message.Pinned.HasValue && message.Pinned.Value)
                     {
                         continue;
                     }

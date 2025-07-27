@@ -66,59 +66,59 @@ namespace ChickenBot.Test
 		}
 	}
 
-	// IHostedServices will be automatically detected by the bot when it loads the plugins
-	// These can have their dependencies injected, so you can request services/objects from the service provider
-	public class TestNormalChat : IHostedService
-	{
-		// Good practice to use `private readonly` for services we inject, and don't ever replace
-		// also good practive to prefix our private fields with `_` or `m_`, I'm just used to using `m_` from my first job as a .NET dev
+	//// IHostedServices will be automatically detected by the bot when it loads the plugins
+	//// These can have their dependencies injected, so you can request services/objects from the service provider
+	//public class TestNormalChat : IHostedService
+	//{
+	//	// Good practice to use `private readonly` for services we inject, and don't ever replace
+	//	// also good practive to prefix our private fields with `_` or `m_`, I'm just used to using `m_` from my first job as a .NET dev
 
-		private readonly DiscordClient m_Client;
+	//	private readonly DiscordClient m_Client;
 
-		// For logging, we use `ILogger<Class>`, where Class is the class/type sending the log
-		// It is so we can easily identify which class is sending log messages
-		private readonly ILogger<TestNormalChat> m_Logger;
+	//	// For logging, we use `ILogger<Class>`, where Class is the class/type sending the log
+	//	// It is so we can easily identify which class is sending log messages
+	//	private readonly ILogger<TestNormalChat> m_Logger;
 
-		public TestNormalChat(DiscordClient client, ILogger<TestNormalChat> logger)
-		{
-			// Store the servives we have injected so we can use them in StartAsync
-			m_Client = client;
-			m_Logger = logger;
-		}
+	//	public TestNormalChat(DiscordClient client, ILogger<TestNormalChat> logger)
+	//	{
+	//		// Store the servives we have injected so we can use them in StartAsync
+	//		m_Client = client;
+	//		m_Logger = logger;
+	//	}
 
-		/// <summary>
-		/// This method is called when the bot is starting up.
-		/// You can add whatever code you want to run here to setup the plugin
-		/// E.g., starting background tasks, doing some setup, whatever you need.
-		/// This can be treated as an entrypoint to the plugin
-		/// </summary>
-		/// <param name="cancellationToken">You probably won't need to use this. This is so the bot can cancel startup/shutdown</param>
-		//      \/  Notice how this method returns `Task`, that means it is an async method.
-		public Task StartAsync(CancellationToken cancellationToken)
-		{
-			m_Client.MessageCreated += OnMessageCreated;
+	//	/// <summary>
+	//	/// This method is called when the bot is starting up.
+	//	/// You can add whatever code you want to run here to setup the plugin
+	//	/// E.g., starting background tasks, doing some setup, whatever you need.
+	//	/// This can be treated as an entrypoint to the plugin
+	//	/// </summary>
+	//	/// <param name="cancellationToken">You probably won't need to use this. This is so the bot can cancel startup/shutdown</param>
+	//	//      \/  Notice how this method returns `Task`, that means it is an async method.
+	//	public Task StartAsync(CancellationToken cancellationToken)
+	//	{
+	//		m_Client.MessageCreated += OnMessageCreated;
 
-			// While this method is supposdely async, we don't await anything, so it isn't actually async.
-			// So we return `Task.CompletedTask`, to return a Task object that indicates execution as finished
-			return Task.CompletedTask;
-		}
+	//		// While this method is supposdely async, we don't await anything, so it isn't actually async.
+	//		// So we return `Task.CompletedTask`, to return a Task object that indicates execution as finished
+	//		return Task.CompletedTask;
+	//	}
 
-		private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
-		{
-			m_Logger.LogInformation("Message Received: {Text}", args.Message.Content);
-			return Task.CompletedTask;
-		}
+	//	private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs args)
+	//	{
+	//		m_Logger.LogInformation("Message Received: {Text}", args.Message.Content);
+	//		return Task.CompletedTask;
+	//	}
 
-		/// <summary>
-		/// Will be called when the bot is being gracefully shut down
-		/// </summary>
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			// Dereference 
-			m_Client.MessageCreated -= OnMessageCreated;
+	//	/// <summary>
+	//	/// Will be called when the bot is being gracefully shut down
+	//	/// </summary>
+	//	public Task StopAsync(CancellationToken cancellationToken)
+	//	{
+	//		// Dereference 
+	//		m_Client.MessageCreated -= OnMessageCreated;
 			
-			// Same ordeal, async method, but not actually async
-			return Task.CompletedTask;
-		}
-	}
+	//		// Same ordeal, async method, but not actually async
+	//		return Task.CompletedTask;
+	//	}
+	//}
 }

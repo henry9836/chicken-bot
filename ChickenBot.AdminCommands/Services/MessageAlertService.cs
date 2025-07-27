@@ -1,16 +1,17 @@
 ﻿using System.Text;
 using ChickenBot.AdminCommands.Models;
 using ChickenBot.AdminCommands.Models.Data;
+using ChickenBot.API.Attributes;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.AdminCommands.Services
 {
-    public class MessageAlertService : IHostedService
+    [Singleton]
+    public class MessageAlertService : IEventHandler<MessageCreatedEventArgs>
     {
         private readonly DiscordClient m_Client;
         private readonly ILogger<MessageAlertService> m_Logger;
@@ -23,6 +24,8 @@ namespace ChickenBot.AdminCommands.Services
 
         private readonly List<MatchingClient> m_Matchers = new List<MatchingClient>();
 
+        private bool m_Loaded = false;
+
         private async Task<DiscordChannel?> GetAlertChannel()
         {
             if (m_Channel is not null)
@@ -34,7 +37,7 @@ namespace ChickenBot.AdminCommands.Services
             {
                 var guild = await m_Client.GetGuildAsync(m_GuildID);
 
-                m_Channel = guild.GetChannel(m_ModeratorChannel);
+                m_Channel = await guild.GetChannelAsync(m_ModeratorChannel);
                 return m_Channel;
             }
             catch (Exception ex)
@@ -52,21 +55,7 @@ namespace ChickenBot.AdminCommands.Services
             m_Configuration = configuration;
         }
 
-        private Task OnMessageCreated(DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs args)
-        {
-            try
-            {
-                HandleMessageCreated(args);
-            }
-            catch (Exception ex)
-            {
-                m_Logger.LogError(ex, "Error performing alert message match: ");
-                throw;
-            }
-            return Task.CompletedTask;
-        }
-
-        private void HandleMessageCreated(MessageCreateEventArgs args)
+        private void HandleMessageCreated(MessageCreatedEventArgs args)
         {
             if (args.Author is not DiscordMember member || member.IsCurrent)
             {
@@ -114,7 +103,7 @@ namespace ChickenBot.AdminCommands.Services
 
                             if (author is not null)
                             {
-                                avatarUrl = author.GetAvatarUrl(ImageFormat.Png);
+                                avatarUrl = author.GetAvatarUrl(MediaFormat.Png);
                             }
 
                             var trimmedContent = args.Message.Content;
@@ -128,8 +117,7 @@ namespace ChickenBot.AdminCommands.Services
                                 trimmedContent = "N/A";
                             }
 
-                            var alertMessage = new DiscordMessageBuilder()
-                                .WithEmbed(new DiscordEmbedBuilder()
+                            var alertEmbed = new DiscordEmbedBuilder()
                                     .WithTitle("Message Alert")
                                     .WithDescription($"[`[Jump to message]`]({args.Message.JumpLink})")
                                     .AddField("Rule Name", alert.Name, true)
@@ -139,8 +127,9 @@ namespace ChickenBot.AdminCommands.Services
                                     .AddField("Match Text", string.Join(", ", alert.MatchFor.Select(x => $"'{x}'")))
                                     .AddField("Triggering Content", trimmedContent)
                                     .WithFooter(author is not null ? $"Rule created by: {author.GlobalName}" : $"Rule created by: {alert.CreatedBy}", avatarUrl!)
-                                    .WithColor(DiscordColor.Yellow)
-                                );
+                                    .WithColor(DiscordColor.Yellow);
+
+                            var alertMessage = new DiscordMessageBuilder().AddEmbed(alertEmbed);
 
                             var pingBuilder = new StringBuilder();
 
@@ -170,10 +159,10 @@ namespace ChickenBot.AdminCommands.Services
             }
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task LoadAsync()
         {
+            m_Loaded = true;
             await m_AlertBroker.LoadAlerts();
-            m_Client.MessageCreated += OnMessageCreated;
 
             foreach (var alert in m_AlertBroker.Alerts)
             {
@@ -194,10 +183,22 @@ namespace ChickenBot.AdminCommands.Services
             m_Matchers.Add(new MatchingClient(alert));
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task HandleEventAsync(DiscordClient sender, MessageCreatedEventArgs eventArgs)
         {
-            m_Client.MessageCreated -= OnMessageCreated;
-            return Task.CompletedTask;
+            if (!m_Loaded)
+            {
+                await LoadAsync();
+            }
+
+            try
+            {
+                HandleMessageCreated(eventArgs);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error performing alert message match: ");
+                throw;
+            }
         }
 
         private class MatchingClient

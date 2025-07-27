@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ChickenBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "chicken_plugin_config": "staging.plugins.cfg"
+      }
+    }
+  }
+}

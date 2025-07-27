@@ -1,90 +1,141 @@
-﻿using ChickenBot.API.Models;
+﻿using System.Reflection;
+using ChickenBot.API.Attributes;
+using ChickenBot.API.Models;
 using ChickenBot.Core.Attributes;
 using ChickenBot.Core.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ChickenBot.Core.Services
 {
-	[RootService]
-	public class DiscordSetupService : IHostedService
-	{
-		private readonly SubcontextBuilder m_Subcontext;
+    [RootService]
+    public class DiscordSetupService : IHostedService
+    {
+        private readonly SubcontextBuilder m_Subcontext;
 
-		private readonly PluginRegistry m_Registry;
+        private readonly PluginRegistry m_Registry;
 
-		private readonly ILogger<DiscordSetupService> m_Logger;
+        private readonly ILogger<DiscordSetupService> m_Logger;
 
-		private readonly IConfiguration m_Configuration;
+        private readonly IConfiguration m_Configuration;
 
-		public DiscordSetupService(SubcontextBuilder subcontext, PluginRegistry registry, ILogger<DiscordSetupService> logger, IConfiguration configuration)
-		{
-			m_Subcontext = subcontext;
-			m_Registry = registry;
-			m_Logger = logger;
-			m_Configuration = configuration;
-		}
+        public DiscordSetupService(SubcontextBuilder subcontext, PluginRegistry registry, ILogger<DiscordSetupService> logger, IConfiguration configuration)
+        {
+            m_Subcontext = subcontext;
+            m_Registry = registry;
+            m_Logger = logger;
+            m_Configuration = configuration;
+        }
 
-		public Task StartAsync(CancellationToken cancellationToken)
-		{
-			m_Subcontext.ChildServices.AddSingleton(DiscordClientFactory);
-			m_Subcontext.ChildServices.AddSingleton(CommandsNextFactory);
-			return Task.CompletedTask;
-		}
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            //m_Subcontext.ChildServices.AddSingleton(DiscordClientFactory);
+            //m_Subcontext.ChildServices.AddSingleton(CommandsNextFactory);
 
-		private static DiscordClient DiscordClientFactory(IServiceProvider provider)
-		{
-			var configuration = provider.GetService<IConfiguration>();
-			var loggerFactory = provider.GetService<ILoggerFactory>();
+            // Init discord
 
-			if (configuration == null)
-			{
-				throw new InvalidOperationException("Failed to fetch IConfiguration from container");
-			}
+            var token = m_Configuration["Token"] ?? throw new Exception("Bot token not set in config!");
 
-			var token = configuration["Token"];
+            var builder = DiscordClientBuilder.CreateDefault(token, DiscordIntents.All, m_Subcontext.ChildServices);
 
-			var discordConfig = new DiscordConfiguration()
-			{
-				Token = token!,
-				TokenType = TokenType.Bot,
-				Intents = DiscordIntents.All,
-				LoggerFactory = loggerFactory!
-			};
+            builder.UseCommandsNext((cmdNext) =>
+            {
+            }, new CommandsNextConfiguration()
+            {
+                CaseSensitive = false,
+                EnableMentionPrefix = true,
+                StringPrefixes = m_Configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
+            });
 
-			return new DiscordClient(discordConfig);
-		}
+            // Init event handlers
 
-		private static CommandsNextExtension CommandsNextFactory(IServiceProvider provider)
-		{
-			var discord = provider.GetRequiredService<DiscordClient>();
-			var configuration = provider.GetRequiredService<IConfiguration>();
+            builder.ConfigureEventHandlers((events) =>
+            {
+                var eventHandlerTypes = m_Registry.Plugins
+                    .SelectMany(x => x.GetTypes())
+                    .Where(x => typeof(IEventHandler).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract);
 
-			var existing = discord.GetCommandsNext();
+                var singletonEvents = eventHandlerTypes
+                    .Where(x => x.GetCustomAttribute<TransientAttribute>() == null) // Default to singleton, as existing events were built on a singleton model
+                    .ToList();
 
-			if (existing != null)
-			{
-				return existing;
-			}
+                var transientEvents = eventHandlerTypes
+                    .Where(x => x.GetCustomAttribute<TransientAttribute>() != null)
+                    .ToList();
 
-			var commandsNextConfig = new CommandsNextConfiguration()
-			{
-				Services = provider,
-				CaseSensitive = false,
-				EnableMentionPrefix = true,
-				StringPrefixes = configuration.GetSection("Prefixes")?.Get<string[]>() ?? new[] { "!" }
-			};
+                events.AddEventHandlers(singletonEvents, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton);
+                m_Logger.LogDebug("Registered {count} singleton event handlers: {handlers}", singletonEvents.Count, string.Join(", ", singletonEvents.Select(x => x.Name)));
 
-			return discord.UseCommandsNext(commandsNextConfig);
-		}
+                events.AddEventHandlers(transientEvents, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient);
+                m_Logger.LogDebug("Registered {count} transient event handlers: {handlers}", transientEvents.Count, string.Join(", ", transientEvents.Select(x => x.Name)));
 
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			return Task.CompletedTask;
-		}
-	}
+                foreach (var singletonType in singletonEvents)
+                {
+                    var aliases = singletonType.GetCustomAttribute<ServiceAliasAttribute>();
+
+                    if (aliases == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var alias in aliases.AliasTypes)
+                    {
+                        m_Logger.LogInformation("Registering singleton alias {alias} for event handler {handler}", alias.Name, singletonType.Name);
+                        m_Subcontext.ChildServices.Add(CreateServiceAlias(alias, singletonType, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
+                    }
+                }
+
+                foreach (var transientType in transientEvents)
+                {
+                    var aliases = transientType.GetCustomAttribute<ServiceAliasAttribute>();
+
+                    if (aliases == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var alias in aliases.AliasTypes)
+                    {
+                        m_Logger.LogInformation("Registering transient alias {alias} for event handler {handler}", alias.Name, transientType.Name);
+                        m_Subcontext.ChildServices.Add(CreateServiceAlias(alias, transientType, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient));
+                    }
+                }
+            });
+
+            // Fix for the default error handler having multiple satisfiable constructors
+
+            var errorHandlerType = typeof(DefaultClientErrorHandler);
+            var errorHandlerDescriptor = m_Subcontext.ChildServices.Where(x => x.ImplementationType == errorHandlerType || x.ServiceType == errorHandlerType).FirstOrDefault();
+
+            if (errorHandlerDescriptor != null)
+            {
+                m_Subcontext.ChildServices.Remove(errorHandlerDescriptor);
+                m_Subcontext.ChildServices.Add(ServiceDescriptor.Describe(typeof(IClientErrorHandler), (serviceProvider) =>
+                {
+                    var logger = serviceProvider.GetRequiredService<ILogger<IClientErrorHandler>>();
+                    return new DefaultClientErrorHandler(logger);
+                }, Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private ServiceDescriptor CreateServiceAlias(Type alias, Type serviceType, Microsoft.Extensions.DependencyInjection.ServiceLifetime lifetime)
+        {
+            return new ServiceDescriptor(alias, (serviceProvider) =>
+            {
+                return serviceProvider.GetRequiredService(serviceType);
+            }, lifetime);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
 }

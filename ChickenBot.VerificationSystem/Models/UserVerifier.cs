@@ -37,7 +37,7 @@ namespace ChickenBot.VerificationSystem.Models
 				return false;
 			}
 
-			var role = member.Guild.GetRole(VerifiedRoleID);
+			var role = await member.Guild.GetRoleAsync(VerifiedRoleID);
 
 			if (role is null)
 			{
@@ -57,7 +57,7 @@ namespace ChickenBot.VerificationSystem.Models
 				return false;
 			}
 
-			var role = member.Guild.GetRole(VerifiedRoleID);
+			var role = await member.Guild.GetRoleAsync(VerifiedRoleID);
 
 			if (role is null)
 			{
@@ -72,7 +72,7 @@ namespace ChickenBot.VerificationSystem.Models
 
 		public async Task<bool> AnnounceUserVerification(DiscordMember member)
 		{
-			var channel = member.Guild.GetChannel(VerifiedChannelID);
+			var channel = await member.Guild.GetChannelAsync(VerifiedChannelID);
 
 			if (channel is null)
 			{

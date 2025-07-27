@@ -22,7 +22,7 @@ namespace ChickenBot.VerificationSystem.Commands
             m_Logger = logger;
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx)
         {
             if (ctx.Member is null)
@@ -34,18 +34,18 @@ namespace ChickenBot.VerificationSystem.Commands
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("Deverify User")
                 .WithDescription("Usage: `Deverify [User Name/ID] {Threshold Multiplier}`")
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx, DiscordMember member)
         {
             await DeverifyUserCommand(ctx, member, 3);
         }
 
-        [Command("Deverify"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("Deverify"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task DeverifyUserCommand(CommandContext ctx, DiscordMember member, float multiplier)
         {
             if (ctx.Member is null)
@@ -67,7 +67,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 return;
             }
 
-            m_Logger.LogInformation("Moderator {username} ({id}) requested de-verification of user {target} ({targetID})", ctx.Message.Author.Username, ctx.Message.Author.Id, member.Username, member.Id);
+            m_Logger.LogInformation("Moderator {username} ({id}) requested de-verification of user {target} ({targetID})", ctx.Message.Author?.Username ?? "Unknown Moderator", ctx.Message.Author?.Id, member.Username, member.Id);
 
             if (!await m_Verifier.RemoveUserVerificationAsync(member))
             {
@@ -90,12 +90,12 @@ namespace ChickenBot.VerificationSystem.Commands
                 .WithDescription($"De-verified {member.Mention}")
                 .AddField("Message Threshold", $"{newThreshold}", true)
                 .AddField("Verify Eligible: ", $"<t:{eligibleTimestamp}:R>", true)
-                .WithFooter($"Requested by {ctx.Message.Author.Username}");
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
             await ctx.RespondAsync(embed);
         }
 
-        [Command("SetVerificationMultiplier"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("SetVerificationMultiplier"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task SetVerificationRequirements(CommandContext ctx)
         {
             var message = new DiscordEmbedBuilder()
@@ -107,7 +107,7 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync(message);
         }
 
-        [Command("SetVerificationMultiplier"), RequirePermissions(Permissions.ManageMessages)]
+        [Command("SetVerificationMultiplier"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task SetVerificationRequirements(CommandContext ctx, DiscordMember member, float multiplier)
         {
             if (ctx.Member is null)
@@ -141,7 +141,7 @@ namespace ChickenBot.VerificationSystem.Commands
                 .WithDescription($"User: {member.Mention}")
                 .AddField("Message Threshold", $"{newThreshold}", true)
                 .AddField("Verify Eligible: ", $"<t:{eligibleTimestamp}:R>", true)
-                .WithFooter($"Requested by {ctx.Message.Author.Username}")
+                .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}")
                 .WithColor(DiscordColor.Red);
 
             message.AddEmbed(embed);

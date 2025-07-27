@@ -115,7 +115,7 @@ namespace ChickenBot.AssignableRoles
 			}
 
 			// Create the new role
-			var guildRole = member.Guild.GetRole(role.Id);
+			var guildRole = await member.Guild.GetRoleAsync(role.Id);
 
 			AssignableRole newRole = new AssignableRole
 			{

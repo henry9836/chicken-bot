@@ -64,7 +64,7 @@ namespace ChickenBot.SweetDreams
 
             m_Logger.LogWarning("4");
             // Only continue if furi is online
-            if (!discordMember.Presence.Status.Equals(UserStatus.Online))
+            if (!discordMember.Presence.Status.Equals(DiscordUserStatus.Online))
             {
                 return;
             }
@@ -76,7 +76,7 @@ namespace ChickenBot.SweetDreams
             if (Coin >= 75)
             {
                 // Assign the vc channel into null with causes a kick
-                await discordMember.ModifyAsync(model => model.VoiceChannel = null);
+                await discordMember.ModifyAsync(model => model.VoiceChannel = Optional.FromNoValue<DiscordChannel>());
             }
 
             await ctx.Channel.SendMessageAsync(

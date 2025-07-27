@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using ChickenBot.Core.Attributes;
+using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -44,7 +45,7 @@ namespace ChickenBot.Core.Models
 		{
 			var hostedServices = m_Provider.GetServices<IHostedService>();
 
-			foreach (var service in hostedServices)
+            foreach (var service in hostedServices)
 			{
 				if (!IsRoot && service.GetType().GetCustomAttribute<RootServiceAttribute>() != null)
 				{

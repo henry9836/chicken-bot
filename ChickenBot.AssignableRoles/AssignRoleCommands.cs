@@ -3,7 +3,6 @@ using ChickenBot.API;
 using ChickenBot.API.Attributes;
 using ChickenBot.AssignableRoles.Interfaces;
 using ChickenBot.AssignableRoles.Models;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -63,7 +62,7 @@ namespace ChickenBot.AssignableRoles
         }
 
         [Command("add-role"), Description("Gives you a self-assignable role"), RequireBotSpam]
-        [RequireBotPermissions(Permissions.ManageRoles)]
+        [RequireBotPermissions(false, DiscordPermission.ManageRoles)]
         public async Task AddRoleCommand(CommandContext ctx, [RemainingText] string role)
         {
             if (ctx.User is not DiscordMember member)
@@ -82,7 +81,7 @@ namespace ChickenBot.AssignableRoles
             {
                 var message = new DiscordMessageBuilder()
                 .WithContent("No self-assignable role with that name")
-                .WithEmbed(CreateRolesEmbed(roles, ctx.User));
+                .AddEmbed(CreateRolesEmbed(roles, ctx.User));
                 await ctx.RespondAsync(message);
                 return;
             }
@@ -94,7 +93,7 @@ namespace ChickenBot.AssignableRoles
                 {
                     var message = new DiscordMessageBuilder()
                         .WithContent($"Multiple matching role names: {string.Join(", ", matchingRoles.Select(x => x.RoleName))}")
-                        .WithEmbed(CreateRolesEmbed(roles, ctx.User));
+                        .AddEmbed(CreateRolesEmbed(roles, ctx.User));
                     await ctx.RespondAsync(message);
                     return;
                 }
@@ -130,7 +129,7 @@ namespace ChickenBot.AssignableRoles
         }
 
         [Command("remove-role"), Description("Removes a self-assignable role"), RequireBotSpam]
-        [RequireBotPermissions(Permissions.ManageRoles)]
+        [RequireBotPermissions(false, DiscordPermission.ManageRoles)]
         public async Task RemoveRoleCommand(CommandContext ctx, [RemainingText] string role)
         {
             if (ctx.User is not DiscordMember member)
@@ -147,7 +146,7 @@ namespace ChickenBot.AssignableRoles
             {
                 var message = new DiscordMessageBuilder()
                     .WithContent("No self-assignable role with that name")
-                    .WithEmbed(CreateRolesEmbed(roles, ctx.User));
+                    .AddEmbed(CreateRolesEmbed(roles, ctx.User));
                 await ctx.RespondAsync(message);
                 return;
             }

@@ -24,7 +24,7 @@ do
         echo
         dotnet clean ./ChickenBot.sln
         dotnet build ./ChickenBot.sln
-
+        
         # Start the bot
         echo
         echo
