@@ -1,7 +1,6 @@
 #!/bin/bash
 while true
 do
-
         # Update from git
         echo
         echo
@@ -35,14 +34,14 @@ do
         mv ../../../../../ChickenBot.FlagGame/bin/Debug/net8.0/ChickenBot.FlagGame.dll ./
         mv ../../../../../ChickenBot.Fun/bin/Debug/net8.0/ChickenBot.Fun.dll ./
         mv ../../../../../ChickenBot.Info/bin/Debug/net8.0/ChickenBot.Info.dll ./
-mv ../../../../../ChickenBot.Minesweeper/bin/Debug/net8.0/ChickenBot.Minesweeper.dll ./
-mv ../../../../../ChickenBot.Music/bin/Debug/net8.0/ChickenBot.Music.dll ./
-mv ../../../../../ChickenBot.Petitions/bin/Debug/net8.0/ChickenBot.Petitions.dll ./
-mv ../../../../../ChickenBot.SweetDreams/bin/Debug/net8.0/ChickenBot.SweetDreams.dll ./
-mv ../../../../../ChickenBot.Quotes/bin/Debug/net8.0/ChickenBot.Quotes.dll ./
-mv ../../../../../ChickenBot.ReverseSearch/bin/Debug/net8.0/ChickenBot.ReverseSearch.dll ./
-mv ../../../../../ChickenBot.VerificationSystem/bin/Debug/net8.0/ChickenBot.VerificationSystem.dll ./
-popd
+        mv ../../../../../ChickenBot.Minesweeper/bin/Debug/net8.0/ChickenBot.Minesweeper.dll ./
+        mv ../../../../../ChickenBot.Music/bin/Debug/net8.0/ChickenBot.Music.dll ./
+        mv ../../../../../ChickenBot.Petitions/bin/Debug/net8.0/ChickenBot.Petitions.dll ./
+        mv ../../../../../ChickenBot.SweetDreams/bin/Debug/net8.0/ChickenBot.SweetDreams.dll ./
+        mv ../../../../../ChickenBot.Quotes/bin/Debug/net8.0/ChickenBot.Quotes.dll ./
+        mv ../../../../../ChickenBot.ReverseSearch/bin/Debug/net8.0/ChickenBot.ReverseSearch.dll ./
+        mv ../../../../../ChickenBot.VerificationSystem/bin/Debug/net8.0/ChickenBot.VerificationSystem.dll ./
+        popd
 
         echo
         echo
