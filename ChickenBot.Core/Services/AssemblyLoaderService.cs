@@ -61,7 +61,7 @@ namespace ChickenBot.Core.Services
 
             if (root.TryGetValue("selection_root", out var selRoot))
             {
-                selectionRoot = Path.GetFullPath(selRoot);
+                selectionRoot = Path.GetFullPath(selRoot.ToPlatformSpecificPath());
             }
 
             foreach (var (pluginName, pluginConfig) in config)
@@ -128,8 +128,12 @@ namespace ChickenBot.Core.Services
                 return;
             }
 
+            pluginDir = pluginDir.ToPlatformSpecificPath();
+
             var loadDependencies = config.Bool("load_dependencies", false);
             var directory = Path.IsPathFullyQualified(pluginDir) ? pluginDir : Path.Combine(selectionRoot, pluginDir);
+
+
 
             m_Logger.LogInformation("Loading plugin: {plugin}...", pluginName);
 
