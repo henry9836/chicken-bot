@@ -3,7 +3,7 @@
     "ChickenBot": {
       "commandName": "Project",
       "environmentVariables": {
-        "chicken_plugin_config": "plugins.cfg"
+        "chicken_plugin_config": "staging.plugins.cfg"
       }
     }
   }
