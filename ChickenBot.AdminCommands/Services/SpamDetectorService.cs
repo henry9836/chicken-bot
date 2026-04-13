@@ -16,7 +16,8 @@ namespace ChickenBot.AdminCommands.Services
         private readonly DiscordClient m_Discord;
         private readonly ILogger<SpamDetectorService> m_Logger;
         private readonly IConfiguration m_Configuration;
-        private readonly Regex m_DiscordInvite = new Regex(@"discord\.gg\/[a-zA-Z0-9]+");
+        private readonly Regex m_DiscordInvite1 = new Regex(@"discord\.gg\/[a-zA-Z0-9]+");
+        private readonly Regex m_DiscordInvite2 = new Regex(@"discordapp\.com\/invite\/[a-zA-Z0-9]+");
         private readonly List<SuspiciousMessage> m_Messages = new List<SuspiciousMessage>();
         private readonly List<(ulong userID, DateTime active)> m_ActiveEnforcements = new List<(ulong userID, DateTime active)>();
 
@@ -264,7 +265,12 @@ namespace ChickenBot.AdminCommands.Services
             }
 
             var content = args.Message.Content;
-            var match = m_DiscordInvite.Match(content);
+            var match = m_DiscordInvite1.Match(content);
+
+            if (!match.Success)
+            {
+                match = m_DiscordInvite2.Match(content);
+            }
 
             var attemptedPing = content.Contains("@everyone") || content.Contains("@here");
 
