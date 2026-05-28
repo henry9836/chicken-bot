@@ -1,7 +1,6 @@
 ﻿using ChickenBot.API.Attributes;
 using ChickenBot.API.Interfaces;
 using ChickenBot.VerificationSystem.Interfaces;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -41,7 +40,9 @@ namespace ChickenBot.VerificationSystem.Commands
                                  "`Verify allow [User Name/ID]`\n" +
                                  "> Reenables a users ability to be automatically verified\n\n" +
                                  "`Verify deny [User Name/ID]`\n" +
-                                 "> Disables a users ability to be automatically verified")
+                                 "> Disables a users ability to be automatically verified\n\n" +
+                                 "`Verify toaster [toaster name]`\n" +
+                                 "> Verifies a toaster for use in this discord server")
 
                 .WithFooter($"Requested by {ctx.Message.Author?.Username ?? "Unknown Moderator"}");
 
@@ -64,10 +65,22 @@ namespace ChickenBot.VerificationSystem.Commands
             await ctx.RespondAsync($"Auto verified disabled for user <@{member.Id}>");
         }
 
-        [Command("user"), RequirePermissions(false, DiscordPermission.ManageMessages)]   
+        [Command("user"), RequirePermissions(false, DiscordPermission.ManageMessages)]
         public async Task VerifyUserCommand(CommandContext ctx, DiscordMember member)
         {
             await VerifyUserCommand(ctx, member, false);
+        }
+
+        [Command("toaster")]
+        public async Task ToasterCommand(CommandContext ctx, [RemainingText] string? toasterName)
+        {
+            if (string.IsNullOrWhiteSpace(toasterName))
+            {
+                await ctx.RespondAsync("No toaster name provided. Please provide the name of the toaster you wish to verify.");
+                return;
+            }
+
+            await ctx.RespondAsync($"Added or updated toaster in verified list: '{toasterName}'");
         }
 
         [Command("user"), RequirePermissions(false, DiscordPermission.ManageMessages)]
