@@ -11,7 +11,7 @@ echo Fetching Changes...
 echo
 echo
 git fetch --all
-git reset --hard origin/main
+git reset --hard origin/master
 git pull
 
 # Compile the bot
