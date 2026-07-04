@@ -87,5 +87,13 @@ namespace ChickenBot.TicketingSystem.Commands
 
             await m_TicketManager.DoTicketReopen(ticket);
         }
+
+        [Command("Init"), RequireBotManager]
+        public async Task Init(CommandContext ctx)
+        {
+            await ctx.RespondAsync("Running ticket system init...");
+            await m_TicketManager.InitTicketSystem();
+            await ctx.RespondAsync("Ticketing system init completed. Check console for details.");
+        }
     }
 }

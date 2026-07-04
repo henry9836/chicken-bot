@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
 using ChickenBot.API.Attributes;
+using ChickenBot.API.Interfaces;
 using ChickenBot.TicketingSystem.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -23,6 +24,7 @@ namespace ChickenBot.TicketingSystem.Services
         private readonly DiscordClient m_Discord;
         private readonly ILoggerFactory m_LoggerFactory;
         private readonly DiscordWebhookClient m_WebhooksClient;
+        private readonly IConfigEditor m_ConfigEditor;
 
         private ulong m_TicketChannel = 0;
 
@@ -32,13 +34,14 @@ namespace ChickenBot.TicketingSystem.Services
 
         private readonly ConcurrentDictionary<ulong, DateTime> m_ClosedWarningsCooldown = new();
 
-        public TicketManager(IConfiguration configuration, TicketDatabase database, DiscordClient client, ILogger<TicketManager> logger, ILoggerFactory loggerFactory)
+        public TicketManager(IConfiguration configuration, TicketDatabase database, DiscordClient client, ILogger<TicketManager> logger, ILoggerFactory loggerFactory, IConfigEditor configEditor)
         {
             m_Configuration = configuration;
             m_Database = database;
             m_Discord = client;
             m_Logger = logger;
             m_LoggerFactory = loggerFactory;
+            m_ConfigEditor = configEditor;
 
             m_WebhooksClient = new DiscordWebhookClient(loggerFactory: loggerFactory);
         }
@@ -355,6 +358,46 @@ namespace ChickenBot.TicketingSystem.Services
             userMessage.WithContent(sb.ToString());
 
             await m_Webhook.ExecuteAsync(userMessage);
+        }
+
+        public async Task InitTicketSystem()
+        {
+            try
+            {
+                if (m_HomeGuild is null)
+                {
+                    m_HomeGuild = await m_Discord.GetGuildAsync(m_Configuration.GetSection("GuildID").Get<ulong>());
+                }
+
+                var channel = await m_HomeGuild.GetChannelAsync(TicketsChannelID);
+
+                if (channel is not DiscordForumChannel ticketsChannel)
+                {
+                    m_Logger.LogError("Configured channel '{channel}' is not a forums channel!", channel.Name);
+                    throw new Exception();
+                }
+
+                var webhooks = await ticketsChannel.GetWebhooksAsync();
+                var webhook = webhooks.FirstOrDefault();
+
+                string webhookUrl;
+
+                if (webhook is not null)
+                {
+                    webhookUrl = webhook.Url;
+                }
+                else
+                {
+                    var newWebhook = await ticketsChannel.CreateWebhookAsync("TicketingSystem");
+                    webhookUrl = newWebhook.Url;
+                }
+
+                await m_ConfigEditor.UpdateValueAsync("Tickets:WebhookUrl", webhookUrl);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Error initializing ticket system: ");
+            }
         }
     }
 }
