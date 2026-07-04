@@ -57,9 +57,9 @@ namespace ChickenBot.TicketingSystem.Services
 
                 await dmChannel.SendMessageAsync(userMessage);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Suppress errors due to user not being found, or them blocking the bot
+                m_Logger.LogWarning(ex, "Failed to send ticket closed message to user {UserID}. Did they leave or block the bot?", ticket);
             }
 
             try
@@ -111,7 +111,7 @@ namespace ChickenBot.TicketingSystem.Services
 
             if (args.Channel.ParentId == TicketsChannelID)
             {
-                if (args.Message.Content.StartsWith('!'))
+                if (args.Message.Content.StartsWith('!') || args.Message.Content.StartsWith('>'))
                 {
                     return;
                 }

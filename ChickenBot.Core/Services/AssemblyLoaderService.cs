@@ -59,9 +59,9 @@ namespace ChickenBot.Core.Services
 
             var selectionRoot = Environment.CurrentDirectory;
 
-            if (root.TryGetValue("selection_root", out var selRoot))
+            if (root.TryGetValue("selection_root", out var selectionRootKey))
             {
-                selectionRoot = Path.GetFullPath(selRoot);
+                selectionRoot = Path.GetFullPath(LocalizePath(selectionRootKey));
             }
 
             foreach (var (pluginName, pluginConfig) in config)
@@ -127,6 +127,8 @@ namespace ChickenBot.Core.Services
                 m_Logger.LogWarning("Invalid plugin config {config}; missing 'directory' option", pluginName);
                 return;
             }
+
+            pluginDir = LocalizePath(pluginDir);
 
             var loadDependencies = config.Bool("load_dependencies", false);
             var directory = Path.IsPathFullyQualified(pluginDir) ? pluginDir : Path.Combine(selectionRoot, pluginDir);
@@ -213,6 +215,13 @@ namespace ChickenBot.Core.Services
             AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
 
             return Task.CompletedTask;
+        }
+
+        private static string LocalizePath(string path)
+        {
+            return path
+                .Replace('\\', Path.DirectorySeparatorChar)
+                .Replace('/', Path.DirectorySeparatorChar);
         }
     }
 }
