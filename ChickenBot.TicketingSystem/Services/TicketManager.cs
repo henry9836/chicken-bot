@@ -197,7 +197,7 @@ namespace ChickenBot.TicketingSystem.Services
             {
                 if (m_ClosedWarningsCooldown.TryGetValue(args.Channel.Id, out var expires))
                 {
-                    if (expires < DateTime.UtcNow)
+                    if (expires > DateTime.UtcNow)
                     {
                         return;
                     }
