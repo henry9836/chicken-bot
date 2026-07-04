@@ -11,6 +11,7 @@ echo Fetching Changes...
 echo
 echo
 git fetch --all
+git reset --hard origin/master
 git pull
 
 # Compile the bot
@@ -30,9 +31,14 @@ echo Starting bot...
 echo
 echo
 pushd ChickenBot/bin/Debug/net9.0/
+
+# Restore backup
+cp ../../../../../config.json.runtime.bak config.json
+
+# Run bot
 ./ChickenBot
 
-# Backup to tmp
+# Backup runtime config
 cp config.json ../../../../../config.json.runtime.bak
 
 #Reset
