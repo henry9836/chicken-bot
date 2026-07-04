@@ -154,6 +154,18 @@ namespace ChickenBot.TicketingSystem.Models
             await command.ExecuteNonQueryAsync();
         }
 
+        public async Task PurgeDatabaseSystem()
+        {
+            using var connection = await m_Context.GetConnectionAsync();
+            using var command = connection.CreateCommand();
+
+            command.CommandText = "DROP TABLE `tickets`;";
+
+            await command.ExecuteNonQueryAsync();
+
+            await CheckSchemaAsync();
+        }
+
         #region "Internal APIs"
         private async IAsyncEnumerable<Ticket> ReadTickets(MySqlDataReader dataReader)
         {
