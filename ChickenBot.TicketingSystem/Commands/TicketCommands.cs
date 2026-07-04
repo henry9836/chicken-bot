@@ -99,15 +99,16 @@ namespace ChickenBot.TicketingSystem.Commands
         [Command("Purge-System"), RequireBotManager]
         public async Task PurgeCommand(CommandContext ctx, [RemainingText] string? value)
         {
-            if (value != "'Yes, I am very sure I want to run this command, and know that it will nuke the ticketing database, and all current tickets will be lost'")
-            {
-                await ctx.RespondAsync("You didn't say the secret phrase, so you mustn't know what this command does.");
-                return;
-            }
+            await ctx.RespondAsync("This command has been purposely disabled in the source code.");
+            //if (value != "'Yes, I am very sure I want to run this command, and know that it will nuke the ticketing database, and all current tickets will be lost'")
+            //{
+            //    await ctx.RespondAsync("You didn't say the secret phrase, so you mustn't know what this command does.");
+            //    return;
+            //}
 
-            await m_Database.PurgeDatabaseSystem();
+            //await m_Database.PurgeDatabaseSystem();
 
-            await ctx.RespondAsync("Ticket database purged.");
+            //await ctx.RespondAsync("Ticket database purged.");
         }
     }
 }
