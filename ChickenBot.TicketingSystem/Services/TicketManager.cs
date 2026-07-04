@@ -201,8 +201,8 @@ namespace ChickenBot.TicketingSystem.Services
                     {
                         return;
                     }
-                    m_ClosedWarningsCooldown[args.Channel.Id] = DateTime.UtcNow.AddHours(2);
                 }
+                m_ClosedWarningsCooldown[args.Channel.Id] = DateTime.UtcNow.AddHours(2);
 
                 await args.Message.RespondAsync("Your message was undelivered because this ticket has already been closed.\nYou can reopen the ticket with `!ticket reopen`");
                 return;
