@@ -23,7 +23,7 @@ namespace ChickenBot.TicketingSystem.Services
             m_Database = database;
             m_Tickets = tickets;
 
-            m_Timer = new Timer(TimeSpan.FromMinutes(10));
+            m_Timer = new Timer(TimeSpan.FromSeconds(30));
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

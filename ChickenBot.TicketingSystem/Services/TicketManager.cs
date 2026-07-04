@@ -96,9 +96,64 @@ namespace ChickenBot.TicketingSystem.Services
                     });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Suppress errors due to the thread being archived, or deleted
+                m_Logger.LogWarning(ex, "Failed to update ticket thread on closure: ");
+            }
+        }
+
+        public async Task DoTicketReopen(Ticket ticket)
+        {
+            try
+            {
+                var user = await m_Discord.GetUserAsync(ticket.UserID);
+                var userMessage = new DiscordEmbedBuilder()
+                    .WithTitle($"Ticket #{ticket.ID} Reopened")
+                    .WithDescription("A moderator reopened your ticket")
+                    .WithColor(DiscordColor.Green);
+
+                var dmChannel = await user.CreateDmChannelAsync();
+
+                await dmChannel.SendMessageAsync(userMessage);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogWarning(ex, "Failed to send ticket reopened message to user {UserID}. Did they leave or block the bot?", ticket);
+            }
+
+            try
+            {
+                if (m_HomeGuild is null)
+                {
+                    m_HomeGuild = await m_Discord.GetGuildAsync(m_Configuration.GetSection("GuildID").Get<ulong>());
+                }
+
+                var channel = await m_HomeGuild.GetChannelAsync(TicketsChannelID);
+
+                if (channel is not DiscordForumChannel ticketsChannel)
+                {
+                    m_Logger.LogError("Configured channel '{channel}' is not a forums channel!", channel.Name);
+                    throw new Exception();
+                }
+
+                var thread = ticketsChannel.Threads.FirstOrDefault(x => x.Id == ticket.ThreadID);
+
+                if (thread is not null)
+                {
+                    var openTags = ticketsChannel.AvailableTags.Where(x => x.Name == "Open").Select(x => x.Id);
+                    await thread.ModifyAsync(x =>
+                    {
+                        x.AppliedTags = openTags;
+                    });
+
+                    await thread.SendMessageAsync(new DiscordEmbedBuilder()
+                        .WithTitle("Ticket Reopened")
+                        .WithDescription("This ticket has been reopened. Any messages sent here will be forwarded to the user."));
+                }
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogWarning(ex, "Failed to update ticket thread on reopening: ");
             }
         }
 
@@ -236,7 +291,6 @@ namespace ChickenBot.TicketingSystem.Services
                         .AddField("User", args.Author.Mention, true)
                         .AddField("Created", $"<t:{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}:R>", true)
                         .AddField("Username", args.Author.Username, true)
-                        .AddField("Options", $"[`[DM User]`](<https://discordapp.com/channels/@me/{args.Message.Channel!.Id}>)")
                         .WithThumbnail(args.Author.AvatarUrl)
                  ));
 

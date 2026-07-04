@@ -87,8 +87,7 @@ namespace ChickenBot.TicketingSystem.Models
             using var command = connection.CreateCommand();
 
             var expireCutOff = DateTime.UtcNow.Subtract(TimeSpan.FromDays(3));
-
-            command.CommandText = "SELECT * FROM `tickets` WHERE IsOpen='true' AND LastActive < @CutOff;";
+            command.CommandText = "SELECT * FROM `tickets` WHERE Closed IS NULL AND LastActive < @CutOff;";
 
             command.Parameters.AddWithValue("@CutOff", expireCutOff);
 
