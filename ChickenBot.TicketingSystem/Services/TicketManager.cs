@@ -34,6 +34,11 @@ namespace ChickenBot.TicketingSystem.Services
 
         private readonly ConcurrentDictionary<ulong, DateTime> m_ClosedWarningsCooldown = new();
 
+        /// <summary>
+        /// Maps webhook message IDs to DM message IDs
+        /// </summary>
+        private readonly ConcurrentDictionary<ulong, ulong> m_MessageMap = new ConcurrentDictionary<ulong, ulong>();
+
         public TicketManager(IConfiguration configuration, TicketDatabase database, DiscordClient client, ILogger<TicketManager> logger, ILoggerFactory loggerFactory, IConfigEditor configEditor)
         {
             m_Configuration = configuration;
@@ -234,7 +239,12 @@ namespace ChickenBot.TicketingSystem.Services
                 var message = new DiscordMessageBuilder()
                     .WithContent(sb.ToString());
 
-                await targetChannel.SendMessageAsync(message);
+                if (args.Message.ReferencedMessage is not null && m_MessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out var replyTo))
+                {
+                    message.WithReply(replyTo, false, false);
+                }
+
+                var sendMessage = await targetChannel.SendMessageAsync(message);
             }
             catch (Exception ex)
             {
@@ -384,7 +394,8 @@ namespace ChickenBot.TicketingSystem.Services
 
             try
             {
-                await m_Webhook.ExecuteAsync(userMessage);
+                var sentMessage = await m_Webhook.ExecuteAsync(userMessage);
+                m_MessageMap[sentMessage.Id] = args.Message.Id;
             }
             catch (Exception ex)
             {
