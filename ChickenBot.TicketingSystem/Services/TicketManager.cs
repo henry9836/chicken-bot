@@ -34,10 +34,10 @@ namespace ChickenBot.TicketingSystem.Services
 
         private readonly ConcurrentDictionary<ulong, DateTime> m_ClosedWarningsCooldown = new();
 
-        /// <summary>
-        /// Maps webhook message IDs to DM message IDs
-        /// </summary>
-        private readonly ConcurrentDictionary<ulong, ulong> m_MessageMap = new ConcurrentDictionary<ulong, ulong>();
+        private readonly ConcurrentDictionary<ulong, ulong> m_WebhookMessageMap = new ConcurrentDictionary<ulong, ulong>();
+        private readonly ConcurrentDictionary<ulong, ulong> m_TicketMessageMap = new ConcurrentDictionary<ulong, ulong>();
+
+        private ulong m_HomeGuildID => m_Configuration.GetSection("GuildID").Get<ulong>();
 
         public TicketManager(IConfiguration configuration, TicketDatabase database, DiscordClient client, ILogger<TicketManager> logger, ILoggerFactory loggerFactory, IConfigEditor configEditor)
         {
@@ -239,12 +239,15 @@ namespace ChickenBot.TicketingSystem.Services
                 var message = new DiscordMessageBuilder()
                     .WithContent(sb.ToString());
 
-                if (args.Message.ReferencedMessage is not null && m_MessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out var replyTo))
+                if (args.Message.ReferencedMessage is not null && (m_WebhookMessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out var replyTo)
+                    || m_TicketMessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out replyTo)))
                 {
                     message.WithReply(replyTo, false, false);
                 }
 
                 var sendMessage = await targetChannel.SendMessageAsync(message);
+                m_TicketMessageMap[sendMessage.Id] = args.Message.Id;
+                m_TicketMessageMap[args.Message.Id] = sendMessage.Id;
             }
             catch (Exception ex)
             {
@@ -379,6 +382,14 @@ namespace ChickenBot.TicketingSystem.Services
                 .WithThreadId(ticket.ThreadID);
 
             var sb = new StringBuilder();
+
+            if (args.Message.ReferencedMessage is not null &&
+                (m_TicketMessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out var refMessageID)
+                || m_WebhookMessageMap.TryGetValue(args.Message.ReferencedMessage.Id, out refMessageID)))
+            {
+                sb.AppendLine($"-# > https://discord.com/channels/{m_HomeGuildID}/{ticket.ThreadID}/{refMessageID}");
+            }
+
             sb.AppendLine(args.Message.Content);
 
             if (args.Message.Attachments.Any())
@@ -395,7 +406,8 @@ namespace ChickenBot.TicketingSystem.Services
             try
             {
                 var sentMessage = await m_Webhook.ExecuteAsync(userMessage);
-                m_MessageMap[sentMessage.Id] = args.Message.Id;
+                m_WebhookMessageMap[sentMessage.Id] = args.Message.Id;
+                m_WebhookMessageMap[args.Message.Id] = sentMessage.Id;
             }
             catch (Exception ex)
             {
