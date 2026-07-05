@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace ChickenBot.TicketingSystem.Services
 {
     [Singleton]
-    public class TicketManager : IEventHandler<MessageCreatedEventArgs>
+    public class TicketManager : IEventHandler<MessageCreatedEventArgs>, IEventHandler<ThreadDeletedEventArgs>
     {
         public ulong TicketsChannelID => m_Configuration.GetSection("Channels:tickets").Get<ulong>();
 
@@ -184,13 +184,13 @@ namespace ChickenBot.TicketingSystem.Services
             }
         }
 
-        private async Task HandleTicketsMessage(MessageCreatedEventArgs args)
+        private async Task<bool> HandleTicketsMessage(MessageCreatedEventArgs args)
         {
             var ticket = await m_Database.GetTicketByThread(args.Channel.Id);
 
             if (ticket == null)
             {
-                return;
+                return true;
             }
 
             if (ticket.Closed is not null)
@@ -199,41 +199,52 @@ namespace ChickenBot.TicketingSystem.Services
                 {
                     if (expires > DateTime.UtcNow)
                     {
-                        return;
+                        return true;
                     }
                 }
                 m_ClosedWarningsCooldown[args.Channel.Id] = DateTime.UtcNow.AddHours(2);
 
                 await args.Message.RespondAsync("Your message was undelivered because this ticket has already been closed.\nYou can reopen the ticket with `!ticket reopen`");
-                return;
+                return true;
             }
 
-            var targetUser = await m_Discord.GetUserAsync(ticket.UserID);
-
-            var targetChannel = await targetUser.CreateDmChannelAsync();
-
-            var sb = new StringBuilder();
-
-            sb.Append(args.Message.Content);
-
-            if (args.Message.Attachments.Any())
+            try
             {
-                sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine();
 
-                foreach (var attachment in args.Message.Attachments)
+                var targetUser = await m_Discord.GetUserAsync(ticket.UserID);
+
+                var targetChannel = await targetUser.CreateDmChannelAsync();
+
+                var sb = new StringBuilder();
+
+                sb.Append(args.Message.Content);
+
+                if (args.Message.Attachments.Any())
                 {
-                    sb.AppendLine(attachment.Url);
+                    sb.AppendLine();
+                    sb.AppendLine();
+                    sb.AppendLine();
+
+                    foreach (var attachment in args.Message.Attachments)
+                    {
+                        sb.AppendLine(attachment.Url);
+                    }
                 }
+
+                var message = new DiscordMessageBuilder()
+                    .WithContent(sb.ToString());
+
+                await targetChannel.SendMessageAsync(message);
             }
-
-            var message = new DiscordMessageBuilder()
-                .WithContent(sb.ToString());
-
-            await targetChannel.SendMessageAsync(message);
+            catch (Exception ex)
+            {
+                m_Logger.LogWarning(ex, "Failed to forward ticket message to user");
+                await args.Message.RespondAsync("Failed to forward message to user. Did they block the bot?\nYou can close this ticket with `!ticket close`");
+                return false;
+            }
 
             await m_Database.MarkTicketActive(ticket.ID);
+            return true;
         }
 
         private async Task HandleDMMessage(MessageCreatedEventArgs args)
@@ -252,7 +263,21 @@ namespace ChickenBot.TicketingSystem.Services
                 }
             }
 
-            await ForwardDMMessage(args, ticket);
+            if (!await ForwardDMMessage(args, ticket))
+            {
+                m_Logger.LogWarning("DM message forwarding failed! Marking ticket as closed.");
+                await m_Database.CloseTicket(ticket, 0);
+                try
+                {
+                    await args.Message.RespondAsync("Something went wrong while trying to add your message to the ticket. The ticket has been automatically closed. You can re-send your message to open a new ticket.");
+                }
+                catch (Exception ex)
+                {
+                    m_Logger.LogWarning(ex, "Failed to send ticket closure message to user. Did they leave the server or block the bot?");
+                }
+
+                return;
+            }
 
             if (!newTicket)
             {
@@ -318,7 +343,7 @@ namespace ChickenBot.TicketingSystem.Services
             return ticket;
         }
 
-        private async Task ForwardDMMessage(MessageCreatedEventArgs args, Ticket ticket)
+        private async Task<bool> ForwardDMMessage(MessageCreatedEventArgs args, Ticket ticket)
         {
             try
             {
@@ -357,7 +382,16 @@ namespace ChickenBot.TicketingSystem.Services
 
             userMessage.WithContent(sb.ToString());
 
-            await m_Webhook.ExecuteAsync(userMessage);
+            try
+            {
+                await m_Webhook.ExecuteAsync(userMessage);
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogWarning(ex, "Failed to dispatch DM message to ticket channel. Was it deleted?");
+                return false;
+            }
+            return true;
         }
 
         public async Task InitTicketSystem()
@@ -397,6 +431,42 @@ namespace ChickenBot.TicketingSystem.Services
             catch (Exception ex)
             {
                 m_Logger.LogError(ex, "Error initializing ticket system: ");
+            }
+        }
+
+        public async Task HandleEventAsync(DiscordClient sender, ThreadDeletedEventArgs eventArgs)
+        {
+            var ticket = await m_Database.GetTicketByThread(eventArgs.Thread.Id);
+
+            if (ticket == null)
+            {
+                return;
+            }
+
+            if (ticket.Closed is not null)
+            {
+                return;
+            }
+
+            await m_Database.CloseTicket(ticket, 0);
+
+            try
+            {
+
+                var targetUser = await m_Discord.GetUserAsync(ticket.UserID);
+
+                var targetChannel = await targetUser.CreateDmChannelAsync();
+                var userMessage = new DiscordEmbedBuilder()
+                  .WithTitle("Ticket Closed")
+                  .WithDescription("A moderator has marked your ticket as closed")
+                  .WithColor(DiscordColor.Red);
+
+                await targetChannel.SendMessageAsync(userMessage);
+
+            }
+            catch (Exception ex)
+            {
+                m_Logger.LogError(ex, "Failed to send user ticket closure message after tickets thread was deleted");
             }
         }
     }
